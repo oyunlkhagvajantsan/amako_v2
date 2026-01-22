@@ -1,0 +1,231 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication and subscriptions
+model User {
+  id       String  @id @default(cuid())
+  email    String  @unique
+  name     String?
+  password String
+  role     Role    @default(USER)
+
+  // Subscription info
+  isSubscribed    Boolean   @default(false)
+  subscriptionEnd DateTime?
+
+  // Activity tracking
+  readHistory ReadHistory[]
+  comments    Comment[]
+  likes       Like[]
+  paymentRequests PaymentRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+// Manga model - main content
+model Manga {
+  id            Int     @id @default(autoincrement())
+  title         String
+  titleMn       String // Mongolian title
+  description   String? @db.Text
+  descriptionMn String? @db.Text
+
+  // Images
+  coverImage  String // Main cover image URL
+  bannerImage String? // Optional banner
+
+  // Metadata
+  author String?
+  artist String?
+  publishYear Int? // Year manga was published
+  status MangaStatus @default(ONGOING)
+  type   MangaType   @default(MANGA)
+
+  // Stats
+  viewCount Int @default(0)
+  likeCount Int @default(0)
+
+  // Relationships
+  chapters Chapter[]
+  genres   Genre[]
+  likes    Like[]
+  comments Comment[]
+
+  // Flags
+  featured    Boolean @default(false)
+  isPublished Boolean @default(false)
+  isAdult     Boolean @default(false) // 18+ content
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([viewCount])
+}
+
+enum MangaStatus {
+  ONGOING
+  COMPLETED
+  HIATUS
+}
+
+enum MangaType {
+  MANGA
+  MANHWA
+  MANHUA
+  ONESHOT
+}
+
+// Chapter model
+model Chapter {
+  id      Int    @id @default(autoincrement())
+  mangaId Int
+  manga   Manga  @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+
+  // Chapter info
+  chapterNumber Float // Allows for 1.5, 2.5 etc
+  title         String?
+  titleMn       String?
+
+  // Images - stored as JSON array of URLs
+  images String[] // Array of image URLs
+
+  // Access control
+  isFree Boolean @default(false) // First 1 chapter free
+  isPublished Boolean @default(false)
+
+  // Stats
+  viewCount Int @default(0)
+
+  // Tracking
+  readHistory ReadHistory[]
+
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([mangaId, chapterNumber])
+  @@index([mangaId])
+  @@index([publishedAt])
+}
+
+// Genre/Category model
+model Genre {
+  id     Int    @id @default(autoincrement())
+  name   String @unique
+  nameMn String @unique // Mongolian name
+  slug   String @unique
+
+  mangas Manga[]
+
+  createdAt DateTime @default(now())
+}
+
+// Read history tracking
+model ReadHistory {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  chapterId Int
+  chapter   Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  // Progress tracking
+  lastPage  Int     @default(0)
+  completed Boolean @default(false)
+
+  readAt    DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, chapterId])
+  @@index([userId])
+}
+
+// Likes/Favorites
+model Like {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  mangaId Int
+  manga   Manga  @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, mangaId])
+  @@index([userId])
+  @@index([mangaId])
+}
+
+// Comments
+model Comment {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  mangaId Int
+  manga   Manga  @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+
+  content String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([mangaId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// Subscription Payments
+model PaymentRequest {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount    Float
+  months    Int           @default(1)
+  imageUrl  String
+  status    PaymentStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([userId])
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model VerificationCode {
+  id        String           @id @default(cuid())
+  email     String
+  code      String
+  type      VerificationType @default(RESET_PASSWORD)
+  expiresAt DateTime
+  createdAt DateTime         @default(now())
+
+  @@index([email])
+}
+
+enum VerificationType {
+  RESET_PASSWORD
+  EMAIL_VERIFICATION
+}
