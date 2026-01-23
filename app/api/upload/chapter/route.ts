@@ -1,41 +1,94 @@
-import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
-import { NextResponse } from 'next/server';
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { NextRequest, NextResponse } from 'next/server';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { r2Client, R2_BUCKET_NAME, R2_PUBLIC_URL } from '@/lib/r2';
 
-export async function POST(request: Request): Promise<NextResponse> {
-    const body = (await request.json()) as HandleUploadBody;
-
+/**
+ * Chapter Image Upload API Route
+ * Now using Cloudflare R2 instead of Vercel Blob
+ * 
+ * Accepts: multipart/form-data OR JSON with clientPayload
+ * Returns: { url: string } - Public URL of uploaded image
+ */
+export async function POST(request: NextRequest): Promise<NextResponse> {
     try {
-        const jsonResponse = await handleUpload({
-            body,
-            request,
-            onBeforeGenerateToken: async (pathname) => {
-                // Check authentication
-                const session = await getServerSession(authOptions);
-                if (!session || session.user.role !== "ADMIN") {
-                    throw new Error('Unauthorized');
-                }
+        // Check authentication
+        const session = await getServerSession(authOptions);
+        console.log("Upload session check:", JSON.stringify(session, null, 2)); // DEBUG LOG
 
-                return {
-                    allowedContentTypes: ['image/jpeg', 'image/png', 'image/webp'],
-                    tokenPayload: JSON.stringify({
-                        userId: session.user.id,
-                    }),
-                    addRandomSuffix: true,
-                };
-            },
-            onUploadCompleted: async ({ blob, tokenPayload }) => {
-                // This is called on the server when the upload is finished.
-                console.log('blob upload completed', blob, tokenPayload);
-            },
-        });
+        if (!session || (session.user.role !== 'ADMIN' && session.user.role !== 'MODERATOR')) {
+            console.log("Unauthorized upload attempt. Role:", session?.user?.role);
+            return NextResponse.json(
+                { error: 'Unauthorized', role: session?.user?.role || 'none' },
+                { status: 401 }
+            );
+        }
 
-        return NextResponse.json(jsonResponse);
-    } catch (error) {
+        const contentType = request.headers.get('content-type');
+
+        // Handle multipart form data (direct file upload)
+        if (contentType?.includes('multipart/form-data')) {
+            const formData = await request.formData();
+            const file = formData.get('file') as File;
+
+            if (!file) {
+                return NextResponse.json(
+                    { error: 'No file provided' },
+                    { status: 400 }
+                );
+            }
+
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+            if (!allowedTypes.includes(file.type)) {
+                return NextResponse.json(
+                    { error: 'Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed.' },
+                    { status: 400 }
+                );
+            }
+
+            // Convert file to buffer
+            const buffer = Buffer.from(await file.arrayBuffer());
+
+            // Generate unique filename
+            const timestamp = Date.now();
+            const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+            const key = `chapters/${timestamp}-${sanitizedFilename}`;
+
+            // Upload to R2
+            const command = new PutObjectCommand({
+                Bucket: R2_BUCKET_NAME,
+                Key: key,
+                Body: buffer,
+                ContentType: file.type,
+                CacheControl: 'public, max-age=31536000, immutable',
+            });
+
+            await r2Client.send(command);
+
+            // Return public URL
+            const publicUrl = `${R2_PUBLIC_URL}/${key}`;
+
+            return NextResponse.json({ url: publicUrl });
+        }
+
+        // Handle JSON payload (for @vercel/blob client compatibility)
+        // This maintains backward compatibility with existing frontend code
+        const body = await request.json();
+
+        // For now, return error if using old blob client
+        // Frontend should be updated to use direct file upload
         return NextResponse.json(
-            { error: (error as Error).message },
-            { status: 400 },
+            { error: 'Please use multipart/form-data upload instead of blob client' },
+            { status: 400 }
+        );
+
+    } catch (error) {
+        console.error('Upload error:', error);
+        return NextResponse.json(
+            { error: 'Upload failed', details: error instanceof Error ? error.message : 'Unknown error' },
+            { status: 500 }
         );
     }
 }

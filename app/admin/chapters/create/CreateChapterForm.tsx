@@ -122,7 +122,6 @@ export default function CreateChapterForm({
         setError("");
 
         try {
-            const { upload } = await import('@vercel/blob/client');
             const imageUrls: string[] = new Array(selectedImages.length);
 
             // CONCURRENCY CONTROL: Process 3 uploads at a time
@@ -136,17 +135,15 @@ export default function CreateChapterForm({
                     if (!task) break;
 
                     const { file, index } = task;
-                    const currentNum = index + 1;
 
                     try {
-                        // stage: converting
+                        // Stage: converting
                         setUploadProgress({ current: completedCount + 1, total: selectedImages.length, stage: 'converting' });
 
                         let finalBlob: Blob = file;
                         let finalFileName = file.name;
 
                         // Force conversion to WebP even if already WebP (to resize and compress)
-                        // but only if it's an image
                         if (file.type.startsWith('image/')) {
                             try {
                                 const { blob: webpBlob, type: webpType } = await convertToWebP(file);
@@ -159,15 +156,25 @@ export default function CreateChapterForm({
                             }
                         }
 
-                        // stage: uploading
+                        // Stage: uploading to R2
                         setUploadProgress({ current: completedCount + 1, total: selectedImages.length, stage: 'uploading' });
 
-                        const blob = await upload(finalFileName, finalBlob, {
-                            access: 'public',
-                            handleUploadUrl: '/api/upload/chapter',
+                        // Create FormData for multipart upload
+                        const uploadFormData = new FormData();
+                        uploadFormData.append('file', finalBlob, finalFileName);
+
+                        const uploadRes = await fetch('/api/upload/chapter', {
+                            method: 'POST',
+                            body: uploadFormData,
                         });
 
-                        imageUrls[index] = blob.url;
+                        if (!uploadRes.ok) {
+                            const error = await uploadRes.json();
+                            throw new Error(error.error || 'Upload failed');
+                        }
+
+                        const { url } = await uploadRes.json();
+                        imageUrls[index] = url;
                         completedCount++;
                         setUploadProgress({ current: completedCount, total: selectedImages.length, stage: 'uploading' });
                     } catch (err) {
