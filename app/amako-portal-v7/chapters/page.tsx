@@ -34,8 +34,19 @@ async function toggleAccessStatus(formData: FormData) {
     revalidatePath("/amako-portal-v7/chapters");
 }
 
-export default async function ChaptersListPage() {
+import ChapterFilter from "./components/ChapterFilter";
+
+export default async function ChaptersListPage({
+    searchParams
+}: {
+    searchParams: Promise<{ mangaId?: string }>
+}) {
+    const { mangaId } = await searchParams;
+    const filterMangaId = mangaId ? parseInt(mangaId) : undefined;
+
+    // Fetch chapters with optional manga filtering
     const chapters = await prisma.chapter.findMany({
+        where: filterMangaId ? { mangaId: filterMangaId } : {},
         orderBy: { createdAt: "desc" },
         take: 50,
         include: {
@@ -46,6 +57,12 @@ export default async function ChaptersListPage() {
                 }
             }
         }
+    });
+
+    // Fetch all mangas for the filter dropdown
+    const mangas = await prisma.manga.findMany({
+        orderBy: { title: "asc" },
+        select: { id: true, title: true }
     });
 
     return (
@@ -59,6 +76,8 @@ export default async function ChaptersListPage() {
                     + Бүлэг нэмэх
                 </Link>
             </div>
+
+            <ChapterFilter mangas={mangas} />
 
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
