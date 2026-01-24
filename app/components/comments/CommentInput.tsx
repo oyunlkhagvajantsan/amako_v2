@@ -10,6 +10,7 @@ interface CommentInputProps {
     isReply?: boolean;
     onCancel?: () => void;
     isLoading?: boolean;
+    variant?: 'light' | 'dark';
 }
 
 export default function CommentInput({
@@ -18,12 +19,14 @@ export default function CommentInput({
     initialValue = "",
     isReply,
     onCancel,
-    isLoading: externalIsLoading
+    isLoading: externalIsLoading,
+    variant = 'light'
 }: CommentInputProps) {
     const [content, setContent] = useState(initialValue);
     const [internalIsLoading, setInternalIsLoading] = useState(false);
 
     const isLoading = externalIsLoading ?? internalIsLoading;
+    const isDark = variant === 'dark';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -47,7 +50,11 @@ export default function CommentInput({
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder={placeholder}
-                    className={`w-full bg-white border-2 border-gray-100 focus:border-[#d8454f] focus:ring-4 focus:ring-[#d8454f]/5 rounded-2xl p-4 pr-16 text-gray-900 placeholder-gray-400 resize-none transition-all duration-300 outline-none
+                    className={`w-full border-2 focus:ring-4 focus:ring-[#d8454f]/5 rounded-2xl p-4 pr-16 placeholder-gray-400 resize-none transition-all duration-300 outline-none
+                        ${isDark
+                            ? "bg-white/5 border-white/10 text-white focus:border-[#d8454f] focus:bg-white/10"
+                            : "bg-white border-gray-100 text-gray-900 focus:border-[#d8454f] focus:ring-4"
+                        }
                         ${isReply ? "text-sm min-h-[90px]" : "min-h-[120px] shadow-sm hover:border-gray-200 group-focus-within:shadow-md"}
                     `}
                 />
@@ -57,7 +64,7 @@ export default function CommentInput({
                     className={`absolute right-4 bottom-4 p-3 rounded-xl transition-all duration-300
                         ${content.trim() && !isLoading
                             ? "bg-[#d8454f] text-white shadow-lg shadow-red-500/20 hover:scale-105 active:scale-95 translate-y-0"
-                            : "bg-gray-100 text-gray-300 cursor-not-allowed"}
+                            : isDark ? "bg-white/5 text-gray-600 cursor-not-allowed" : "bg-gray-100 text-gray-300 cursor-not-allowed"}
                     `}
                 >
                     <Send size={isReply ? 18 : 20} className={isLoading ? "animate-pulse" : ""} />
@@ -68,7 +75,7 @@ export default function CommentInput({
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="text-gray-400 hover:text-gray-900 text-xs font-bold transition-colors px-4 py-2 hover:bg-gray-50 rounded-lg"
+                        className={`text-xs font-bold transition-colors px-4 py-2 rounded-lg ${isDark ? "text-gray-500 hover:text-white hover:bg-white/5" : "text-gray-400 hover:text-gray-900 hover:bg-gray-50"}`}
                     >
                         Цуцлах
                     </button>

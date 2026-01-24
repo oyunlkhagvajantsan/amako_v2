@@ -180,7 +180,7 @@ export default async function ChapterReaderPage({
 
                     {/* Comment Section (Chapter specific) */}
                     <div className="px-4 border-t border-gray-800/50 pt-4">
-                        <CommentSection mangaId={mangaId} chapterId={chapterId} />
+                        <CommentSection mangaId={mangaId} chapterId={chapterId} variant="dark" />
                     </div>
                 </div>
             )}
