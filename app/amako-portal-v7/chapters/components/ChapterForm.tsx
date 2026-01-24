@@ -151,40 +151,56 @@ export default function ChapterForm({
             const finalImageUrls: string[] = new Array(items.length);
 
             // 1. Process and Upload ONLY new files
-            const uploadTasks = items.map((item, index) => ({ item, index })).filter(t => !!t.item.file);
+            const uploadTasks = items
+                .map((item, index) => ({ item, index }))
+                .filter(t => !!t.item.file);
+
+            const totalTasks = uploadTasks.length;
             let completedUploads = 0;
 
-            if (uploadTasks.length > 0) {
+            if (totalTasks > 0) {
+                // Use a standard task queue to avoid race conditions and handle progress accurately
+                const queue = [...uploadTasks];
                 const CONCURRENCY = 3;
+
                 const runWorker = async () => {
-                    while (uploadTasks.length > 0) {
-                        const task = uploadTasks.shift();
+                    while (queue.length > 0) {
+                        const task = queue.shift();
                         if (!task) break;
 
                         const { item, index } = task;
                         const file = item.file!;
 
                         try {
-                            setUploadProgress({ current: completedUploads + 1, total: uploadTasks.length + completedUploads + 1, stage: 'converting' });
+                            setUploadProgress({
+                                current: completedUploads + 1,
+                                total: totalTasks,
+                                stage: 'converting'
+                            });
 
                             let finalBlob: Blob = file;
                             let finalFileName = file.name;
 
+                            // Convert to WebP if it's an image
                             if (file.type.startsWith('image/')) {
                                 try {
-                                    const { blob, type: webpType } = await convertToWebP(file);
-                                    if (webpType === 'image/webp') {
-                                        finalBlob = blob;
-                                        finalFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
-                                    }
+                                    const { blob } = await convertToWebP(file);
+                                    finalBlob = blob;
+                                    // Change extension to .webp to trigger server-side detection
+                                    finalFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
                                 } catch (err) {
                                     console.error("WebP conversion failed, using original", err);
                                 }
                             }
 
-                            setUploadProgress({ current: completedUploads + 1, total: uploadTasks.length + completedUploads + 1, stage: 'uploading' });
+                            setUploadProgress({
+                                current: completedUploads + 1,
+                                total: totalTasks,
+                                stage: 'uploading'
+                            });
 
                             const uploadFormData = new FormData();
+                            // Pass the blob and explicitly set the webp filename
                             uploadFormData.append('file', finalBlob, finalFileName);
                             uploadFormData.append('mangaId', selectedMangaId);
                             uploadFormData.append('chapterNumber', chapterNumber);
@@ -202,7 +218,12 @@ export default function ChapterForm({
                             const { url } = await uploadRes.json();
                             finalImageUrls[index] = url;
                             completedUploads++;
-                            setUploadProgress({ current: completedUploads, total: uploadTasks.length + completedUploads, stage: 'uploading' });
+
+                            setUploadProgress({
+                                current: Math.min(completedUploads + 1, totalTasks),
+                                total: totalTasks,
+                                stage: 'uploading'
+                            });
 
                         } catch (err: any) {
                             throw new Error(`Failed uploading page ${index + 1}: ${err.message}`);
@@ -210,7 +231,12 @@ export default function ChapterForm({
                     }
                 };
 
-                await Promise.all(Array(Math.min(CONCURRENCY, uploadTasks.length + 1)).fill(null).map(() => runWorker()));
+                // Run workers in parallel
+                await Promise.all(
+                    Array(Math.min(CONCURRENCY, totalTasks))
+                        .fill(null)
+                        .map(() => runWorker())
+                );
             }
 
             // 2. Fill in existing URLs
