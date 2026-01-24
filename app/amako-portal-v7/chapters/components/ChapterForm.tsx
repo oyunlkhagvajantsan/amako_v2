@@ -3,6 +3,8 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { BookOpen } from "lucide-react";
+import ThumbnailCropper from "./ThumbnailCropper";
 
 type Manga = {
     id: number;
@@ -26,6 +28,7 @@ interface ChapterFormProps {
         chapterNumber: number;
         title: string | null;
         images: string[];
+        thumbnail: string | null;
         isPublished: boolean;
     };
 }
@@ -47,6 +50,8 @@ export default function ChapterForm({
     const [chapterNumber, setChapterNumber] = useState(initialData?.chapterNumber.toString() || "");
     const [title, setTitle] = useState(initialData?.title || "");
     const [isPublished, setIsPublished] = useState(initialData?.isPublished || false);
+    const [thumbnailUrl, setThumbnailUrl] = useState(initialData?.thumbnail || "");
+    const [croppingImageUrl, setCroppingImageUrl] = useState<string | null>(null);
 
     // Unified Image List (Existing URLs + New Files)
     const [items, setItems] = useState<ImageItem[]>(
@@ -130,6 +135,46 @@ export default function ChapterForm({
                 reject(new Error("Image loading failed"));
             };
         });
+    };
+
+    const handleCropSave = async (blob: Blob) => {
+        if (!selectedMangaId) {
+            setError("Please select a manga before adjusting preview.");
+            return;
+        }
+
+        setIsLoading(true);
+        setError("");
+
+        try {
+            const formData = new FormData();
+            formData.append('file', blob, 'thumbnail.webp');
+            formData.append('mangaId', selectedMangaId);
+            formData.append('chapterNumber', chapterNumber);
+
+            const res = await fetch('/api/upload/chapter', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({ error: 'Upload failed' }));
+                throw new Error(errData.error || "Thumbnail upload failed");
+            }
+
+            const { url } = await res.json();
+
+            // Add a cache-busting timestamp to ensure the UI updates immediately
+            setThumbnailUrl(`${url}?t=${Date.now()}`);
+            setCroppingImageUrl(null); // Close modal only on success
+
+        } catch (err: any) {
+            console.error("Cropping upload error:", err);
+            setError(`Thumbnail error: ${err.message}`);
+            // Keep modal open so they can see the error in the console or retry
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -268,6 +313,7 @@ export default function ChapterForm({
             finalFormData.append('chapterNumber', chapterNumber);
             finalFormData.append('title', title);
             finalFormData.append('isPublished', isPublished ? "on" : "off");
+            finalFormData.append('thumbnailUrl', thumbnailUrl);
             finalImageUrls.forEach(url => finalFormData.append('imageUrls', url));
 
             const res = await fetch(endpoint, {
@@ -365,6 +411,43 @@ export default function ChapterForm({
                     />
                 </div>
 
+                {/* Current Preview Highlight */}
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex flex-col md:flex-row items-center gap-6">
+                    <div className="relative w-40 h-28 bg-gray-200 rounded-lg overflow-hidden border-2 border-[#d8454f] shadow-sm flex-shrink-0">
+                        {thumbnailUrl ? (
+                            <Image
+                                src={thumbnailUrl}
+                                alt="Current Preview"
+                                fill
+                                className="object-cover"
+                            />
+                        ) : (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 text-[10px] text-center p-2">
+                                <BookOpen size={24} className="mb-1" />
+                                No Preview Selected
+                            </div>
+                        )}
+                        {thumbnailUrl && (
+                            <div className="absolute top-1 left-1 bg-[#d8454f] text-white text-[8px] px-1.5 py-0.5 rounded font-bold uppercase">
+                                Active Preview
+                            </div>
+                        )}
+                    </div>
+                    <div className="flex-1 text-center md:text-left">
+                        <h4 className="font-bold text-gray-900 text-sm mb-1">Chapter Preview (Thumbnail)</h4>
+                        <p className="text-xs text-gray-500 mb-3">Pick a page below and click "Adjust Preview" to set it. You can zoom and pan to make it fit perfectly.</p>
+                        {thumbnailUrl && (
+                            <button
+                                type="button"
+                                onClick={() => setThumbnailUrl("")}
+                                className="text-xs text-red-500 font-medium hover:underline"
+                            >
+                                Remove Preview
+                            </button>
+                        )}
+                    </div>
+                </div>
+
                 {uploadProgress && (
                     <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-4">
                         <div className="flex justify-between items-center mb-2">
@@ -396,44 +479,70 @@ export default function ChapterForm({
                                     </div>
                                 )}
 
-                                <div className="relative w-full h-32 mb-2 bg-gray-200 rounded overflow-hidden">
+                                <div className={`relative w-full h-32 mb-2 bg-gray-200 rounded overflow-hidden border-2 transition-all ${thumbnailUrl === (item.url || "") ? 'border-green-500 ring-2 ring-green-200' : 'border-transparent'}`}>
                                     <Image
-                                        src={item.url || URL.createObjectURL(item.file!)}
+                                        src={item.url || (item.file ? URL.createObjectURL(item.file) : "")}
                                         alt="preview"
                                         fill
                                         className="object-cover"
                                         onLoad={(e) => { if (item.file) URL.revokeObjectURL((e.target as HTMLImageElement).src); }}
                                     />
+                                    {thumbnailUrl === item.url && item.url && (
+                                        <div className="absolute inset-0 bg-green-500/10 flex items-center justify-center">
+                                            <span className="bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">PREVIEW</span>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <p className="text-[10px] text-gray-500 truncate w-full text-center mb-2">
                                     {item.file ? item.file.name : item.url?.split('/').pop()}
                                 </p>
 
-                                <div className="flex gap-1 w-full justify-center">
+                                <div className="flex flex-wrap gap-1 w-full justify-center">
                                     <button
                                         type="button"
-                                        onClick={() => moveItem(index, 'up')}
-                                        disabled={index === 0}
-                                        className="p-1 bg-white border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-30"
+                                        onClick={() => {
+                                            if (item.url) {
+                                                setCroppingImageUrl(item.url);
+                                            } else if (item.file) {
+                                                setCroppingImageUrl(URL.createObjectURL(item.file));
+                                            }
+                                        }}
+                                        disabled={!item.url && !item.file}
+                                        className={`text-[10px] px-2 py-1 rounded font-bold transition-colors w-full mb-1 ${thumbnailUrl === item.url
+                                            ? 'bg-green-500 text-white'
+                                            : (item.url || item.file)
+                                                ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                : 'bg-gray-50 text-gray-300 cursor-not-allowed opacity-50'
+                                            }`}
                                     >
-                                        ⬆️
+                                        {thumbnailUrl === item.url ? "✅ Preview Selected (Adjust)" : "Adjust Preview"}
                                     </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => moveItem(index, 'down')}
-                                        disabled={index === items.length - 1}
-                                        className="p-1 bg-white border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-30"
-                                    >
-                                        ⬇️
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => removeItem(index)}
-                                        className="p-1 bg-white border border-red-200 text-red-500 rounded hover:bg-red-50"
-                                    >
-                                        ❌
-                                    </button>
+                                    <div className="flex gap-1 w-full justify-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => moveItem(index, 'up')}
+                                            disabled={index === 0}
+                                            className="p-1 bg-white border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-30"
+                                        >
+                                            ⬆️
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => moveItem(index, 'down')}
+                                            disabled={index === items.length - 1}
+                                            className="p-1 bg-white border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-30"
+                                        >
+                                            ⬇️
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => removeItem(index)}
+                                            className="p-1 bg-white border border-red-200 text-red-500 rounded hover:bg-red-50"
+                                        >
+                                            ❌
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -471,6 +580,15 @@ export default function ChapterForm({
                     {isLoading ? (mode === 'create' ? "Creating Chapter..." : "Saving Changes...") : (mode === 'create' ? "🚀 Create Chapter" : "💾 Save Changes")}
                 </button>
             </div>
+
+            {/* Cropping Modal */}
+            {croppingImageUrl && (
+                <ThumbnailCropper
+                    image={croppingImageUrl}
+                    onCropComplete={handleCropSave}
+                    onCancel={() => setCroppingImageUrl(null)}
+                />
+            )}
         </form>
     );
 }

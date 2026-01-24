@@ -201,17 +201,44 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                                     <Link
                                         key={chapter.id}
                                         href={`/manga/${manga.id}/read/${chapter.id}?from=details`}
-                                        className={`flex items-center justify-between p-4 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all group ${isRead ? 'opacity-75' : ''}`}
+                                        className={`flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all group ${isRead ? 'opacity-80' : ''}`}
                                     >
-                                        <span className={`font-medium flex items-center gap-2 ${isRead ? 'text-gray-500' : 'text-gray-900 group-hover:text-[#d8454f]'}`}>
-                                            <span>{chapter.chapterNumber}-р бүлэг {chapter.title && `- ${chapter.title}`}</span>
-                                            {isLocked && <Lock size={14} className="text-gray-400" />}
-                                        </span>
+                                        {/* Chapter Thumbnail */}
+                                        <div className="relative w-24 h-16 md:w-32 md:h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 shadow-sm transition-transform group-hover:scale-[1.02]">
+                                            {chapter.thumbnail ? (
+                                                <Image
+                                                    src={chapter.thumbnail}
+                                                    alt={`Chapter ${chapter.chapterNumber}`}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            ) : (
+                                                <div className="absolute inset-0 flex items-center justify-center bg-gray-50 text-gray-300">
+                                                    <BookOpen size={24} />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-0.5">
+                                                <span className={`font-bold text-sm md:text-base truncate ${isRead ? 'text-gray-500' : 'text-gray-900 group-hover:text-[#d8454f]'}`}>
+                                                    {chapter.chapterNumber}-р бүлэг
+                                                </span>
+                                                {isLocked && <Lock size={14} className="text-gray-400 shrink-0" />}
+                                            </div>
+                                            {chapter.title && (
+                                                <p className="text-xs text-gray-500 truncate">{chapter.title}</p>
+                                            )}
+                                        </div>
+
                                         <div className="flex items-center gap-4">
                                             {isLocked && (
-                                                <div className="bg-gray-100 p-1.5 rounded-full">
-                                                    <Lock size={16} className="text-gray-500" />
+                                                <div className="bg-gray-100 p-2 rounded-full">
+                                                    <Lock size={16} className="text-gray-400" />
                                                 </div>
+                                            )}
+                                            {!isLocked && (
+                                                <div className="w-8 h-8 rounded-full" />
                                             )}
                                         </div>
                                     </Link>

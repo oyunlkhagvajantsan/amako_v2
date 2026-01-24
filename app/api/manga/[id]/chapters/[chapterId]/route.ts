@@ -23,6 +23,7 @@ export async function PATCH(
         const chapterNumber = parseFloat(formData.get("chapterNumber") as string);
         const title = formData.get("title") as string;
         const isPublished = formData.get("isPublished") === "on";
+        const thumbnailUrl = formData.get("thumbnailUrl") as string;
 
         // Get the reordered/updated image URLs array
         const imageUrls = formData.getAll("imageUrls") as string[];
@@ -34,12 +35,14 @@ export async function PATCH(
             );
         }
 
-        const updatedChapter = await prisma.chapter.update({
+        const anyPrisma = prisma as any;
+        const updatedChapter = await anyPrisma.chapter.update({
             where: { id: parseInt(chapterId) },
             data: {
                 chapterNumber,
                 title,
                 images: imageUrls,
+                thumbnail: thumbnailUrl || null,
                 isPublished,
                 isFree: chapterNumber <= 1,
             },

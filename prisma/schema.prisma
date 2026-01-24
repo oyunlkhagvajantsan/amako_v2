@@ -106,7 +106,8 @@ model Chapter {
   titleMn       String?
 
   // Images - stored as JSON array of URLs
-  images String[] // Array of image URLs
+  images    String[] // Array of image URLs
+  thumbnail String?  // URL of the chapter preview image
 
   // Access control
   isFree Boolean @default(false) // First 1 chapter free

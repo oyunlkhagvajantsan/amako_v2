@@ -18,6 +18,7 @@ export async function POST(
         const chapterNumber = parseFloat(formData.get("chapterNumber") as string);
         const title = formData.get("title") as string;
         const isPublished = formData.get("isPublished") === "on";
+        const thumbnailUrl = formData.get("thumbnailUrl") as string;
 
         // Get image URLs from the frontend (Vercel Blob storage)
         const imageUrls = formData.getAll("imageUrls") as string[];
@@ -30,15 +31,17 @@ export async function POST(
         }
 
         // Save Chapter to DB
-        const chapter = await (prisma.chapter as any).create({
+        const anyPrisma = prisma as any;
+        const chapter = await anyPrisma.chapter.create({
             data: {
                 mangaId: parseInt(mangaId),
                 chapterNumber,
                 title,
                 images: imageUrls,
+                thumbnail: thumbnailUrl || null,
                 isPublished,
                 isFree: chapterNumber <= 1,
-            } as any,
+            },
         });
 
         return NextResponse.json(chapter, { status: 201 });

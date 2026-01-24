@@ -26,17 +26,15 @@ export default function Header({ isSticky = true }: { isSticky?: boolean }) {
           </button>
 
           <Link href="/" className="flex items-center gap-2">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="relative w-24 h-9">
-                <Image
-                  src="/uploads/images/logo_text.webp"
-                  alt="Amako"
-                  fill
-                  className="object-contain object-left"
-                  priority
-                />
-              </div>
-            </Link>
+            <div className="relative w-24 h-9">
+              <Image
+                src="/uploads/images/logo_text.webp"
+                alt="Amako"
+                fill
+                className="object-contain object-left"
+                priority
+              />
+            </div>
           </Link>
         </div>
 
