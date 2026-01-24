@@ -9,24 +9,34 @@ interface CommentInputProps {
     initialValue?: string;
     isReply?: boolean;
     onCancel?: () => void;
+    isLoading?: boolean;
 }
 
-export default function CommentInput({ onSubmit, placeholder = "Сэтгэгдэл бичих...", initialValue = "", isReply, onCancel }: CommentInputProps) {
+export default function CommentInput({
+    onSubmit,
+    placeholder = "Сэтгэгдэл бичих...",
+    initialValue = "",
+    isReply,
+    onCancel,
+    isLoading: externalIsLoading
+}: CommentInputProps) {
     const [content, setContent] = useState(initialValue);
-    const [isLoading, setIsLoading] = useState(false);
+    const [internalIsLoading, setInternalIsLoading] = useState(false);
+
+    const isLoading = externalIsLoading ?? internalIsLoading;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!content.trim() || isLoading) return;
 
-        setIsLoading(true);
+        setInternalIsLoading(true);
         try {
             await onSubmit(content);
             setContent("");
         } catch (error) {
             console.error("Submit comment error:", error);
         } finally {
-            setIsLoading(false);
+            setInternalIsLoading(false);
         }
     };
 

@@ -1,6 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import { expect, test, vi } from 'vitest';
 import CommentItem from './CommentItem';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const createTestQueryClient = () => new QueryClient({
+    defaultOptions: {
+        queries: { retry: false },
+    },
+});
 
 const mockComment = {
     id: '1',
@@ -24,19 +31,29 @@ const mockComment = {
 };
 
 test('renders comment content and user name', () => {
-    render(<CommentItem comment={mockComment as any} mangaId={1} onRefresh={() => { }} />);
+    const queryClient = createTestQueryClient();
+    render(
+        <QueryClientProvider client={queryClient}>
+            <CommentItem comment={mockComment as any} mangaId={1} onRefresh={() => { }} />
+        </QueryClientProvider>
+    );
 
     expect(screen.getByText('Test comment content')).toBeDefined();
     expect(screen.getByText('Test User')).toBeDefined();
 });
 
 test('renders admin badge for admin user', () => {
+    const queryClient = createTestQueryClient();
     const adminComment = {
         ...mockComment,
         user: { ...mockComment.user, role: 'ADMIN' },
     };
 
-    render(<CommentItem comment={adminComment as any} mangaId={1} onRefresh={() => { }} />);
+    render(
+        <QueryClientProvider client={queryClient}>
+            <CommentItem comment={adminComment as any} mangaId={1} onRefresh={() => { }} />
+        </QueryClientProvider>
+    );
 
     expect(screen.getByText('Админ')).toBeDefined();
 });
