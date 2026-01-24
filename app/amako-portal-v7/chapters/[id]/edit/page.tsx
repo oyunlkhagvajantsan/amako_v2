@@ -38,6 +38,7 @@ export default async function EditChapterPage({ params }: { params: Promise<{ id
         title: chapter.title,
         images: chapter.images,
         thumbnail: (chapter as any).thumbnail,
+        caption: (chapter as any).caption || null,
         isPublished: (chapter as any).isPublished || false
     };
 

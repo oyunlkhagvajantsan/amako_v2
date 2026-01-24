@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { User, Palette, ShieldAlert, Lock, BookOpen, Layers, ArrowLeft } from "lucide-react";
+import CommentSection from "@/app/components/comments/CommentSection";
 
 export const dynamic = "force-dynamic";
 
@@ -248,6 +249,11 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                                 <p className="text-gray-500 italic">Одоогоор бүлэг нэмэгдээгүй байна.</p>
                             )}
                         </div>
+                    </div>
+
+                    {/* Comment Section */}
+                    <div className="max-w-4xl mx-auto">
+                        <CommentSection mangaId={mangaId} />
                     </div>
                 </main>
             </div>

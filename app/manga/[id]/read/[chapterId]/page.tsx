@@ -12,6 +12,7 @@ import { ChevronLeft, Lock } from "lucide-react";
 
 import ProtectedReader from "@/app/components/ProtectedReader";
 import AgeVerificationGuard from "@/app/components/AgeVerificationGuard";
+import CommentSection from "@/app/components/comments/CommentSection";
 
 export const dynamic = "force-dynamic";
 
@@ -143,21 +144,44 @@ export default async function ChapterReaderPage({
                                 loading={index < 3 ? "eager" : "lazy"}
                             />
                         ))}
+
+                        {/* Chapter Caption (Author's note) */}
+                        {(chapter as any).caption && (
+                            <div className="max-w-2xl mx-auto my-12 p-8 bg-[#1e1e1e] border-2 border-[#d8454f]/20 rounded-3xl shadow-2xl relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-[#d8454f]/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110" />
+                                <h3 className="text-[#d8454f] font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
+                                    <span className="w-6 h-[2px] bg-[#d8454f]" />
+                                    Бүлгийн тэмдэглэл
+                                </h3>
+                                <p className="text-gray-200 leading-relaxed whitespace-pre-wrap italic">
+                                    {(chapter as any).caption}
+                                </p>
+                            </div>
+                        )}
                     </ProtectedReader>
+
                 </AgeVerificationGuard>
             )}
 
-            {/* Footer Navigation (Hide if locked) */}
+            {/* Navigation & Discussion Section */}
             {!isLocked && (
-                <div className="max-w-3xl mx-auto p-8 bg-[#1a1a1a] text-center space-y-6">
-                    <ChapterNav
-                        mangaId={mangaId}
-                        currentChapterId={chapterId}
-                        allChapters={allChapters as any[]}
-                        prevChapter={prevChapter as any}
-                        nextChapter={nextChapter as any}
-                        variant="bottom"
-                    />
+                <div className={`max-w-3xl mx-auto pb-20 ${(chapter as any).caption ? "space-y-8" : "space-y-0"}`}>
+                    {/* Chapter Navigation (Bottom) */}
+                    <div className="bg-[#1a1a1a] text-center p-4 rounded-3xl border border-gray-800/50">
+                        <ChapterNav
+                            mangaId={mangaId}
+                            currentChapterId={chapterId}
+                            allChapters={allChapters as any[]}
+                            prevChapter={prevChapter as any}
+                            nextChapter={nextChapter as any}
+                            variant="bottom"
+                        />
+                    </div>
+
+                    {/* Comment Section (Chapter specific) */}
+                    <div className="px-4 border-t border-gray-800/50 pt-4">
+                        <CommentSection mangaId={mangaId} chapterId={chapterId} />
+                    </div>
                 </div>
             )}
 

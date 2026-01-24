@@ -22,6 +22,7 @@ export async function PATCH(
 
         const chapterNumber = parseFloat(formData.get("chapterNumber") as string);
         const title = formData.get("title") as string;
+        const caption = formData.get("caption") as string;
         const isPublished = formData.get("isPublished") === "on";
         const thumbnailUrl = formData.get("thumbnailUrl") as string;
 
@@ -41,6 +42,7 @@ export async function PATCH(
             data: {
                 chapterNumber,
                 title,
+                caption: caption || null,
                 images: imageUrls,
                 thumbnail: thumbnailUrl || null,
                 isPublished,

@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { Menu, X, User, LogOut, Crown, LogIn } from "lucide-react";
 import Image from "next/image";
+import NotificationBell from "./notifications/NotificationBell";
 
 export default function Header({ isSticky = true }: { isSticky?: boolean }) {
   const { data: session } = useSession();
@@ -51,40 +52,44 @@ export default function Header({ isSticky = true }: { isSticky?: boolean }) {
         {/* Desktop Auth Buttons */}
         <div className="flex items-center gap-3">
           {session ? (
-            <div className="relative">
-              <button
-                className="hidden md:flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900"
-                onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                onBlur={() => setTimeout(() => setIsUserDropdownOpen(false), 200)} // Delay close for link clicks
-              >
-                <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-[#d8454f] font-bold ring-2 ring-transparent hover:ring-[#d8454f]/20 transition-all">
-                  <User size={18} />
-                </div>
-              </button>
+            <div className="flex items-center gap-2 md:gap-4">
+              <NotificationBell />
 
-              {/* Desktop Dropdown */}
-              {isUserDropdownOpen && (
-                <div className="absolute right-0 top-full pt-2 w-48 hidden md:block">
-                  <div className="bg-white rounded-md shadow-lg py-1 border border-gray-100">
-                    <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                      <User size={16} /> Профайл
-                    </Link>
-                    <Link href="/subscribe" className="flex items-center gap-2 px-4 py-2 text-sm text-[#d8454f] font-medium hover:bg-gray-50">
-                      <Crown size={16} /> Эрх сунгах
-                    </Link>
-                    <button
-                      onClick={() => signOut({ callbackUrl: window.location.origin })}
-                      className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
-                    >
-                      <LogOut size={16} /> Гарах
-                    </button>
+              <div className="relative">
+                <button
+                  className="hidden md:flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                  onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                  onBlur={() => setTimeout(() => setIsUserDropdownOpen(false), 200)} // Delay close for link clicks
+                >
+                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-[#d8454f] font-bold ring-2 ring-transparent hover:ring-[#d8454f]/20 transition-all">
+                    <User size={18} />
                   </div>
-                </div>
-              )}
-              {/* Mobile User Icon (Opens Menu or Profile) */}
-              <Link href="/profile" className="md:hidden w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-[#d8454f] font-bold">
-                <User size={18} />
-              </Link>
+                </button>
+
+                {/* Desktop Dropdown */}
+                {isUserDropdownOpen && (
+                  <div className="absolute right-0 top-full pt-2 w-48 hidden md:block">
+                    <div className="bg-white rounded-md shadow-lg py-1 border border-gray-100">
+                      <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                        <User size={16} /> Профайл
+                      </Link>
+                      <Link href="/subscribe" className="flex items-center gap-2 px-4 py-2 text-sm text-[#d8454f] font-medium hover:bg-gray-50">
+                        <Crown size={16} /> Эрх сунгах
+                      </Link>
+                      <button
+                        onClick={() => signOut({ callbackUrl: window.location.origin })}
+                        className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                      >
+                        <LogOut size={16} /> Гарах
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {/* Mobile User Icon (Opens Menu or Profile) */}
+                <Link href="/profile" className="md:hidden w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-[#d8454f] font-bold">
+                  <User size={18} />
+                </Link>
+              </div>
             </div>
           ) : (
             <>

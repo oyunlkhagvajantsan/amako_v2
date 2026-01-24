@@ -21,6 +21,7 @@ export default function AdminLayoutClient({
         { name: "Гаргалтууд", href: "/amako-portal-v7/manga", icon: "📚" },
         { name: "Бүлгүүд", href: "/amako-portal-v7/chapters", icon: "📑" },
         { name: "Төлбөр", href: "/amako-portal-v7/payments", icon: "💳" },
+        { name: "Сэтгэгдэл", href: "/amako-portal-v7/comments", icon: "💬" },
         { name: "Хэрэглэгчид", href: "/amako-portal-v7/users", icon: "👥" },
     ];
 

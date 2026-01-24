@@ -29,6 +29,7 @@ interface ChapterFormProps {
         title: string | null;
         images: string[];
         thumbnail: string | null;
+        caption: string | null;
         isPublished: boolean;
     };
 }
@@ -49,6 +50,7 @@ export default function ChapterForm({
     );
     const [chapterNumber, setChapterNumber] = useState(initialData?.chapterNumber.toString() || "");
     const [title, setTitle] = useState(initialData?.title || "");
+    const [caption, setCaption] = useState(initialData?.caption || "");
     const [isPublished, setIsPublished] = useState(initialData?.isPublished || false);
     const [thumbnailUrl, setThumbnailUrl] = useState(initialData?.thumbnail || "");
     const [croppingImageUrl, setCroppingImageUrl] = useState<string | null>(null);
@@ -312,6 +314,7 @@ export default function ChapterForm({
             const finalFormData = new FormData();
             finalFormData.append('chapterNumber', chapterNumber);
             finalFormData.append('title', title);
+            finalFormData.append('caption', caption);
             finalFormData.append('isPublished', isPublished ? "on" : "off");
             finalFormData.append('thumbnailUrl', thumbnailUrl);
             finalImageUrls.forEach(url => finalFormData.append('imageUrls', url));
@@ -388,6 +391,19 @@ export default function ChapterForm({
                         placeholder="Ex: The Beginning"
                     />
                 </div>
+            </div>
+
+            {/* Chapter Caption */}
+            <div>
+                <label className="text-sm font-medium text-gray-700">Chapter Caption (Shows at the end of reader)</label>
+                <textarea
+                    value={caption}
+                    onChange={(e) => setCaption(e.target.value)}
+                    rows={4}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none mt-1 resize-none"
+                    placeholder="Ex: Thank you for reading! Next chapter coming soon..."
+                />
+                <p className="text-[10px] text-gray-400 mt-1">This note will be displayed in a special box after the last page of the chapter.</p>
             </div>
 
             {/* Image Management */}

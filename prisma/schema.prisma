@@ -24,14 +24,31 @@ model User {
   subscriptionEnd DateTime?
 
   // Activity tracking
-  readHistory ReadHistory[]
-  comments    Comment[]
-  likes       Like[]
+  readHistory     ReadHistory[]
+  comments        Comment[]
+  likes           Like[]
+  commentLikes    CommentLike[]
   paymentRequests PaymentRequest[]
+  notifications   Notification[]
   ageVerified     Boolean          @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type      String   // e.g., "REPLY", "LIKE", "SYSTEM"
+  content   String   @db.Text
+  link      String?  // URL to navigate to when clicked
+  isRead    Boolean  @default(false)
+  
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 enum Role {
@@ -109,6 +126,7 @@ model Chapter {
   // Images - stored as JSON array of URLs
   images    String[] // Array of image URLs
   thumbnail String?  // URL of the chapter preview image
+  caption   String?  @db.Text // Author note at the end of the chapter
 
   // Access control
   isFree Boolean @default(false) // First 1 chapter free
@@ -119,6 +137,7 @@ model Chapter {
 
   // Tracking
   readHistory ReadHistory[]
+  comments    Comment[]
 
   publishedAt DateTime @default(now())
   createdAt   DateTime @default(now())
@@ -177,6 +196,20 @@ model Like {
   @@index([mangaId])
 }
 
+// Comment Likes
+model CommentLike {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commentId String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, commentId])
+  @@index([userId])
+  @@index([commentId])
+}
+
 // Comments
 model Comment {
   id     String @id @default(cuid())
@@ -188,11 +221,27 @@ model Comment {
 
   content String @db.Text
 
+  // Threading
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+
+  // Context
+  chapterId Int?
+  chapter   Chapter? @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  // Moderation
+  isHidden Boolean @default(false)
+
+  // Engagement
+  likes CommentLike[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([mangaId])
   @@index([userId])
+  @@index([parentId])
   @@index([createdAt])
 }
 
