@@ -10,6 +10,8 @@ import ChapterNav from "../components/ChapterNav";
 import ScrollToTop from "@/app/components/ScrollToTop";
 import { ChevronLeft, Lock } from "lucide-react";
 
+import ProtectedReader from "@/app/components/ProtectedReader";
+
 export default async function ChapterReaderPage({
     params
 }: {
@@ -94,45 +96,34 @@ export default async function ChapterReaderPage({
             </header>
 
             {/* Reader Content - Vertical Scroll */}
-            <main
-                className="max-w-3xl mx-auto bg-black min-h-screen relative select-none"
-                onContextMenu={(e) => e.preventDefault()}
-            >
-                {isLocked ? (
-                    <div className="flex flex-col items-center justify-center py-32 px-4 text-center">
-                        <div className="w-24 h-24 bg-gray-900 rounded-full flex items-center justify-center mb-6 text-[#d8454f]">
-                            <Lock size={48} />
-                        </div>
-                        <h2 className="text-2xl font-bold mb-2">Цааш нь уншихыг хүсвэл эрхээ сунгана уу.</h2>
-                        <Link
-                            href="/subscribe"
-                            className="px-8 py-3 bg-[#d8454f] hover:bg-[#c13a44] text-white font-bold rounded-lg transition-transform hover:scale-105"
-                        >
-                            Эрх авах
-                        </Link>
+            {isLocked ? (
+                <main className="max-w-3xl mx-auto bg-black min-h-screen flex flex-col items-center justify-center py-32 px-4 text-center">
+                    <div className="w-24 h-24 bg-gray-900 rounded-full flex items-center justify-center mb-6 text-[#d8454f]">
+                        <Lock size={48} />
                     </div>
-                ) : (
-                    <div className="relative">
-                        {/* Protection Shield Overlay */}
-                        <div
-                            className="absolute inset-0 z-10"
-                            aria-hidden="true"
+                    <h2 className="text-2xl font-bold mb-2">Цааш нь уншихыг хүсвэл эрхээ сунгана уу.</h2>
+                    <Link
+                        href="/subscribe"
+                        className="px-8 py-3 bg-[#d8454f] hover:bg-[#c13a44] text-white font-bold rounded-lg transition-transform hover:scale-105"
+                    >
+                        Эрх авах
+                    </Link>
+                </main>
+            ) : (
+                <ProtectedReader>
+                    {session?.user && <ReadHistoryTracker chapterId={chapterId} />}
+                    {chapter.images.map((imgUrl, index) => (
+                        <img
+                            key={index}
+                            src={imgUrl}
+                            alt={`Page ${index + 1}`}
+                            className="w-full h-auto block select-none pointer-events-none"
+                            draggable="false"
+                            loading={index < 3 ? "eager" : "lazy"}
                         />
-
-                        {session?.user && <ReadHistoryTracker chapterId={chapterId} />}
-                        {chapter.images.map((imgUrl, index) => (
-                            <img
-                                key={index}
-                                src={imgUrl}
-                                alt={`Page ${index + 1}`}
-                                className="w-full h-auto block select-none pointer-events-none"
-                                draggable="false"
-                                loading={index < 3 ? "eager" : "lazy"}
-                            />
-                        ))}
-                    </div>
-                )}
-            </main>
+                    ))}
+                </ProtectedReader>
+            )}
 
             {/* Footer Navigation (Hide if locked) */}
             {!isLocked && (
