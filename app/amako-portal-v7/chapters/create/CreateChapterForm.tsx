@@ -121,6 +121,10 @@ export default function CreateChapterForm({
         setIsLoading(true);
         setError("");
 
+        // Capture metadata once at the start
+        const chapterNumberVal = (form.elements.namedItem('chapterNumber') as HTMLInputElement).value || "0";
+        const mangaIdVal = selectedMangaId || "unknown";
+
         try {
             const imageUrls: string[] = new Array(selectedImages.length);
 
@@ -162,11 +166,8 @@ export default function CreateChapterForm({
                         // Create FormData for multipart upload
                         const uploadFormData = new FormData();
                         uploadFormData.append('file', finalBlob, finalFileName);
-
-                        // Capture chapter metadata for R2 folder structure
-                        const chapterNumber = (form.elements.namedItem('chapterNumber') as HTMLInputElement).value;
-                        uploadFormData.append('mangaId', selectedMangaId);
-                        uploadFormData.append('chapterNumber', chapterNumber);
+                        uploadFormData.append('mangaId', mangaIdVal);
+                        uploadFormData.append('chapterNumber', chapterNumberVal);
 
                         const uploadRes = await fetch('/api/upload/chapter', {
                             method: 'POST',

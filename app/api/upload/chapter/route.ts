@@ -31,8 +31,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         if (contentType?.includes('multipart/form-data')) {
             const formData = await request.formData();
             const file = formData.get('file') as File;
-            const mangaId = formData.get('mangaId') as string || 'unknown';
+            const mangaId = formData.get('mangaId') as string || 'unassigned';
             const chapterNumber = formData.get('chapterNumber') as string || '0';
+
+            console.log(`[R2 Upload] Processing file: ${file?.name}, Manga: ${mangaId}, Chapter: ${chapterNumber}`);
 
             if (!file) {
                 return NextResponse.json(
