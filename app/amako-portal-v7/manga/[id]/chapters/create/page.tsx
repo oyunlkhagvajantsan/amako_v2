@@ -26,7 +26,7 @@ export default function CreateChapterPage() {
                 throw new Error("Failed to create chapter");
             }
 
-            router.push("/admin/manga");
+            router.push("/amako-portal-v7/manga");
             router.refresh();
         } catch (err) {
             setError("Something went wrong. Please try again.");

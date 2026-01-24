@@ -44,8 +44,8 @@ export default async function EditChapterPage({ params }: { params: { id: string
             },
         });
 
-        revalidatePath("/admin/chapters");
-        redirect("/admin/chapters");
+        revalidatePath("/amako-portal-v7/chapters");
+        redirect("/amako-portal-v7/chapters");
     }
 
     async function deleteChapter() {
@@ -56,14 +56,14 @@ export default async function EditChapterPage({ params }: { params: { id: string
         await prisma.chapter.delete({
             where: { id: chapterId },
         });
-        revalidatePath("/admin/chapters");
-        redirect("/admin/chapters");
+        revalidatePath("/amako-portal-v7/chapters");
+        redirect("/amako-portal-v7/chapters");
     }
 
     return (
         <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-4 mb-6">
-                <Link href="/admin/chapters" className="text-gray-500 hover:text-gray-900">
+                <Link href="/amako-portal-v7/chapters" className="text-gray-500 hover:text-gray-900">
                     ← Back
                 </Link>
                 <h1 className="text-2xl font-bold text-gray-900">Edit Chapter {chapter.chapterNumber}</h1>

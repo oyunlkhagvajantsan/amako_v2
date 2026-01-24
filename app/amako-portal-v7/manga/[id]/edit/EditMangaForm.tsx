@@ -70,7 +70,7 @@ export default function EditMangaForm({
                 throw new Error("Failed to update manga");
             }
 
-            router.push("/admin/manga");
+            router.push("/amako-portal-v7/manga");
             router.refresh();
         } catch (err) {
             setError("Something went wrong. Please try again.");
@@ -94,7 +94,7 @@ export default function EditMangaForm({
                 throw new Error("Failed to delete manga");
             }
 
-            router.push("/admin/manga");
+            router.push("/amako-portal-v7/manga");
             router.refresh();
         } catch (err) {
             alert("Failed to delete manga");

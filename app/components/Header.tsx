@@ -49,7 +49,7 @@ export default function Header({ isSticky = true }: { isSticky?: boolean }) {
             Хайх
           </Link>
           {(session?.user?.role === "ADMIN" || session?.user?.role === "MODERATOR") && (
-            <Link href="/admin" className="text-[#d8454f] font-medium hover:text-[#c13a44] transition-colors">
+            <Link href="/amako-portal-v7" className="text-[#d8454f] font-medium hover:text-[#c13a44] transition-colors">
               Админ
             </Link>
           )}
@@ -153,7 +153,7 @@ export default function Header({ isSticky = true }: { isSticky?: boolean }) {
                 <Link href="/manga" className="text-lg font-medium text-gray-800" onClick={() => setIsMobileMenuOpen(false)}>Гаргалт</Link>
                 <Link href="/genres" className="text-lg font-medium text-gray-800" onClick={() => setIsMobileMenuOpen(false)}>Хайх</Link>
                 {(session?.user?.role === "ADMIN" || session?.user?.role === "MODERATOR") && (
-                  <Link href="/admin" className="text-lg font-medium text-[#d8454f]" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Link href="/amako-portal-v7" className="text-lg font-medium text-[#d8454f]" onClick={() => setIsMobileMenuOpen(false)}>
                     Админ Панел
                   </Link>
                 )}

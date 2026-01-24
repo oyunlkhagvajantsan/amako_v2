@@ -18,7 +18,7 @@ async function togglePublishStatus(formData: FormData) {
         data: { isPublished: !currentStatus }
     });
 
-    revalidatePath("/admin/chapters");
+    revalidatePath("/amako-portal-v7/chapters");
 }
 
 async function toggleAccessStatus(formData: FormData) {
@@ -31,7 +31,7 @@ async function toggleAccessStatus(formData: FormData) {
         data: { isFree: !isFree }
     });
 
-    revalidatePath("/admin/chapters");
+    revalidatePath("/amako-portal-v7/chapters");
 }
 
 export default async function ChaptersListPage() {
@@ -53,7 +53,7 @@ export default async function ChaptersListPage() {
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-gray-900">Бүлгүүд</h1>
                 <Link
-                    href="/admin/chapters/create"
+                    href="/amako-portal-v7/chapters/create"
                     className="px-4 py-2 bg-[#d8454f] hover:bg-[#c13a44] text-white rounded-lg text-sm font-medium transition-colors"
                 >
                     + Бүлэг нэмэх
@@ -161,7 +161,7 @@ export default async function ChaptersListPage() {
                                                     </button>
                                                 </form>
                                                 <Link
-                                                    href={`/admin/chapters/${chapter.id}/edit`}
+                                                    href={`/amako-portal-v7/chapters/${chapter.id}/edit`}
                                                     className="px-3 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded text-xs font-bold transition-colors"
                                                 >
                                                     Edit

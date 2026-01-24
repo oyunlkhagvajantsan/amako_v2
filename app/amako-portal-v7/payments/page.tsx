@@ -46,7 +46,7 @@ async function approvePayment(formData: FormData) {
         },
     });
 
-    revalidatePath("/admin/payments");
+    revalidatePath("/amako-portal-v7/payments");
 }
 
 async function rejectPayment(formData: FormData) {
@@ -57,7 +57,7 @@ async function rejectPayment(formData: FormData) {
         data: { status: "REJECTED" },
     });
 
-    revalidatePath("/admin/payments");
+    revalidatePath("/amako-portal-v7/payments");
 }
 
 async function deletePayment(formData: FormData) {
@@ -70,7 +70,7 @@ async function deletePayment(formData: FormData) {
         where: { id },
     });
 
-    revalidatePath("/admin/payments");
+    revalidatePath("/amako-portal-v7/payments");
 }
 
 export default async function PaymentRequestsPage() {

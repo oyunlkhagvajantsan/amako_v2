@@ -38,7 +38,7 @@ export default async function AdminDashboard() {
                 <h2 className="text-lg font-bold text-gray-900 mb-4">Шуурхай үйлдэл</h2>
                 <div className="flex gap-4">
                     <a
-                        href="/admin/manga/create"
+                        href="/amako-portal-v7/manga/create"
                         className="px-4 py-2 bg-[#d8454f] hover:bg-[#c13a44] text-white rounded-lg text-sm font-medium transition-colors"
                     >
                         + Гаргалт нэмэх

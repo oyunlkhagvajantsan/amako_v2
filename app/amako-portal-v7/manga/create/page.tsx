@@ -53,7 +53,7 @@ export default function CreateMangaPage() {
                 throw new Error("Failed to create manga");
             }
 
-            router.push("/admin");
+            router.push("/amako-portal-v7");
             router.refresh();
         } catch (err) {
             setError("Something went wrong. Please try again.");

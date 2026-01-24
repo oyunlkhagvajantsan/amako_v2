@@ -208,7 +208,7 @@ export default function CreateChapterForm({
                 throw new Error(text || "Failed to create chapter");
             }
 
-            router.push("/admin/chapters");
+            router.push("/amako-portal-v7/chapters");
             router.refresh();
         } catch (err: any) {
             setError(err.message || "Something went wrong during upload.");

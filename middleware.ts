@@ -8,8 +8,8 @@ export default withAuth(
         const host = req.headers.get("host");
         const adminDomain = process.env.ADMIN_DOMAIN; // e.g., secret-admin.amako.mn
 
-        // 1. Domain-based protection for /admin
-        if (path.startsWith("/admin")) {
+        // 1. Domain-based protection for secret admin path
+        if (path.startsWith("/amako-portal-v7")) {
             // If an admin domain is set, only allow access if the host matches
             if (adminDomain && host !== adminDomain) {
                 // If the host doesn't match, return 404 (make it invisible)
@@ -72,5 +72,5 @@ export default withAuth(
 );
 
 export const config = {
-    matcher: ["/admin/:path*", "/api/:path*"],
+    matcher: ["/amako-portal-v7/:path*", "/api/:path*"],
 };

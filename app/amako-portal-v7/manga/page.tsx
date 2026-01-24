@@ -15,7 +15,7 @@ async function toggleMangaPublishStatus(formData: FormData) {
         data: { isPublished: !currentStatus }
     });
 
-    revalidatePath("/admin/manga");
+    revalidatePath("/amako-portal-v7/manga");
 }
 
 export default async function MangaListPage() {
@@ -33,7 +33,7 @@ export default async function MangaListPage() {
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold text-gray-900">Манга жагсаалт</h1>
                 <Link
-                    href="/admin/manga/create"
+                    href="/amako-portal-v7/manga/create"
                     className="px-4 py-2 bg-[#d8454f] hover:bg-[#c13a44] text-white rounded-lg text-sm font-medium transition-colors"
                 >
                     + Гаргалт нэмэх
@@ -126,13 +126,13 @@ export default async function MangaListPage() {
                                                     </button>
                                                 </form>
                                                 <Link
-                                                    href={`/admin/chapters/create?mangaId=${manga.id}`}
+                                                    href={`/amako-portal-v7/chapters/create?mangaId=${manga.id}`}
                                                     className="px-3 py-1 bg-purple-50 text-purple-600 hover:bg-purple-100 rounded text-xs font-bold transition-colors"
                                                 >
                                                     + Бүлэг
                                                 </Link>
                                                 <Link
-                                                    href={`/admin/manga/${manga.id}/edit`}
+                                                    href={`/amako-portal-v7/manga/${manga.id}/edit`}
                                                     className="px-3 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded text-xs font-bold transition-colors"
                                                 >
                                                     Edit
