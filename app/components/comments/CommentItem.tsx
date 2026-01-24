@@ -108,31 +108,31 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply }: Co
     };
 
     return (
-        <div className={`group/item ${isReply ? "mt-4 ml-4 pl-4 border-l border-gray-800/50" : "mb-6"}`}>
-            <div className="flex gap-3">
+        <div className={`group/item ${isReply ? "mt-4 ml-6 pl-6 border-l-2 border-gray-100" : "mb-8"}`}>
+            <div className="flex gap-4">
                 {/* Avatar */}
                 <div className="flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-gray-400 border border-gray-700 shadow-inner">
+                    <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center text-gray-400 border border-gray-100 shadow-sm overflow-hidden">
                         {comment.user.image ? (
-                            <img src={comment.user.image} alt="" className="w-full h-full rounded-full object-cover" />
+                            <img src={comment.user.image} alt="" className="w-full h-full object-cover" />
                         ) : (
-                            <span className="text-sm font-bold uppercase">{comment.user.name?.[0] || "?"}</span>
+                            <span className="text-sm font-bold text-gray-500 uppercase">{comment.user.name?.[0] || "?"}</span>
                         )}
                     </div>
                 </div>
 
                 {/* Content Area */}
                 <div className="flex-grow min-w-0">
-                    <div className="bg-[#1e1e1e]/40 rounded-2xl p-4 border border-transparent hover:border-gray-800/50 transition-all duration-300">
-                        <div className="flex items-center justify-between mb-1">
+                    <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-300">
+                        <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
-                                <span className={`font-bold text-sm ${comment.user.role === "ADMIN" ? "text-red-500" : "text-gray-200"}`}>
+                                <span className={`font-bold text-sm ${comment.user.role === "ADMIN" ? "text-[#d8454f]" : "text-gray-900"}`}>
                                     {comment.user.name || "Гишүүн"}
                                 </span>
                                 {comment.user.role === "ADMIN" && (
-                                    <span className="bg-red-900/30 text-red-500 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-widest border border-red-500/20">Админ</span>
+                                    <span className="bg-[#d8454f]/10 text-[#d8454f] text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border border-[#d8454f]/10">Админ</span>
                                 )}
-                                <span className="text-[10px] text-gray-500 font-medium">{formatDate(comment.createdAt)}</span>
+                                <span className="text-[11px] text-gray-400 font-medium">{formatDate(comment.createdAt)}</span>
                             </div>
 
                             {/* Options Menu (Admin or Owner) */}
@@ -140,25 +140,25 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply }: Co
                                 <div className="relative">
                                     <button
                                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                        className="p-1 hover:bg-gray-800 rounded-lg text-gray-500 hover:text-white transition-colors"
+                                        className="p-1.5 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-900 transition-colors"
                                     >
                                         <MoreVertical size={16} />
                                     </button>
 
                                     {isMenuOpen && (
-                                        <div className="absolute right-0 mt-1 w-36 bg-gray-950 border border-gray-800 rounded-xl shadow-2xl z-10 py-1 animate-in fade-in zoom-in-95 duration-100">
+                                        <div className="absolute right-0 mt-1 w-40 bg-white border border-gray-100 rounded-xl shadow-xl z-10 py-1.5 animate-in fade-in zoom-in-95 duration-100">
                                             {isAdmin && (
                                                 <button
                                                     onClick={() => handleModerate("hide")}
-                                                    className="w-full text-left px-4 py-2 text-xs hover:bg-gray-900 flex items-center gap-2 transition-colors"
+                                                    className="w-full text-left px-4 py-2 text-xs hover:bg-gray-50 text-gray-700 flex items-center gap-2 transition-colors"
                                                 >
-                                                    {comment.isHidden ? <Eye size={14} className="text-green-500" /> : <EyeOff size={14} className="text-yellow-500" />}
+                                                    {comment.isHidden ? <Eye size={14} className="text-green-500" /> : <EyeOff size={14} className="text-amber-500" />}
                                                     {comment.isHidden ? "Ил болгох" : "Нуух"}
                                                 </button>
                                             )}
                                             <button
                                                 onClick={() => handleModerate("delete")}
-                                                className="w-full text-left px-4 py-2 text-xs hover:bg-red-900/40 text-red-400 flex items-center gap-2 transition-colors"
+                                                className="w-full text-left px-4 py-2 text-xs hover:bg-red-50 text-red-500 flex items-center gap-2 transition-colors"
                                             >
                                                 <Trash2 size={14} />
                                                 Устгах
@@ -169,27 +169,31 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply }: Co
                             )}
                         </div>
 
-                        <p className={`text-[13px] leading-relaxed ${comment.isHidden ? "italic text-gray-600 line-through opacity-50" : "text-gray-300"}`}>
+                        <p className={`text-[14px] leading-relaxed ${comment.isHidden ? "italic text-gray-300 line-through" : "text-gray-700"}`}>
                             {comment.content}
                         </p>
                     </div>
 
                     {/* Actions Bar */}
-                    <div className="flex items-center gap-4 mt-2 px-2">
+                    <div className="flex items-center gap-5 mt-2.5 px-1">
                         <button
                             onClick={handleLike}
-                            className={`flex items-center gap-1.5 text-xs font-bold transition-all ${isLikedByMe ? "text-[#d8454f]" : "text-gray-500 hover:text-red-400"}`}
+                            className={`flex items-center gap-1.5 text-[12px] font-bold transition-all ${isLikedByMe ? "text-[#d8454f]" : "text-gray-400 hover:text-[#d8454f]"}`}
                         >
-                            <ThumbsUp size={13} fill={isLikedByMe ? "currentColor" : "none"} />
+                            <div className={`p-1.5 rounded-lg transition-colors ${isLikedByMe ? "bg-[#d8454f]/10" : "group-hover:bg-gray-100"}`}>
+                                <ThumbsUp size={14} fill={isLikedByMe ? "currentColor" : "none"} />
+                            </div>
                             {comment._count.likes > 0 && <span>{comment._count.likes}</span>}
                         </button>
 
                         {!isReply && (
                             <button
                                 onClick={() => setIsReplying(!isReplying)}
-                                className={`flex items-center gap-1.5 text-xs font-bold transition-all ${isReplying ? "text-[#d8454f]" : "text-gray-500 hover:text-white"}`}
+                                className={`flex items-center gap-1.5 text-[12px] font-bold transition-all ${isReplying ? "text-[#d8454f]" : "text-gray-400 hover:text-gray-900"}`}
                             >
-                                <MessageSquare size={13} />
+                                <div className={`p-1.5 rounded-lg transition-colors ${isReplying ? "bg-[#d8454f]/10" : "group-hover:bg-gray-100"}`}>
+                                    <MessageSquare size={14} />
+                                </div>
                                 <span>Хариулах</span>
                             </button>
                         )}
@@ -197,7 +201,7 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply }: Co
                         {!isReply && comment.replies && comment.replies.length > 0 && (
                             <button
                                 onClick={() => setShowReplies(!showReplies)}
-                                className="text-[11px] font-bold text-gray-500 hover:text-[#d8454f] transition-all ml-auto flex items-center gap-1"
+                                className="text-[11px] font-bold text-gray-400 hover:text-[#d8454f] transition-all ml-auto flex items-center gap-1.5 bg-gray-50 hover:bg-[#d8454f]/5 px-3 py-1.5 rounded-full"
                             >
                                 {showReplies ? "Хариуг нуух" : `Хариуг харах (${comment.replies.length})`}
                             </button>

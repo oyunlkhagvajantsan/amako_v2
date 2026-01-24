@@ -59,22 +59,22 @@ export default function CommentSection({ mangaId, chapterId }: CommentSectionPro
     };
 
     return (
-        <section className="py-8 border-t border-gray-800/30 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <section className="py-12 border-t border-gray-100 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-red-950/20 text-[#d8454f] rounded-xl flex items-center justify-center">
-                        <MessageSquare size={22} />
+                    <div className="w-12 h-12 bg-[#d8454f]/5 text-[#d8454f] rounded-2xl flex items-center justify-center shadow-sm border border-[#d8454f]/10">
+                        <MessageSquare size={24} />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold text-white leading-tight">Сэтгэгдэл</h2>
-                        <p className="text-gray-500 text-sm">
+                        <h2 className="text-2xl font-bold text-gray-900 leading-tight">Сэтгэгдэл</h2>
+                        <p className="text-gray-400 text-sm font-medium">
                             Нийт {comments.reduce((acc, c) => acc + 1 + (c.replies?.length || 0), 0)} сэтгэгдэл
                         </p>
                     </div>
                 </div>
                 <button
                     onClick={fetchComments}
-                    className="p-2 hover:bg-gray-800 rounded-lg text-gray-500 hover:text-white transition-all active:rotate-180 duration-500"
+                    className="p-2.5 hover:bg-gray-50 rounded-xl text-gray-400 hover:text-gray-900 transition-all active:rotate-180 duration-500 border border-transparent hover:border-gray-100"
                     title="Шинэчлэх"
                 >
                     <RefreshCcw size={20} />
@@ -85,12 +85,14 @@ export default function CommentSection({ mangaId, chapterId }: CommentSectionPro
             {session ? (
                 <CommentInput onSubmit={handlePostComment} />
             ) : (
-                <div className="bg-[#1e1e1e]/40 border-2 border-dashed border-gray-800 rounded-2xl p-8 text-center mb-10 group hover:border-[#d8454f]/50 transition-colors duration-300">
-                    <LogIn className="mx-auto mb-3 text-gray-600 group-hover:text-[#d8454f] transition-colors" size={32} />
-                    <p className="text-gray-400 mb-4">Сэтгэгдэл бичихийн тулд нэвтэрнэ үү.</p>
+                <div className="bg-gray-50/50 border-2 border-dashed border-gray-200 rounded-3xl p-10 text-center mb-10 group hover:border-[#d8454f]/30 hover:bg-white transition-all duration-300">
+                    <div className="w-16 h-16 bg-white rounded-2xl shadow-sm border border-gray-100 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <LogIn className="text-gray-400 group-hover:text-[#d8454f] transition-colors" size={32} />
+                    </div>
+                    <p className="text-gray-500 mb-6 font-medium">Сэтгэгдэл бичихийн тулд нэвтэрнэ үү.</p>
                     <Link
                         href="/login"
-                        className="inline-flex items-center px-6 py-2.5 bg-[#d8454f] hover:bg-[#c13a44] text-white font-semibold rounded-xl transition-all hover:scale-105"
+                        className="inline-flex items-center px-8 py-3 bg-[#d8454f] hover:bg-[#c13a44] text-white font-bold rounded-2xl transition-all hover:scale-105 shadow-lg shadow-red-500/20 active:scale-95"
                     >
                         Нэвтрэх
                     </Link>
