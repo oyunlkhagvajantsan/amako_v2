@@ -1,108 +1,131 @@
-# Amako Website Deployment
+# 🏮 Amako Manga Platform
 
-This is a Next.js manga reading platform built with:
-- **Frontend:** Next.js 16, React 19, TailwindCSS
-- **Backend:** Next.js API Routes, Prisma ORM
-- **Database:** PostgreSQL
-- **Authentication:** NextAuth.js
-- **UI Components:** Lucide React icons
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-blue?style=flat-square&logo=react)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?style=flat-square&logo=prisma)](https://www.prisma.io/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
+[![Vitest](https://img.shields.io/badge/Vitest-3-6E9F18?style=flat-square&logo=vitest)](https://vitest.dev/)
 
-## 🚀 Quick Start (Local Development)
+A premium, production-grade manga reading platform built with the latest web technologies. Optimized for performance, security, and developer experience.
+
+---
+
+## ✨ Features
+
+- **📖 Advanced Reader**: Seamless chapter reading experience with optimized image delivery.
+- **🔐 Secure Auth**: Robust authentication via NextAuth.js, including role-based access control (Admin/Moderator/User).
+- **🛡️ Data Integrity**: Strict schema validation using Zod across all API endpoints.
+- **⚡ Performance**: Built on Next.js 15 App Router with full React 19 support.
+- **🧪 Automated Testing**: Comprehensive test suite including unit tests (Vitest) and E2E flows (Playwright).
+- **☁️ Modern Storage**: Integrated with Cloudflare R2 for high-performance image hosting.
+- **🎨 Premium UI**: Modern aesthetic with Tailwind CSS 4, featuring smooth micro-animations and responsive design.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Core**: Next.js 15 (App Router), React 19, TypeScript
+- **Styling**: Tailwind CSS 4, Lucide React
+- **Database**: PostgreSQL with Prisma ORM (v6)
+- **Validation**: Zod (Robust schema validation)
+- **Testing**: Vitest (Unit/Integration), Playwright (E2E)
+- **Auth**: NextAuth.js v4
+- **Storage**: Cloudflare R2 / AWS S3 SDK
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 20+
 - PostgreSQL 14+
-- npm or yarn
+- Cloudflare R2 Bucket (or S3-compatible)
 
 ### Installation
 
-```bash
-# 1. Clone repository
-git clone https://github.com/YOUR_USERNAME/amako-website.git
-cd amako-website
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/amako-v2.git
+   cd amako-v2
+   ```
 
-# 2. Install dependencies
-npm install
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-# 3. Set up environment variables
-cp .env.example .env
-# Edit .env with your database credentials
+3. **Environment Setup**
+   ```bash
+   cp .env.example .env.local
+   # Update .env.local with your credentials
+   ```
 
-# 4. Set up database
-npx prisma migrate dev
-npx prisma db push
+4. **Database Initialization**
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   ```
 
-# 5. Run development server
-npm run dev
-```
+5. **Run Development Server**
+   ```bash
+   npm run dev
+   ```
 
-Visit `http://localhost:3000`
+---
 
-## 📦 Project Structure
+## 🧪 Testing
 
-```
-amako_website/
-├── app/                    # Next.js App Router
-│   ├── admin/             # Admin panel pages
-│   ├── api/               # API routes
-│   ├── components/        # Reusable components
-│   ├── genres/            # Browse by genre
-│   ├── manga/             # Manga details & reader
-│   └── profile/           # User profile
-├── lib/                   # Utility functions
-├── prisma/                # Database schema & migrations
-├── public/                # Static assets
-│   └── uploads/          # User-uploaded images (gitignored)
-└── scripts/              # Utility scripts
-```
-
-## 🌐 Deployment
-
-See [Vercel Deployment Guide](./vercel_deployment_guide.md) for detailed instructions.
-
-**Quick Deploy:**
-1. Push to GitHub
-2. Import to Vercel
-3. Set up Neon PostgreSQL
-4. Add environment variables
-5. Deploy!
-
-## 🔐 Environment Variables
-
-Required variables (see `.env.example`):
-- `DATABASE_URL` - PostgreSQL connection string
-- `NEXTAUTH_URL` - Your domain URL
-- `NEXTAUTH_SECRET` - Random secret key
-
-Optional:
-- SMTP credentials for email (forgot password feature)
-
-## 📝 Features
-
-- 📚 Browse manga library
-- 📖 Chapter reader with image viewer
-- 🔐 User authentication & profiles
-- 🔒 Premium chapter system
-- 👨‍💼 Admin panel for content management
-- 📱 Fully responsive (mobile, tablet, desktop)
-- 🌍 Mongolian & English support
-
-## 🛠️ Scripts
+We prioritize code quality with a dual-layer testing strategy.
 
 ```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
-npm run lint         # Lint code
+# Run Unit & Integration tests (Vitest)
+npm run test
 
-# Custom scripts
-node scripts/convert-to-webp.js  # Convert images to WebP
+# Run Watch Mode for development
+npm run test:watch
+
+# Run E2E tests (Playwright)
+npm run e2e
 ```
+
+---
+
+## 📂 Project Structure
+
+```text
+amako_v2/
+├── app/                  # Next.js App Router
+│   ├── admin/           # Admin Dashboard
+│   ├── api/             # Secure API Routes (Zod validated)
+│   ├── components/      # Atomic UI Components
+│   └── manga/           # Core Manga & Reader logic
+├── lib/                 # Shared Utilities (Auth, Prisma, R2)
+│   └── validations/     # Centralized Zod Schemas
+├── prisma/              # DB Schema & Migrations
+├── tests/               # E2E & Setup Configurations
+└── scripts/             # Internal Maintenance Scripts
+```
+
+---
+
+## 🛠️ Available Scripts
+
+- `npm run dev`: Starts the development server.
+- `npm run build`: Production build with Prisma generation.
+- `npm run lint`: Runs ESLint for code quality.
+- `npm run test`: Executes unit tests once.
+- `npm run e2e`: Executes Playwright E2E tests.
+- `npm run db:push`: Synchronizes Prisma schema with the database.
+
+---
 
 ## 📄 License
 
-Private project - All rights reserved
+Private Project. All rights reserved.
+
+---
 
 ## 👤 Author
 
-Created by Oyuka
+**Oyuka** - *Lead Developer*
