@@ -27,6 +27,12 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
         notFound();
     }
 
+    // Increment View Count (Non-blocking)
+    prisma.manga.update({
+        where: { id: mangaId },
+        data: { viewCount: { increment: 1 } }
+    }).catch(err => console.error("Failed to increment manga view:", err));
+
     // Check Subscription and Read History
     const session = await getServerSession(authOptions);
     let isSubscribed = false;

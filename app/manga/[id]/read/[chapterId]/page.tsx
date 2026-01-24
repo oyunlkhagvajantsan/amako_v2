@@ -38,6 +38,18 @@ export default async function ChapterReaderPage({
         notFound();
     }
 
+    // Increment View Counts (Non-blocking)
+    Promise.all([
+        prisma.chapter.update({
+            where: { id: chapterId },
+            data: { viewCount: { increment: 1 } }
+        }),
+        prisma.manga.update({
+            where: { id: mangaId },
+            data: { viewCount: { increment: 1 } }
+        })
+    ]).catch(err => console.error("Failed to increment views:", err));
+
     // --- Subscription Check ---
     const session = await getServerSession(authOptions);
     let isSubscribed = false;

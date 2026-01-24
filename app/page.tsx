@@ -16,6 +16,7 @@ export default async function Home() {
       id: true,
       titleMn: true,
       coverImage: true,
+      viewCount: true,
 
       _count: {
         select: { chapters: true }
