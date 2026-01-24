@@ -33,7 +33,8 @@ function LoginForm() {
             if (res?.error) {
                 setError("Имэйл эсвэл нууц үг буруу байна.");
             } else {
-                router.push("/");
+                const callbackUrl = searchParams.get("callbackUrl");
+                router.push(callbackUrl || "/");
                 router.refresh();
             }
         } catch (err) {

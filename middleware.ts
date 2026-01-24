@@ -62,7 +62,7 @@ export default withAuth(
                 // Always authorize if not on /admin or /api (let the middleware function handle logic)
                 // or if it's an API route that might need auth, let it through to check session manually if needed
                 // But generally, /admin MUST have a token
-                if (req.nextUrl.pathname.startsWith("/admin")) {
+                if (req.nextUrl.pathname.startsWith("/amako-portal-v7")) {
                     return !!token;
                 }
                 return true;
