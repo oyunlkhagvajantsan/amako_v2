@@ -1,17 +1,9 @@
-import Header from "./components/Header";
-import Link from "next/link";
-import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import MangaCard from "./components/MangaCard";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const session = await getServerSession(authOptions);
-  const isAdminOrMod = session?.user?.role === "ADMIN" || session?.user?.role === "MODERATOR";
-
   // Get popular manga (top 10 by view count)
   const popularManga = await prisma.manga.findMany({
     where: { isPublished: true },
@@ -90,7 +82,6 @@ export default async function Home() {
                     key={manga.id}
                     manga={manga}
                     className="w-40 snap-start"
-                    showViewCount={isAdminOrMod}
                   />
                 ))}
               </div>
