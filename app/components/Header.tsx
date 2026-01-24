@@ -80,7 +80,7 @@ export default function Header({ isSticky = true }: { isSticky?: boolean }) {
                       <Crown size={16} /> Эрх сунгах
                     </Link>
                     <button
-                      onClick={() => signOut({ callbackUrl: "/" })}
+                      onClick={() => signOut({ callbackUrl: window.location.origin })}
                       className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
                     >
                       <LogOut size={16} /> Гарах
@@ -170,7 +170,7 @@ export default function Header({ isSticky = true }: { isSticky?: boolean }) {
                     </Link>
                     <button
                       onClick={() => {
-                        signOut({ callbackUrl: "/" });
+                        signOut({ callbackUrl: window.location.origin });
                         setIsMobileMenuOpen(false);
                       }}
                       className="flex items-center gap-3 w-full text-left text-lg font-medium text-red-600"

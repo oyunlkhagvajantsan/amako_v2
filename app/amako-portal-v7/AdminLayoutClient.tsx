@@ -104,7 +104,7 @@ export default function AdminLayoutClient({
 
                     <div className="pt-4 mt-4 border-t border-gray-200">
                         <button
-                            onClick={() => signOut({ callbackUrl: "/" })}
+                            onClick={() => signOut({ callbackUrl: window.location.origin })}
                             className="flex items-center gap-3 px-4 py-3 w-full text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                         >
                             <span>🚪</span>
