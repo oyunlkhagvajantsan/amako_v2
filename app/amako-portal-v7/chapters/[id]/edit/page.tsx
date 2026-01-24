@@ -5,6 +5,7 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import ChapterForm from "../../components/ChapterForm";
+import DeleteChapterButton from "../../components/DeleteChapterButton";
 
 export default async function EditChapterPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -67,17 +68,7 @@ export default async function EditChapterPage({ params }: { params: Promise<{ id
                             revalidatePath("/amako-portal-v7/chapters");
                             redirect("/amako-portal-v7/chapters");
                         }}>
-                            <button
-                                type="submit"
-                                className="px-6 py-2 bg-white border border-red-200 text-red-600 font-bold rounded-lg hover:bg-red-50 transition-colors shadow-sm"
-                                onClick={(e) => {
-                                    if (!confirm("Are you SURE you want to delete this entire chapter? This cannot be undone.")) {
-                                        e.preventDefault();
-                                    }
-                                }}
-                            >
-                                Delete Forever
-                            </button>
+                            <DeleteChapterButton />
                         </form>
                     </div>
                 </div>
