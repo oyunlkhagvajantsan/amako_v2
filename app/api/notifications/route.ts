@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/error-utils";
 
 /**
  * GET: Fetch the current user's notifications.
@@ -21,8 +22,7 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json(notifications);
     } catch (error) {
-        console.error("Fetch notifications error:", error);
-        return NextResponse.json({ error: "Failed to fetch notifications" }, { status: 500 });
+        return handleApiError(error, "GET_NOTIFICATIONS");
     }
 }
 
@@ -54,7 +54,6 @@ export async function PATCH(req: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error("Update notifications error:", error);
-        return NextResponse.json({ error: "Failed to update notifications" }, { status: 500 });
+        return handleApiError(error, "UPDATE_NOTIFICATIONS");
     }
 }

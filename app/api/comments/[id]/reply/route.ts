@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { handleApiError } from "@/lib/error-utils";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -101,7 +102,6 @@ export async function POST(
 
         return NextResponse.json(reply);
     } catch (error) {
-        console.error("Create reply error:", error);
-        return NextResponse.json({ error: "Failed to post reply", details: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
+        return handleApiError(error, "POST_REPLY");
     }
 }

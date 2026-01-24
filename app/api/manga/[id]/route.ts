@@ -7,6 +7,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { r2Client, R2_BUCKET_NAME, R2_PUBLIC_URL } from "@/lib/r2";
 import sharp from "sharp";
 import { mangaSchema } from "@/lib/validations/manga";
+import { handleApiError } from "@/lib/error-utils";
 
 export async function PATCH(
     req: Request,
@@ -92,11 +93,7 @@ export async function PATCH(
 
         return NextResponse.json(manga);
     } catch (error) {
-        console.error("Update error detailed:", error);
-        return NextResponse.json(
-            { error: "Failed to update manga", details: error instanceof Error ? error.message : "Unknown error" },
-            { status: 500 }
-        );
+        return handleApiError(error, "UPDATE_MANGA");
     }
 }
 
@@ -119,10 +116,6 @@ export async function DELETE(
 
         return NextResponse.json({ message: "Manga deleted successfully" });
     } catch (error) {
-        console.error("Delete error:", error);
-        return NextResponse.json(
-            { error: "Failed to delete manga" },
-            { status: 500 }
-        );
+        return handleApiError(error, "DELETE_MANGA");
     }
 }

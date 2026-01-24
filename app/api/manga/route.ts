@@ -6,6 +6,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { r2Client, R2_BUCKET_NAME, R2_PUBLIC_URL } from "@/lib/r2";
 import sharp from "sharp";
 import { mangaSchema } from "@/lib/validations/manga";
+import { handleApiError } from "@/lib/error-utils";
 
 export async function POST(req: Request) {
     try {
@@ -92,10 +93,6 @@ export async function POST(req: Request) {
 
         return NextResponse.json(manga, { status: 201 });
     } catch (error) {
-        console.error("Manga creation error details:", error);
-        return NextResponse.json(
-            { error: "Failed to create manga", details: error instanceof Error ? error.message : "Unknown error" },
-            { status: 500 }
-        );
+        return handleApiError(error, "CREATE_MANGA");
     }
 }

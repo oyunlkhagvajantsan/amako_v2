@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/error-utils";
 
 /**
  * PATCH: Hide/Show a comment (Moderation).
@@ -27,8 +28,7 @@ export async function PATCH(
 
         return NextResponse.json(updatedComment);
     } catch (error) {
-        console.error("Moderate comment error:", error);
-        return NextResponse.json({ error: "Failed to update comment status" }, { status: 500 });
+        return handleApiError(error, "MODERATE_COMMENT");
     }
 }
 
@@ -72,7 +72,6 @@ export async function DELETE(
 
         return NextResponse.json({ success: true, message: "Comment deleted" });
     } catch (error) {
-        console.error("Delete comment error:", error);
-        return NextResponse.json({ error: "Failed to delete comment" }, { status: 500 });
+        return handleApiError(error, "DELETE_COMMENT");
     }
 }

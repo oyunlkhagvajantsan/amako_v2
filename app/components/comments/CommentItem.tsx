@@ -5,6 +5,7 @@ import { ThumbsUp, MessageSquare, Trash2, EyeOff, Eye, MoreVertical } from "luci
 import { useSession } from "next-auth/react";
 import CommentInput from "./CommentInput";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { logger } from "@/lib/logger";
 
 import { CommentData, CommentItemProps } from "@/lib/types";
 
@@ -62,6 +63,7 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
             return { previousComments };
         },
         onError: (err, variables, context) => {
+            logger.error("Failed to like comment", { context: { err, commentId: comment.id } });
             queryClient.setQueryData(queryKey, context?.previousComments);
         },
         onSettled: () => {

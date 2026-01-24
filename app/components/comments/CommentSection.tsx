@@ -7,6 +7,7 @@ import CommentItem from "./CommentItem";
 import CommentInput from "./CommentInput";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { CommentData } from "@/lib/types";
+import { logger } from "@/lib/logger";
 
 interface CommentSectionProps {
     mangaId: number;

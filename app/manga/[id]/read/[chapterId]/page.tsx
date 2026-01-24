@@ -13,6 +13,7 @@ import { ChevronLeft, Lock } from "lucide-react";
 import ProtectedReader from "@/app/components/ProtectedReader";
 import AgeVerificationGuard from "@/app/components/AgeVerificationGuard";
 import CommentSection from "@/app/components/comments/CommentSection";
+import ErrorBoundary from "@/app/components/ErrorBoundary";
 import { ChapterWithManga } from "@/lib/types";
 
 export default async function ChapterReaderPage({
@@ -180,7 +181,9 @@ export default async function ChapterReaderPage({
 
                     {/* Comment Section (Chapter specific) */}
                     <div className="px-4 border-t border-gray-800/50 pt-4">
-                        <CommentSection mangaId={mangaId} chapterId={chapterId} variant="dark" />
+                        <ErrorBoundary>
+                            <CommentSection mangaId={mangaId} chapterId={chapterId} variant="dark" />
+                        </ErrorBoundary>
                     </div>
                 </div>
             )}

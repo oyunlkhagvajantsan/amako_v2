@@ -1,8 +1,11 @@
-'use client'; // Error boundaries must be Client Components
+"use client";
 
-import { useEffect } from 'react';
+import { useEffect } from "react";
+import { logger } from "@/lib/logger";
+import { AlertCircle, RotateCcw, Home } from "lucide-react";
+import Link from "next/link";
 
-export default function Error({
+export default function GlobalError({
     error,
     reset,
 }: {
@@ -10,22 +13,47 @@ export default function Error({
     reset: () => void;
 }) {
     useEffect(() => {
-        // Log the error to an error reporting service
-        console.error(error);
+        // Log the error centrally
+        logger.error("Global error caught", {
+            context: { error, digest: error.digest }
+        });
     }, [error]);
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
-            <h2 className="text-2xl font-bold mb-4">Something went wrong!</h2>
-            <button
-                onClick={
-                    // Attempt to recover by trying to re-render the segment
-                    () => reset()
-                }
-                className="px-4 py-2 bg-[#d8454f] text-white rounded-lg hover:bg-[#c13a44] transition-colors"
-            >
-                Try again
-            </button>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+            <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 border border-gray-100 text-center">
+                <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <AlertCircle size={40} />
+                </div>
+
+                <h1 className="text-2xl font-bold text-gray-900 mb-4">Системийн алдаа гарлаа</h1>
+                <p className="text-gray-500 mb-8">
+                    Уучлаарай, системийн дотоод алдаа гарлаа. Бид үүнийг аль хэдийн тэмдэглэн авсан бөгөөд засварлахаар ажиллаж байна.
+                </p>
+
+                <div className="flex flex-col gap-3">
+                    <button
+                        onClick={() => reset()}
+                        className="w-full py-3 bg-[#d8454f] hover:bg-[#c13a44] text-white font-bold rounded-xl transition-all shadow-lg shadow-red-500/10 flex items-center justify-center gap-2"
+                    >
+                        <RotateCcw size={20} />
+                        Дахин оролдох
+                    </button>
+                    <Link
+                        href="/"
+                        className="w-full py-3 bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                    >
+                        <Home size={20} />
+                        Нүүр хуудас руу буцах
+                    </Link>
+                </div>
+
+                <div className="mt-8 pt-8 border-t border-gray-100">
+                    <p className="text-xs text-gray-400">
+                        Алдааны код: <span className="font-mono">{error.digest || 'Internal Server Error'}</span>
+                    </p>
+                </div>
+            </div>
         </div>
     );
 }

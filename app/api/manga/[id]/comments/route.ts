@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createCommentSchema } from "@/lib/validations/comment";
+import { handleApiError } from "@/lib/error-utils";
 
 /**
  * GET: Fetch comments for a specific manga.
@@ -88,8 +89,7 @@ export async function GET(
 
         return NextResponse.json(comments);
     } catch (error) {
-        console.error("Fetch comments error:", error);
-        return NextResponse.json({ error: "Failed to fetch comments" }, { status: 500 });
+        return handleApiError(error, "GET_COMMENTS");
     }
 }
 
@@ -141,7 +141,6 @@ export async function POST(
 
         return NextResponse.json(comment);
     } catch (error) {
-        console.error("Create comment error:", error);
-        return NextResponse.json({ error: "Failed to post comment" }, { status: 500 });
+        return handleApiError(error, "POST_COMMENT");
     }
 }
