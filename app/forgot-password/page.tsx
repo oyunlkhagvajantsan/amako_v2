@@ -142,12 +142,29 @@ export default function ForgotPasswordPage() {
                                 type="password"
                                 id="newPassword"
                                 required
-                                minLength={6}
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d8454f]/20 focus:border-[#d8454f] transition-colors"
                                 placeholder="••••••••"
                             />
+                            <div className="mt-2 space-y-1">
+                                <div className={`text-xs flex items-center gap-2 ${newPassword.length >= 8 ? 'text-green-600' : 'text-gray-400'}`}>
+                                    <div className={`w-1 h-1 rounded-full ${newPassword.length >= 8 ? 'bg-green-600' : 'bg-gray-300'}`} />
+                                    Дор хаяж 8 тэмдэгт
+                                </div>
+                                <div className={`text-xs flex items-center gap-2 ${/[A-Z]/.test(newPassword) ? 'text-green-600' : 'text-gray-400'}`}>
+                                    <div className={`w-1 h-1 rounded-full ${/[A-Z]/.test(newPassword) ? 'bg-green-600' : 'bg-gray-300'}`} />
+                                    Том үсэг (A-Z)
+                                </div>
+                                <div className={`text-xs flex items-center gap-2 ${/[0-9]/.test(newPassword) ? 'text-green-600' : 'text-gray-400'}`}>
+                                    <div className={`w-1 h-1 rounded-full ${/[0-9]/.test(newPassword) ? 'bg-green-600' : 'bg-gray-300'}`} />
+                                    Тоо (0-9)
+                                </div>
+                                <div className={`text-xs flex items-center gap-2 ${/[^A-Za-z0-9]/.test(newPassword) ? 'text-green-600' : 'text-gray-400'}`}>
+                                    <div className={`w-1 h-1 rounded-full ${/[^A-Za-z0-9]/.test(newPassword) ? 'bg-green-600' : 'bg-gray-300'}`} />
+                                    Тусгай тэмдэгт (!@#$%...)
+                                </div>
+                            </div>
                         </div>
                         <button
                             type="submit"

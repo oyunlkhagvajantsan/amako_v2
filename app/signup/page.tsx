@@ -98,6 +98,28 @@ export default function SignupPage() {
                                 value={formData.password}
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             />
+                            <div className="mt-2 space-y-1">
+                                <div className={`text-xs flex items-center gap-2 ${formData.password.length >= 8 ? 'text-green-600' : 'text-gray-400'}`}>
+                                    <div className={`w-1 h-1 rounded-full ${formData.password.length >= 8 ? 'bg-green-600' : 'bg-gray-300'}`} />
+                                    Дор хаяж 8 тэмдэгт
+                                </div>
+                                <div className={`text-xs flex items-center gap-2 ${/[A-Z]/.test(formData.password) ? 'text-green-600' : 'text-gray-400'}`}>
+                                    <div className={`w-1 h-1 rounded-full ${/[A-Z]/.test(formData.password) ? 'bg-green-600' : 'bg-gray-300'}`} />
+                                    Том үсэг (A-Z)
+                                </div>
+                                <div className={`text-xs flex items-center gap-2 ${/[a-z]/.test(formData.password) ? 'text-green-600' : 'text-gray-400'}`}>
+                                    <div className={`w-1 h-1 rounded-full ${/[a-z]/.test(formData.password) ? 'bg-green-600' : 'bg-gray-300'}`} />
+                                    Жижиг үсэг (a-z)
+                                </div>
+                                <div className={`text-xs flex items-center gap-2 ${/[0-9]/.test(formData.password) ? 'text-green-600' : 'text-gray-400'}`}>
+                                    <div className={`w-1 h-1 rounded-full ${/[0-9]/.test(formData.password) ? 'bg-green-600' : 'bg-gray-300'}`} />
+                                    Тоо (0-9)
+                                </div>
+                                <div className={`text-xs flex items-center gap-2 ${/[^A-Za-z0-9]/.test(formData.password) ? 'text-green-600' : 'text-gray-400'}`}>
+                                    <div className={`w-1 h-1 rounded-full ${/[^A-Za-z0-9]/.test(formData.password) ? 'bg-green-600' : 'bg-gray-300'}`} />
+                                    Тусгай тэмдэгт (!@#$%...)
+                                </div>
+                            </div>
                         </div>
                     </div>
 
