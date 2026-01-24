@@ -51,13 +51,21 @@ export default withAuth(
             if (isRateLimitConfigured) {
                 try {
                     let limitResult;
-                    if (path.includes('/comments') && req.method === 'POST') {
+                    const method = req.method;
+
+                    // Only rate-limit mutations or specific sensitive paths
+                    // We mostly want to prevent SPAM and BRUTE FORCE
+                    if (path.includes('/comments') && method === 'POST') {
                         limitResult = await commentRateLimit?.limit(ip);
                     } else if (path.includes('/auth') || path.includes('/user/verify-age')) {
+                        // Keep auth protection on all relevant methods
                         limitResult = await authRateLimit?.limit(ip);
-                    } else {
+                    } else if (method !== 'GET') {
+                        // Apply general rate limit to all other mutations
                         limitResult = await generalRateLimit?.limit(ip);
                     }
+                    // GET requests are exempt from rate limiting for better performance, 
+                    // unless they are specific high-cost endpoints.
 
                     if (limitResult && !limitResult.success) {
                         return NextResponse.json(
