@@ -16,6 +16,7 @@ interface MangaCardProps {
     subtitle?: React.ReactNode;
     customLink?: string;
     className?: string;
+    showViewCount?: boolean;
 }
 
 export default function MangaCard({ manga, badge, subtitle, customLink, className = "" }: MangaCardProps) {
@@ -39,7 +40,7 @@ export default function MangaCard({ manga, badge, subtitle, customLink, classNam
                 {badge ? (
                     badge
                 ) : (
-                    manga.viewCount !== undefined && (
+                    showViewCount && manga.viewCount !== undefined && (
                         <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
                             <Eye size={12} /> {manga.viewCount.toLocaleString()}
                         </div>
