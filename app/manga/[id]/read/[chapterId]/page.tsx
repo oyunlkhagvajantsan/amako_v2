@@ -40,18 +40,6 @@ export default async function ChapterReaderPage({
         notFound();
     }
 
-    // Increment View Counts (Non-blocking)
-    Promise.all([
-        prisma.chapter.update({
-            where: { id: chapterId },
-            data: { viewCount: { increment: 1 } }
-        }),
-        prisma.manga.update({
-            where: { id: mangaId },
-            data: { viewCount: { increment: 1 } }
-        })
-    ]).catch(err => console.error("Failed to increment views:", err));
-
     // --- Subscription Check ---
     const session = await getServerSession(authOptions);
     let isSubscribed = false;
@@ -71,7 +59,6 @@ export default async function ChapterReaderPage({
     const isAdultManga = (chapter as any).manga?.isAdult;
     const isLocked = !isSubscribed && (isAdultManga || !isFreeChapter);
 
-    // Get prev/next chapters (only published ones)
     const allChapters = await prisma.chapter.findMany({
         where: {
             mangaId,
@@ -84,6 +71,20 @@ export default async function ChapterReaderPage({
     const currentIndex = allChapters.findIndex(c => c.id === chapterId);
     const prevChapter = currentIndex > 0 ? allChapters[currentIndex - 1] : null;
     const nextChapter = currentIndex < allChapters.length - 1 ? allChapters[currentIndex + 1] : null;
+
+    // Increment View Counts ONLY if the chapter is NOT locked
+    if (!isLocked) {
+        Promise.all([
+            prisma.chapter.update({
+                where: { id: chapterId },
+                data: { viewCount: { increment: 1 } }
+            }),
+            prisma.manga.update({
+                where: { id: mangaId },
+                data: { viewCount: { increment: 1 } }
+            })
+        ]).catch(err => console.error("Failed to increment views:", err));
+    }
 
     return (
         <div className="min-h-screen bg-[#1a1a1a] text-white">
