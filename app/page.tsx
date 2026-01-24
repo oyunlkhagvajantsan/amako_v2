@@ -1,3 +1,6 @@
+import Header from "./components/Header";
+import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import MangaCard from "./components/MangaCard";
 
