@@ -19,7 +19,7 @@ export async function POST(
         const { id: commentId } = await context.params;
 
         // Check if already liked
-        const existingLike = await (prisma as any).commentLike.findUnique({
+        const existingLike = await prisma.commentLike.findUnique({
             where: {
                 userId_commentId: {
                     userId: session.user.id,
@@ -30,7 +30,7 @@ export async function POST(
 
         if (existingLike) {
             // Unlike
-            await (prisma as any).commentLike.delete({
+            await prisma.commentLike.delete({
                 where: {
                     userId_commentId: {
                         userId: session.user.id,
@@ -41,7 +41,7 @@ export async function POST(
             return NextResponse.json({ liked: false });
         } else {
             // Like
-            const like = await (prisma as any).commentLike.create({
+            const like = await prisma.commentLike.create({
                 data: {
                     userId: session.user.id,
                     commentId: commentId
@@ -50,7 +50,7 @@ export async function POST(
 
             // Create Notification for the comment owner
             try {
-                const comment = await (prisma.comment as any).findUnique({
+                const comment = await prisma.comment.findUnique({
                     where: { id: commentId },
                     select: { userId: true, mangaId: true, chapterId: true }
                 });
@@ -66,7 +66,7 @@ export async function POST(
                         ? `/manga/${comment.mangaId}/read/${comment.chapterId}`
                         : `/manga/${comment.mangaId}`;
 
-                    await (prisma as any).notification.create({
+                    await prisma.notification.create({
                         data: {
                             userId: comment.userId,
                             type: "LIKE",
@@ -81,7 +81,7 @@ export async function POST(
 
             return NextResponse.json({ liked: true });
         }
-    } catch (error: any) {
+    } catch (error) {
         console.error("Toggle comment like error:", error);
         return NextResponse.json({ error: "Failed to update like status" }, { status: 500 });
     }

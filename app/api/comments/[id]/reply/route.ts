@@ -40,7 +40,7 @@ export async function POST(
             return NextResponse.json({ error: "Parent comment not found" }, { status: 404 });
         }
 
-        const reply = await (prisma.comment as any).create({
+        const reply = await prisma.comment.create({
             data: {
                 content,
                 mangaId: typeof mangaId === 'string' ? parseInt(mangaId) : mangaId,
@@ -61,40 +61,36 @@ export async function POST(
 
         if (reply) {
             console.log("Reply created successfully, ID:", reply.id);
-            if ((parentComment as any).userId !== session.user.id) {
-                console.log("Preparing notification for user:", (parentComment as any).userId);
+            if (parentComment.userId !== session.user.id) {
+                console.log("Preparing notification for user:", parentComment.userId);
                 try {
                     const manga = await prisma.manga.findUnique({
-                        where: { id: (parentComment as any).mangaId },
+                        where: { id: parentComment.mangaId },
                         select: { titleMn: true }
                     });
 
                     // Link to chapter if chapterId exists, otherwise link to manga details
-                    const currentChapterId = chapterId || (parentComment as any).chapterId;
+                    const currentChapterId = chapterId || parentComment.chapterId;
                     const link = currentChapterId
                         ? `/manga/${mangaId}/read/${currentChapterId}`
                         : `/manga/${mangaId}`;
 
                     console.log("Created notification data:", {
-                        userId: (parentComment as any).userId,
+                        userId: parentComment.userId,
                         type: "REPLY",
                         content: `${session.user.name || "Хэрэглэгч"} таны сэтгэгдэлд (${manga?.titleMn}) хариу бичлээ.`,
                         link: link
                     });
 
-                    if (!(prisma as any).notification) {
-                        console.error("CRITICAL: prisma.notification is not defined!");
-                    } else {
-                        const newNotif = await (prisma as any).notification.create({
-                            data: {
-                                userId: (parentComment as any).userId,
-                                type: "REPLY",
-                                content: `${session.user.name || "Хэрэглэгч"} таны сэтгэгдэлд (${manga?.titleMn}) хариу бичлээ.`,
-                                link: link
-                            }
-                        });
-                        console.log("Notification created successfully! ID:", newNotif.id);
-                    }
+                    const newNotif = await prisma.notification.create({
+                        data: {
+                            userId: parentComment.userId,
+                            type: "REPLY",
+                            content: `${session.user.name || "Хэрэглэгч"} таны сэтгэгдэлд (${manga?.titleMn}) хариу бичлээ.`,
+                            link: link
+                        }
+                    });
+                    console.log("Notification created successfully! ID:", newNotif.id);
                 } catch (err) {
                     console.error("Failed to create notification:", err);
                 }
@@ -104,8 +100,8 @@ export async function POST(
         }
 
         return NextResponse.json(reply);
-    } catch (error: any) {
+    } catch (error) {
         console.error("Create reply error:", error);
-        return NextResponse.json({ error: "Failed to post reply" }, { status: 500 });
+        return NextResponse.json({ error: "Failed to post reply", details: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
     }
 }

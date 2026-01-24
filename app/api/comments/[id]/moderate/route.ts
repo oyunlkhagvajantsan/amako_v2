@@ -20,13 +20,13 @@ export async function PATCH(
         const { id: commentId } = await context.params;
         const { isHidden } = await req.json();
 
-        const updatedComment = await (prisma.comment as any).update({
+        const updatedComment = await prisma.comment.update({
             where: { id: commentId },
             data: { isHidden }
         });
 
         return NextResponse.json(updatedComment);
-    } catch (error: any) {
+    } catch (error) {
         console.error("Moderate comment error:", error);
         return NextResponse.json({ error: "Failed to update comment status" }, { status: 500 });
     }
@@ -49,7 +49,7 @@ export async function DELETE(
         const { id: commentId } = await context.params;
 
         // Fetch the comment to check ownership
-        const comment = await (prisma.comment as any).findUnique({
+        const comment = await prisma.comment.findUnique({
             where: { id: commentId },
             select: { userId: true }
         });
@@ -66,12 +66,12 @@ export async function DELETE(
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
-        await (prisma.comment as any).delete({
+        await prisma.comment.delete({
             where: { id: commentId }
         });
 
         return NextResponse.json({ success: true, message: "Comment deleted" });
-    } catch (error: any) {
+    } catch (error) {
         console.error("Delete comment error:", error);
         return NextResponse.json({ error: "Failed to delete comment" }, { status: 500 });
     }

@@ -22,7 +22,7 @@ export async function GET(
         const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "MODERATOR";
 
         // Fetch top-level comments and their first-level replies
-        const comments = await (prisma.comment as any).findMany({
+        const comments = await prisma.comment.findMany({
             where: {
                 mangaId,
                 chapterId, // Filter by chapter if provided, else null for manga-level
@@ -87,7 +87,7 @@ export async function GET(
         });
 
         return NextResponse.json(comments);
-    } catch (error: any) {
+    } catch (error) {
         console.error("Fetch comments error:", error);
         return NextResponse.json({ error: "Failed to fetch comments" }, { status: 500 });
     }
@@ -121,7 +121,7 @@ export async function POST(
 
         const { content, chapterId } = validation.data;
 
-        const comment = await (prisma.comment as any).create({
+        const comment = await prisma.comment.create({
             data: {
                 content,
                 mangaId,
@@ -140,7 +140,7 @@ export async function POST(
         });
 
         return NextResponse.json(comment);
-    } catch (error: any) {
+    } catch (error) {
         console.error("Create comment error:", error);
         return NextResponse.json({ error: "Failed to post comment" }, { status: 500 });
     }

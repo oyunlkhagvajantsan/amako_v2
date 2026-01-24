@@ -36,8 +36,7 @@ export async function PATCH(
             );
         }
 
-        const anyPrisma = prisma as any;
-        const updatedChapter = await anyPrisma.chapter.update({
+        const updatedChapter = await prisma.chapter.update({
             where: { id: parseInt(chapterId) },
             data: {
                 chapterNumber,
@@ -51,10 +50,10 @@ export async function PATCH(
         });
 
         return NextResponse.json(updatedChapter);
-    } catch (error: any) {
+    } catch (error) {
         console.error("Chapter update error:", error);
         return NextResponse.json(
-            { error: "Failed to update chapter", details: error.message },
+            { error: "Failed to update chapter", details: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }

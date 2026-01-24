@@ -32,8 +32,7 @@ export async function POST(
         }
 
         // Save Chapter to DB
-        const anyPrisma = prisma as any;
-        const chapter = await anyPrisma.chapter.create({
+        const chapter = await prisma.chapter.create({
             data: {
                 mangaId: parseInt(mangaId),
                 chapterNumber,
@@ -47,10 +46,10 @@ export async function POST(
         });
 
         return NextResponse.json(chapter, { status: 201 });
-    } catch (error: any) {
+    } catch (error) {
         console.error("Chapter creation error details:", error);
         return NextResponse.json(
-            { error: "Failed to create chapter", details: error.message },
+            { error: "Failed to create chapter", details: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }

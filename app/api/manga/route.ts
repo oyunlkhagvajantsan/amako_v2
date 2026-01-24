@@ -91,10 +91,10 @@ export async function POST(req: Request) {
         });
 
         return NextResponse.json(manga, { status: 201 });
-    } catch (error: any) {
+    } catch (error) {
         console.error("Manga creation error details:", error);
         return NextResponse.json(
-            { error: "Failed to create manga", details: error.message },
+            { error: "Failed to create manga", details: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }

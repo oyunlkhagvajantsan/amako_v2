@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const comments = await (prisma.comment as any).findMany({
+        const comments = await prisma.comment.findMany({
             include: {
                 user: {
                     select: {
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
         });
 
         return NextResponse.json(comments);
-    } catch (error: any) {
+    } catch (error) {
         console.error("Admin fetch comments error:", error);
         return NextResponse.json({ error: "Failed to fetch all comments" }, { status: 500 });
     }

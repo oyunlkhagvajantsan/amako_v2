@@ -13,8 +13,7 @@ import { ChevronLeft, Lock } from "lucide-react";
 import ProtectedReader from "@/app/components/ProtectedReader";
 import AgeVerificationGuard from "@/app/components/AgeVerificationGuard";
 import CommentSection from "@/app/components/comments/CommentSection";
-
-export const dynamic = "force-dynamic";
+import { ChapterWithManga } from "@/lib/types";
 
 export default async function ChapterReaderPage({
     params
@@ -31,14 +30,14 @@ export default async function ChapterReaderPage({
         include: {
             manga: true
         }
-    });
+    }) as ChapterWithManga | null;
 
     if (!chapter || chapter.mangaId !== mangaId) {
         notFound();
     }
 
     // Block access to unpublished chapters
-    if (!(chapter as any).isPublished) {
+    if (!chapter.isPublished) {
         notFound();
     }
 
@@ -57,8 +56,8 @@ export default async function ChapterReaderPage({
         }
     }
 
-    const isFreeChapter = (chapter as any).isFree;
-    const isAdultManga = (chapter as any).manga?.isAdult;
+    const isFreeChapter = chapter.isFree;
+    const isAdultManga = chapter.manga?.isAdult;
 
     // Only lock if it's NOT free AND user is NOT subscribed
     // Adult content being free is now allowed but will require age verification below
@@ -80,6 +79,7 @@ export default async function ChapterReaderPage({
 
     // Increment View Counts ONLY if the chapter is NOT locked
     if (!isLocked) {
+        // Non-blocking increments
         Promise.all([
             prisma.chapter.update({
                 where: { id: chapterId },
@@ -102,7 +102,7 @@ export default async function ChapterReaderPage({
                 <div className="container mx-auto px-4 h-14 flex items-center justify-between">
                     <Link href={`/manga/${mangaId}`} className="flex items-center gap-2 hover:text-gray-300 transition-colors">
                         <ChevronLeft size={24} />
-                        <span className="font-medium truncate max-w-[200px] hidden sm:inline">{(chapter as any).manga?.titleMn}</span>
+                        <span className="font-medium truncate max-w-[200px] hidden sm:inline">{chapter.manga?.titleMn}</span>
                     </Link>
 
                     <ChapterNav
@@ -146,7 +146,7 @@ export default async function ChapterReaderPage({
                         ))}
 
                         {/* Chapter Caption (Author's note) */}
-                        {(chapter as any).caption && (
+                        {chapter.caption && (
                             <div className="max-w-2xl mx-auto my-12 p-8 bg-[#1e1e1e] border-2 border-[#d8454f]/20 rounded-3xl shadow-2xl relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#d8454f]/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110" />
                                 <h3 className="text-[#d8454f] font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
@@ -154,7 +154,7 @@ export default async function ChapterReaderPage({
                                     Бүлгийн тэмдэглэл
                                 </h3>
                                 <p className="text-gray-200 leading-relaxed whitespace-pre-wrap italic">
-                                    {(chapter as any).caption}
+                                    {chapter.caption}
                                 </p>
                             </div>
                         )}
@@ -165,7 +165,7 @@ export default async function ChapterReaderPage({
 
             {/* Navigation & Discussion Section */}
             {!isLocked && (
-                <div className={`max-w-3xl mx-auto pb-20 ${(chapter as any).caption ? "space-y-8" : "space-y-0"}`}>
+                <div className={`max-w-3xl mx-auto pb-20 ${chapter.caption ? "space-y-8" : "space-y-0"}`}>
                     {/* Chapter Navigation (Bottom) */}
                     <div className="bg-[#1a1a1a] text-center p-4 rounded-3xl border border-gray-800/50">
                         <ChapterNav

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import Image from "next/image";
 import { User, BookOpen } from "lucide-react";
 import ChangePasswordForm from "./ChangePasswordForm";
+import { UserFull } from "@/lib/types";
 
 export default async function ProfilePage() {
     const session = await getServerSession(authOptions);
@@ -33,7 +34,7 @@ export default async function ProfilePage() {
                 }
             }
         }
-    });
+    }) as UserFull | null;
 
     if (!user) return null;
 
@@ -103,12 +104,12 @@ export default async function ProfilePage() {
                         <h3 className="font-bold text-gray-900">Сүүлд уншсан</h3>
                     </div>
                     <div className="divide-y divide-gray-100">
-                        {((user as any).readHistory || []).length === 0 ? (
+                        {user.readHistory.length === 0 ? (
                             <div className="p-6 text-center text-gray-500 text-sm">
                                 Түүх байхгүй байна.
                             </div>
                         ) : (
-                            ((user as any).readHistory || []).map((history: any) => (
+                            user.readHistory.map((history) => (
                                 <a
                                     key={history.id}
                                     href={`/manga/${history.chapter?.mangaId}/read/${history.chapterId}`}
@@ -149,12 +150,12 @@ export default async function ProfilePage() {
                         <h3 className="font-bold text-gray-900">Төлбөрийн түүх</h3>
                     </div>
                     <div className="divide-y divide-gray-100">
-                        {((user as any).paymentRequests || []).length === 0 ? (
+                        {user.paymentRequests.length === 0 ? (
                             <div className="p-6 text-center text-gray-500 text-sm">
                                 Түүх байхгүй байна.
                             </div>
                         ) : (
-                            ((user as any).paymentRequests || []).map((req: any) => (
+                            user.paymentRequests.map((req) => (
                                 <div key={req.id} className="p-4 flex items-center justify-between">
                                     <div>
                                         <p className="font-medium text-gray-900">{req.months} сарын эрх</p>

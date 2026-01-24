@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
@@ -47,9 +48,12 @@ export async function PATCH(
             );
         }
 
-        const updateData: any = {
+        const updateData: Prisma.MangaUpdateInput = {
             ...validation.data,
             isPublished,
+            genres: validation.data.genreIds ? {
+                set: validation.data.genreIds.map(gid => ({ id: gid })),
+            } : undefined,
         };
 
         // Handle Image Upload if provided
@@ -83,19 +87,14 @@ export async function PATCH(
 
         const manga = await prisma.manga.update({
             where: { id: parseInt(id) },
-            data: {
-                ...updateData,
-                genres: {
-                    set: (validation.data.genreIds || []).map((gid: number) => ({ id: gid })),
-                }
-            },
+            data: updateData,
         });
 
         return NextResponse.json(manga);
-    } catch (error: any) {
+    } catch (error) {
         console.error("Update error detailed:", error);
         return NextResponse.json(
-            { error: "Failed to update manga", details: error.message },
+            { error: "Failed to update manga", details: error instanceof Error ? error.message : "Unknown error" },
             { status: 500 }
         );
     }

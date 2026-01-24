@@ -71,7 +71,7 @@ export default function AgeVerificationGuard({ children, active = true }: AgeVer
             // Force local state update regardless of session speed
             setIsVerified(true);
 
-        } catch (error: any) {
+        } catch (error) {
             console.error("Age verification failed:", error);
             // Fallback to session storage so user isn't blocked by minor API issues
             sessionStorage.setItem("amako_age_verified", "true");

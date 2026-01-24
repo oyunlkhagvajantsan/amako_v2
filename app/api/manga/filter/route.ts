@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { MangaStatus, Prisma } from "@prisma/client";
 
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
@@ -42,7 +42,7 @@ export async function GET(req: Request) {
             } : {},
             // Filter by Status
             status && status !== "ALL" ? {
-                status: status as any
+                status: status as MangaStatus
             } : {}
         ]
     };

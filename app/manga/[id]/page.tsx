@@ -194,7 +194,7 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                     <div className="mt-16 max-w-4xl mx-auto">
                         <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b pb-2">Бүлгүүд</h2>
                         <div className="space-y-2">
-                            {((manga as any).chapters || []).map((chapter: any) => {
+                            {manga.chapters.map((chapter) => {
                                 const isLocked = !chapter.isFree && !isSubscribed;
                                 const isRead = readChapterIds.has(chapter.id);
 
@@ -245,7 +245,7 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                                     </Link>
                                 );
                             })}
-                            {((manga as any).chapters || []).length === 0 && (
+                            {manga.chapters.length === 0 && (
                                 <p className="text-gray-500 italic">Одоогоор бүлэг нэмэгдээгүй байна.</p>
                             )}
                         </div>

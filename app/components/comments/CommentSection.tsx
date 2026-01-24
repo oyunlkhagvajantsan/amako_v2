@@ -6,6 +6,7 @@ import Link from "next/link";
 import CommentItem from "./CommentItem";
 import CommentInput from "./CommentInput";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { CommentData } from "@/lib/types";
 
 interface CommentSectionProps {
     mangaId: number;
@@ -22,7 +23,7 @@ export default function CommentSection({ mangaId, chapterId, variant = 'light' }
     const queryKey = ["comments", mangaId, chapterId];
 
     // Fetch comments query
-    const { data: comments = [], isLoading, refetch } = useQuery({
+    const { data: comments = [], isLoading, refetch } = useQuery<CommentData[]>({
         queryKey,
         queryFn: async () => {
             const url = new URL(`/api/manga/${mangaId}/comments`, window.location.origin);
@@ -47,18 +48,24 @@ export default function CommentSection({ mangaId, chapterId, variant = 'light' }
         // Optimistic Updates
         onMutate: async (newCommentContent) => {
             await queryClient.cancelQueries({ queryKey });
-            const previousComments = queryClient.getQueryData(queryKey);
+            const previousComments = queryClient.getQueryData<CommentData[]>(queryKey);
+
+            if (!session?.user) return { previousComments };
 
             // Create a pseudo-comment for optimistic UI
-            const optimisticComment = {
+            const optimisticComment: CommentData = {
                 id: `temp-${Date.now()}`,
                 content: newCommentContent,
                 createdAt: new Date().toISOString(),
+                userId: session.user.id,
+                mangaId,
+                chapterId: chapterId || null,
+                isHidden: false,
                 user: {
-                    id: session?.user?.id,
-                    name: session?.user?.name,
-                    image: session?.user?.image,
-                    role: (session?.user as any)?.role || "USER",
+                    id: session.user.id,
+                    name: session.user.name,
+                    image: session.user.image || null,
+                    role: session.user.role,
                 },
                 _count: { likes: 0, replies: 0 },
                 likes: [],
@@ -66,7 +73,7 @@ export default function CommentSection({ mangaId, chapterId, variant = 'light' }
                 isOptimistic: true,
             };
 
-            queryClient.setQueryData(queryKey, (old: any) => [optimisticComment, ...(old || [])]);
+            queryClient.setQueryData(queryKey, (old: CommentData[] | undefined) => [optimisticComment, ...(old || [])]);
 
             return { previousComments };
         },
@@ -92,7 +99,7 @@ export default function CommentSection({ mangaId, chapterId, variant = 'light' }
                     <div>
                         <h2 className={`text-2xl font-bold leading-tight ${isDark ? "text-white" : "text-gray-900"}`}>Сэтгэгдэл</h2>
                         <p className={`text-sm font-medium ${isDark ? "text-gray-500" : "text-gray-400"}`}>
-                            Нийт {comments.reduce((acc: number, c: any) => acc + 1 + (c.replies?.length || 0), 0)} сэтгэгдэл
+                            Нийт {comments.reduce((acc: number, c: CommentData) => acc + 1 + (c.replies?.length || 0), 0)} сэтгэгдэл
                         </p>
                     </div>
                 </div>
@@ -138,7 +145,7 @@ export default function CommentSection({ mangaId, chapterId, variant = 'light' }
                 </div>
             ) : comments.length > 0 ? (
                 <div className="space-y-2">
-                    {comments.map((comment: any) => (
+                    {comments.map((comment: CommentData) => (
                         <CommentItem
                             key={comment.id}
                             comment={comment}

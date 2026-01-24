@@ -43,8 +43,9 @@ export default function ChangePasswordForm() {
             (e.target as HTMLFormElement).reset();
             setNewPassword("");
             router.refresh();
-        } catch (error: any) {
-            setMessage({ type: "error", text: error.message });
+        } catch (error) {
+            const errorMsg = error instanceof Error ? error.message : "Нууц үг солиход алдаа гарлаа";
+            setMessage({ type: "error", text: errorMsg });
         } finally {
             setIsLoading(false);
         }

@@ -6,38 +6,7 @@ import { useSession } from "next-auth/react";
 import CommentInput from "./CommentInput";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 
-interface CommentUser {
-    id: string;
-    name: string | null;
-    image: string | null;
-    role: string;
-}
-
-interface CommentData {
-    id: string;
-    content: string;
-    createdAt: string;
-    userId: string;
-    mangaId: number;
-    chapterId?: number | null;
-    isHidden: boolean;
-    user: CommentUser;
-    likes: { userId: string }[];
-    _count: {
-        likes: number;
-        replies?: number;
-    };
-    replies?: CommentData[];
-    isOptimistic?: boolean;
-}
-
-interface CommentItemProps {
-    comment: CommentData;
-    mangaId: number;
-    onRefresh: () => void;
-    isReply?: boolean;
-    variant?: 'light' | 'dark';
-}
+import { CommentData, CommentItemProps } from "@/lib/types";
 
 export default function CommentItem({ comment, mangaId, onRefresh, isReply, variant = 'light' }: CommentItemProps) {
     const { data: session } = useSession();
@@ -288,7 +257,7 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
                     {/* Nested Replies */}
                     {showReplies && comment.replies && comment.replies.length > 0 && (
                         <div className="space-y-4 animate-in fade-in duration-500">
-                            {comment.replies.map(reply => (
+                            {comment.replies.map((reply: CommentData) => (
                                 <CommentItem
                                     key={reply.id}
                                     comment={reply}

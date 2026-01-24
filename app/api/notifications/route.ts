@@ -13,14 +13,14 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const notifications = await (prisma as any).notification.findMany({
+        const notifications = await prisma.notification.findMany({
             where: { userId: session.user.id },
             orderBy: { createdAt: "desc" },
             take: 50 // Last 50 notifications
         });
 
         return NextResponse.json(notifications);
-    } catch (error: any) {
+    } catch (error) {
         console.error("Fetch notifications error:", error);
         return NextResponse.json({ error: "Failed to fetch notifications" }, { status: 500 });
     }
@@ -40,20 +40,20 @@ export async function PATCH(req: NextRequest) {
 
         if (id) {
             // Mark specific notification as read
-            await (prisma as any).notification.update({
+            await prisma.notification.update({
                 where: { id, userId: session.user.id },
                 data: { isRead: true }
             });
         } else {
             // Mark all as read
-            await (prisma as any).notification.updateMany({
+            await prisma.notification.updateMany({
                 where: { userId: session.user.id, isRead: false },
                 data: { isRead: true }
             });
         }
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
+    } catch (error) {
         console.error("Update notifications error:", error);
         return NextResponse.json({ error: "Failed to update notifications" }, { status: 500 });
     }
