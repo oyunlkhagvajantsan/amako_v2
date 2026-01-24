@@ -7,6 +7,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { User, Palette, ShieldAlert, Lock, BookOpen, Layers, ArrowLeft } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function MangaDetailsPage({ params }: { params: { id: string } }) {
     // Await params for Next.js 15 compatibility
     const { id } = await params;

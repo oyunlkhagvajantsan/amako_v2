@@ -12,6 +12,8 @@ import { ChevronLeft, Lock } from "lucide-react";
 
 import ProtectedReader from "@/app/components/ProtectedReader";
 
+export const dynamic = "force-dynamic";
+
 export default async function ChapterReaderPage({
     params
 }: {
