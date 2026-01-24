@@ -31,6 +31,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         if (contentType?.includes('multipart/form-data')) {
             const formData = await request.formData();
             const file = formData.get('file') as File;
+            const mangaId = formData.get('mangaId') as string || 'unknown';
+            const chapterNumber = formData.get('chapterNumber') as string || '0';
 
             if (!file) {
                 return NextResponse.json(
@@ -51,10 +53,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             // Convert file to buffer
             const buffer = Buffer.from(await file.arrayBuffer());
 
-            // Generate unique filename
+            // Generate unique filename with folder structure
             const timestamp = Date.now();
             const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-            const key = `chapters/${timestamp}-${sanitizedFilename}`;
+            const key = `chapters/manga-${mangaId}/chapter-${chapterNumber}/${timestamp}-${sanitizedFilename}`;
 
             // Upload to R2
             const command = new PutObjectCommand({

@@ -163,6 +163,11 @@ export default function CreateChapterForm({
                         const uploadFormData = new FormData();
                         uploadFormData.append('file', finalBlob, finalFileName);
 
+                        // Capture chapter metadata for R2 folder structure
+                        const chapterNumber = (form.elements.namedItem('chapterNumber') as HTMLInputElement).value;
+                        uploadFormData.append('mangaId', selectedMangaId);
+                        uploadFormData.append('chapterNumber', chapterNumber);
+
                         const uploadRes = await fetch('/api/upload/chapter', {
                             method: 'POST',
                             body: uploadFormData,
