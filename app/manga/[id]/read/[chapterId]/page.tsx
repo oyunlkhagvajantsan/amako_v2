@@ -94,7 +94,10 @@ export default async function ChapterReaderPage({
             </header>
 
             {/* Reader Content - Vertical Scroll */}
-            <main className="max-w-3xl mx-auto bg-black min-h-screen relative">
+            <main
+                className="max-w-3xl mx-auto bg-black min-h-screen relative select-none"
+                onContextMenu={(e) => e.preventDefault()}
+            >
                 {isLocked ? (
                     <div className="flex flex-col items-center justify-center py-32 px-4 text-center">
                         <div className="w-24 h-24 bg-gray-900 rounded-full flex items-center justify-center mb-6 text-[#d8454f]">
@@ -109,18 +112,25 @@ export default async function ChapterReaderPage({
                         </Link>
                     </div>
                 ) : (
-                    <>
+                    <div className="relative">
+                        {/* Protection Shield Overlay */}
+                        <div
+                            className="absolute inset-0 z-10"
+                            aria-hidden="true"
+                        />
+
                         {session?.user && <ReadHistoryTracker chapterId={chapterId} />}
                         {chapter.images.map((imgUrl, index) => (
                             <img
                                 key={index}
                                 src={imgUrl}
                                 alt={`Page ${index + 1}`}
-                                className="w-full h-auto block"
+                                className="w-full h-auto block select-none pointer-events-none"
+                                draggable="false"
                                 loading={index < 3 ? "eager" : "lazy"}
                             />
                         ))}
-                    </>
+                    </div>
                 )}
             </main>
 
