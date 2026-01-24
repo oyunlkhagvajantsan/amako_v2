@@ -11,6 +11,7 @@ import ScrollToTop from "@/app/components/ScrollToTop";
 import { ChevronLeft, Lock } from "lucide-react";
 
 import ProtectedReader from "@/app/components/ProtectedReader";
+import AgeVerificationGuard from "@/app/components/AgeVerificationGuard";
 
 export const dynamic = "force-dynamic";
 
@@ -57,7 +58,11 @@ export default async function ChapterReaderPage({
 
     const isFreeChapter = (chapter as any).isFree;
     const isAdultManga = (chapter as any).manga?.isAdult;
-    const isLocked = !isSubscribed && (isAdultManga || !isFreeChapter);
+
+    // Only lock if it's NOT free AND user is NOT subscribed
+    // Adult content being free is now allowed but will require age verification below
+    const isLocked = !isSubscribed && !isFreeChapter;
+    const needsAgeVerification = isFreeChapter && isAdultManga;
 
     const allChapters = await prisma.chapter.findMany({
         where: {
@@ -125,19 +130,21 @@ export default async function ChapterReaderPage({
                     </Link>
                 </main>
             ) : (
-                <ProtectedReader>
-                    {session?.user && <ReadHistoryTracker chapterId={chapterId} />}
-                    {chapter.images.map((imgUrl, index) => (
-                        <img
-                            key={index}
-                            src={imgUrl}
-                            alt={`Page ${index + 1}`}
-                            className="w-full h-auto block select-none pointer-events-none"
-                            draggable="false"
-                            loading={index < 3 ? "eager" : "lazy"}
-                        />
-                    ))}
-                </ProtectedReader>
+                <AgeVerificationGuard active={needsAgeVerification}>
+                    <ProtectedReader>
+                        {session?.user && <ReadHistoryTracker chapterId={chapterId} />}
+                        {chapter.images.map((imgUrl, index) => (
+                            <img
+                                key={index}
+                                src={imgUrl}
+                                alt={`Page ${index + 1}`}
+                                className="w-full h-auto block select-none pointer-events-none"
+                                draggable="false"
+                                loading={index < 3 ? "eager" : "lazy"}
+                            />
+                        ))}
+                    </ProtectedReader>
+                </AgeVerificationGuard>
             )}
 
             {/* Footer Navigation (Hide if locked) */}

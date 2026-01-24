@@ -28,6 +28,7 @@ model User {
   comments    Comment[]
   likes       Like[]
   paymentRequests PaymentRequest[]
+  ageVerified     Boolean          @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
