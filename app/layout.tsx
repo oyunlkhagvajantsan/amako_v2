@@ -30,7 +30,7 @@ export default function RootLayout({
       <body
         className={`${inter.className} antialiased`}
       >
-        <Providers>{children}</Providers>
+        {children}
         <Footer />
       </body>
     </html>
