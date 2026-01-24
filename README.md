@@ -27,11 +27,12 @@ A premium, production-grade manga reading platform built with the latest web tec
 
 - **Core**: Next.js 15 (App Router), React 19, TypeScript
 - **Styling**: Tailwind CSS 4, Lucide React
-- **Database**: PostgreSQL with Prisma ORM (v6)
+- **Database**: Neon PostgreSQL with Prisma ORM (v6)
 - **Validation**: Zod (Robust schema validation)
 - **Testing**: Vitest (Unit/Integration), Playwright (E2E)
 - **Auth**: NextAuth.js v4
-- **Storage**: Cloudflare R2 / AWS S3 SDK
+- **Storage**: Cloudflare R2
+- **Hosting**: Railway
 
 ---
 

@@ -1,30 +1,84 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { commentRateLimit, authRateLimit, generalRateLimit } from "@/lib/rate-limit";
 
 export default withAuth(
-    function middleware(req) {
+    async function middleware(req: NextRequest) {
         const path = req.nextUrl.pathname;
         const host = req.headers.get("host");
-        const adminDomain = process.env.ADMIN_DOMAIN; // e.g., secret-admin.amako.mn
+        // Get IP from headers (standard for Railway/Vercel/Cloudflare)
+        const ip = req.headers.get("x-forwarded-for")?.split(',')[0] ||
+            req.headers.get("x-real-ip") ||
+            "127.0.0.1";
+        const adminDomain = process.env.ADMIN_DOMAIN;
 
-        // 1. Domain-based protection for secret admin path
+        // 1. Security Headers (CSP, etc.)
+        const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+        const cspHeader = `
+            default-src 'self';
+            script-src 'self' 'unsafe-inline' 'unsafe-eval';
+            style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+            img-src 'self' blob: data: https://*.r2.cloudflarestorage.com https://*.r2.dev;
+            font-src 'self' https://fonts.gstatic.com;
+            connect-src 'self' http://localhost:* ws://localhost:* https://*.upstash.io;
+            frame-ancestors 'none';
+        `.replace(/\s{2,}/g, ' ').trim();
+
+        const response = NextResponse.next();
+        response.headers.set('Content-Security-Policy', cspHeader);
+        response.headers.set('X-Content-Type-Options', 'nosniff');
+        response.headers.set('X-Frame-Options', 'DENY');
+        response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+        response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+
+        // 2. Admin Domain Protection
         if (path.startsWith("/amako-portal-v7")) {
-            // If an admin domain is set, only allow access if the host matches
             if (adminDomain && host !== adminDomain) {
-                // If the host doesn't match, return 404 (make it invisible)
                 return new NextResponse(null, { status: 404 });
             }
-
-            // Role-based protection (NextAuth withAuth handled the login check)
-            const role = req.nextauth.token?.role;
+            const role = (req as any).nextauth?.token?.role;
             if (role !== "ADMIN" && role !== "MODERATOR") {
                 return NextResponse.redirect(new URL("/", req.url));
             }
         }
 
-        // 2. CORS handling for API routes
+        // 3. API Rate Limiting & Protection
         if (path.startsWith('/api')) {
+            // Apply targeted rate limits (Only if configured)
+            const isRateLimitConfigured = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN;
+
+            if (isRateLimitConfigured) {
+                try {
+                    let limitResult;
+                    if (path.includes('/comments') && req.method === 'POST') {
+                        limitResult = await commentRateLimit?.limit(ip);
+                    } else if (path.includes('/auth') || path.includes('/user/verify-age')) {
+                        limitResult = await authRateLimit?.limit(ip);
+                    } else {
+                        limitResult = await generalRateLimit?.limit(ip);
+                    }
+
+                    if (limitResult && !limitResult.success) {
+                        return NextResponse.json(
+                            { error: 'Too Many Requests', details: 'Та хэтэрхий олон хүсэлт илгээсэн байна. Түр хүлээгээд дахин оролдоно уу.' },
+                            {
+                                status: 429,
+                                headers: {
+                                    'X-RateLimit-Limit': limitResult.limit.toString(),
+                                    'X-RateLimit-Remaining': limitResult.remaining.toString(),
+                                    'X-RateLimit-Reset': limitResult.reset.toString(),
+                                }
+                            }
+                        );
+                    }
+                } catch (err) {
+                    console.error("Rate limiting failed (Upstash/Redis error):", err);
+                    // Continue to API - don't block user if rate limiting service is down
+                }
+            }
+
+            // CORS logic (retained and integrated)
             const origin = req.headers.get('origin');
             const allowedOrigins = [
                 process.env.NEXT_PUBLIC_FRONTEND_URL,
@@ -32,36 +86,23 @@ export default withAuth(
                 'https://localhost:3000',
             ].filter(Boolean) as string[];
 
-            const response = NextResponse.next();
-
             if (origin && allowedOrigins.includes(origin)) {
                 response.headers.set('Access-Control-Allow-Origin', origin);
                 response.headers.set('Access-Control-Allow-Credentials', 'true');
-                response.headers.set(
-                    'Access-Control-Allow-Methods',
-                    'GET, POST, PUT, DELETE, OPTIONS, PATCH'
-                );
-                response.headers.set(
-                    'Access-Control-Allow-Headers',
-                    'Content-Type, Authorization, X-Requested-With'
-                );
+                response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+                response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
             }
 
             if (req.method === 'OPTIONS') {
                 return new NextResponse(null, { status: 200, headers: response.headers });
             }
-
-            return response;
         }
 
-        return NextResponse.next();
+        return response;
     },
     {
         callbacks: {
             authorized: ({ token, req }) => {
-                // Always authorize if not on /admin or /api (let the middleware function handle logic)
-                // or if it's an API route that might need auth, let it through to check session manually if needed
-                // But generally, /admin MUST have a token
                 if (req.nextUrl.pathname.startsWith("/amako-portal-v7")) {
                     return !!token;
                 }
@@ -72,5 +113,9 @@ export default withAuth(
 );
 
 export const config = {
-    matcher: ["/amako-portal-v7/:path*", "/api/:path*"],
+    matcher: [
+        "/amako-portal-v7/:path*",
+        "/api/:path*",
+        "/((?!_next/static|_next/image|favicon.ico).*)",
+    ],
 };

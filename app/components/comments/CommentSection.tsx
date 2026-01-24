@@ -156,7 +156,16 @@ export default function CommentSection({ mangaId, chapterId, variant = 'light' }
                         />
                     ))}
                 </div>
-            ) : null}
+            ) : (
+                <div className={`text-center py-16 rounded-3xl border-2 border-dashed ${isDark ? "border-white/5 bg-white/[0.02]" : "border-gray-100 bg-gray-50/30"}`}>
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 ${isDark ? "bg-white/5 text-gray-600" : "bg-white text-gray-300"}`}>
+                        <MessageSquare size={28} />
+                    </div>
+                    <p className={`font-medium ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+                        Одоогоор сэтгэгдэл байхгүй байна.
+                    </p>
+                </div>
+            )}
         </section>
     );
 }
