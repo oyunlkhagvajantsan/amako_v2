@@ -19,7 +19,7 @@ interface MangaCardProps {
     showViewCount?: boolean;
 }
 
-export default function MangaCard({ manga, badge, subtitle, customLink, className = "" }: MangaCardProps) {
+export default function MangaCard({ manga, badge, subtitle, customLink, className = "", showViewCount }: MangaCardProps) {
     return (
         <Link
             href={customLink || `/manga/${manga.id}`}
