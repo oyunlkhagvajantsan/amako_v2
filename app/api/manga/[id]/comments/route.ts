@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { createCommentSchema } from "@/lib/validations/comment";
 
 /**
  * GET: Fetch comments for a specific manga.
@@ -107,17 +108,24 @@ export async function POST(
 
         const { id } = await context.params;
         const mangaId = parseInt(id);
-        const { content, chapterId } = await req.json();
+        const body = await req.json();
 
-        if (!content || content.trim().length === 0) {
-            return NextResponse.json({ error: "Content is required" }, { status: 400 });
+        // Validate request body
+        const validation = createCommentSchema.safeParse(body);
+        if (!validation.success) {
+            return NextResponse.json(
+                { error: validation.error.issues[0].message },
+                { status: 400 }
+            );
         }
+
+        const { content, chapterId } = validation.data;
 
         const comment = await (prisma.comment as any).create({
             data: {
                 content,
                 mangaId,
-                chapterId: chapterId ? parseInt(chapterId as string) : null,
+                chapterId: chapterId || null,
                 userId: session.user.id
             },
             include: {

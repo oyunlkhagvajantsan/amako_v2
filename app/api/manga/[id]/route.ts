@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { r2Client, R2_BUCKET_NAME, R2_PUBLIC_URL } from "@/lib/r2";
 import sharp from "sharp";
+import { mangaSchema } from "@/lib/validations/manga";
 
 export async function PATCH(
     req: Request,
@@ -22,47 +23,34 @@ export async function PATCH(
 
         console.log("Received update request for ID:", id);
 
-        const title = formData.get("title") as string;
-        const titleMn = formData.get("titleMn") as string;
-        const description = formData.get("description") as string;
-        const author = formData.get("author") as string;
-        const artist = formData.get("artist") as string;
-        const status = formData.get("status") as "ONGOING" | "COMPLETED" | "HIATUS";
-        const type = formData.get("type") as "MANGA" | "MANHWA" | "MANHUA";
-        const publishYearStr = formData.get("publishYear") as string;
-        const publishYear = publishYearStr ? parseInt(publishYearStr) : null;
-        const isAdult = formData.get("isAdult") === "on";
+        const rawData = {
+            title: formData.get("title"),
+            titleMn: formData.get("titleMn"),
+            description: formData.get("description"),
+            author: formData.get("author") || undefined,
+            artist: formData.get("artist") || undefined,
+            status: formData.get("status"),
+            type: formData.get("type"),
+            publishYear: formData.get("publishYear") ? parseInt(formData.get("publishYear") as string) : undefined,
+            isAdult: formData.get("isAdult") === "on",
+            genreIds: formData.getAll("genreIds").map(gid => parseInt(gid as string)),
+        };
+
         const isPublished = formData.get("isPublished") === "on";
-        const genreIds = formData.getAll("genreIds") as string[];
 
-        console.log("Parsed Data:", {
-            title, status, type, publishYear, isAdult, isPublished, genreIds
-        });
-
-        if (!title || !titleMn) {
-            console.log("Missing required fields");
+        // Validate basic fields with Zod (using .partial() for updates)
+        const validation = mangaSchema.partial().safeParse(rawData);
+        if (!validation.success) {
             return NextResponse.json(
-                { error: "Missing required fields" },
+                { error: validation.error.issues[0].message },
                 { status: 400 }
             );
         }
 
         const updateData: any = {
-            title,
-            titleMn,
-            description,
-            author,
-            artist,
-            status,
-            publishYear,
-            isAdult,
+            ...validation.data,
             isPublished,
         };
-
-        // Only update type if it's provided and valid
-        if (type) {
-            updateData.type = type;
-        }
 
         // Handle Image Upload if provided
         const coverImage = formData.get("coverImage") as File | null;
@@ -98,7 +86,7 @@ export async function PATCH(
             data: {
                 ...updateData,
                 genres: {
-                    set: genreIds.map((gid) => ({ id: parseInt(gid) })),
+                    set: (validation.data.genreIds || []).map((gid: number) => ({ id: gid })),
                 }
             },
         });

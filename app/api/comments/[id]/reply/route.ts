@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { replyCommentSchema } from "@/lib/validations/comment";
 
 /**
  * POST: Create a reply to an existing comment.
@@ -17,15 +18,18 @@ export async function POST(
         }
 
         const { id: parentId } = await context.params;
-        const { content, mangaId, chapterId } = await req.json();
+        const body = await req.json();
 
-        if (!content || content.trim().length === 0) {
-            return NextResponse.json({ error: "Content is required" }, { status: 400 });
+        // Validate request body
+        const validation = replyCommentSchema.safeParse(body);
+        if (!validation.success) {
+            return NextResponse.json(
+                { error: validation.error.issues[0].message },
+                { status: 400 }
+            );
         }
 
-        if (!mangaId) {
-            return NextResponse.json({ error: "Manga ID is required" }, { status: 400 });
-        }
+        const { content, mangaId, chapterId } = validation.data;
 
         // Verify parent exists
         const parentComment = await prisma.comment.findUnique({

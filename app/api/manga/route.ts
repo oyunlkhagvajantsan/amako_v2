@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { r2Client, R2_BUCKET_NAME, R2_PUBLIC_URL } from "@/lib/r2";
 import sharp from "sharp";
+import { mangaSchema } from "@/lib/validations/manga";
 
 export async function POST(req: Request) {
     try {
@@ -15,25 +16,38 @@ export async function POST(req: Request) {
         }
 
         const formData = await req.formData();
-        const title = formData.get("title") as string;
-        const titleMn = formData.get("titleMn") as string;
-        const description = formData.get("description") as string;
-        const author = formData.get("author") as string;
-        const artist = formData.get("artist") as string;
-        const status = formData.get("status") as "ONGOING" | "COMPLETED" | "HIATUS";
-        const type = formData.get("type") as "MANGA" | "MANHWA" | "MANHUA";
-        const publishYearStr = formData.get("publishYear") as string;
-        const publishYear = publishYearStr ? parseInt(publishYearStr) : null;
-        const isAdult = formData.get("isAdult") === "on";
-        const coverImage = formData.get("coverImage") as File;
-        const genreIds = formData.getAll("genreIds") as string[];
+        const rawData = {
+            title: formData.get("title"),
+            titleMn: formData.get("titleMn"),
+            description: formData.get("description"),
+            author: formData.get("author") || undefined,
+            artist: formData.get("artist") || undefined,
+            status: formData.get("status"),
+            type: formData.get("type"),
+            publishYear: formData.get("publishYear") ? parseInt(formData.get("publishYear") as string) : undefined,
+            isAdult: formData.get("isAdult") === "on",
+            genreIds: formData.getAll("genreIds").map(id => parseInt(id as string)),
+        };
 
-        if (!title || !titleMn || !coverImage) {
+        const coverImage = formData.get("coverImage") as File;
+
+        // Validate basic fields with Zod
+        const validation = mangaSchema.safeParse(rawData);
+        if (!validation.success) {
             return NextResponse.json(
-                { error: "Missing required fields" },
+                { error: validation.error.issues[0].message },
                 { status: 400 }
             );
         }
+
+        if (!coverImage || !(coverImage instanceof File)) {
+            return NextResponse.json(
+                { error: "Ковер зураг оруулна уу" },
+                { status: 400 }
+            );
+        }
+
+        const { title, titleMn, description, author, artist, status, type, publishYear, isAdult, genreIds } = validation.data;
 
         // Handle Image Upload with WebP conversion and R2
         const buffer = Buffer.from(await coverImage.arrayBuffer());
@@ -71,7 +85,7 @@ export async function POST(req: Request) {
                 type: type || "MANGA",
                 coverImage: imageUrl,
                 genres: {
-                    connect: genreIds.map((id) => ({ id: parseInt(id) })),
+                    connect: (genreIds || []).map((id: number) => ({ id })),
                 },
             },
         });

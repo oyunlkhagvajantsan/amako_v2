@@ -3,17 +3,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { changePasswordSchema } from "@/lib/validations/auth";
 import { z } from "zod";
-
-const changePasswordSchema = z.object({
-    currentPassword: z.string().min(1, "Одоогийн нууц үг шаардлагатай"),
-    newPassword: z.string()
-        .min(8, "Шинэ нууц үг дор хаяж 8 тэмдэгттэй байх ёстой")
-        .regex(/[A-Z]/, "Дор хаяж нэг том үсэг орсон байх ёстой")
-        .regex(/[a-z]/, "Дор хаяж нэг жижиг үсэг орсон байх ёстой")
-        .regex(/[0-9]/, "Дор хаяж нэг тоо орсон байх ёстой")
-        .regex(/[^A-Za-z0-9]/, "Дор хаяж нэг тусгай тэмдэгт орсон байх ёстой"),
-});
 
 export async function POST(req: Request) {
     try {
