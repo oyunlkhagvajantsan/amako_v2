@@ -3,6 +3,7 @@ import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { r2Client, R2_BUCKET_NAME, R2_PUBLIC_URL } from '@/lib/r2';
+import sharp from 'sharp';
 
 /**
  * R2 Upload API Route
@@ -40,20 +41,23 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Convert file to buffer
+        // Convert file to buffer and process with Sharp
         const buffer = Buffer.from(await file.arrayBuffer());
+        const webpBuffer = await sharp(buffer)
+            .webp({ quality: 90, effort: 6 })
+            .toBuffer();
 
         // Generate unique filename
         const timestamp = Date.now();
-        const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-        const key = `chapters/${timestamp}-${sanitizedFilename}`;
+        const sanitizedFilename = file.name.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9.-]/g, '_');
+        const key = `chapters/${timestamp}-${sanitizedFilename}.webp`;
 
         // Upload to R2
         const command = new PutObjectCommand({
             Bucket: R2_BUCKET_NAME,
             Key: key,
-            Body: buffer,
-            ContentType: file.type,
+            Body: webpBuffer,
+            ContentType: 'image/webp',
             CacheControl: 'public, max-age=31536000, immutable', // Cache for 1 year
         });
 

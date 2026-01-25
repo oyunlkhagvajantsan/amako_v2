@@ -55,7 +55,7 @@ export async function POST(req: Request) {
 
         // Convert to WebP using sharp in memory
         const webpBuffer = await sharp(buffer)
-            .webp({ quality: 85 })
+            .webp({ quality: 90, effort: 6 })
             .toBuffer();
 
         const filename = `covers/cover-${Date.now()}-${coverImage.name.replace(/\s/g, "-").replace(/\.[^.]+$/, "")}.webp`;

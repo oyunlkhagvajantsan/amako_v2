@@ -3,6 +3,7 @@ import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { r2Client, R2_BUCKET_NAME, R2_PUBLIC_URL } from '@/lib/r2';
+import sharp from 'sharp';
 
 /**
  * Chapter Image Upload API Route
@@ -52,33 +53,24 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 );
             }
 
-            // Convert file to buffer
+            // Convert file to buffer and process with Sharp
             const buffer = Buffer.from(await file.arrayBuffer());
+            const webpBuffer = await sharp(buffer)
+                .webp({ quality: 90, effort: 6 })
+                .toBuffer();
 
             // Generate unique filename with folder structure
             const timestamp = Date.now();
             const originalName = file.name || 'image.webp';
-            const sanitizedFilename = originalName.replace(/[^a-zA-Z0-9.-]/g, '_');
-            const key = `chapters/manga-${mangaId}/chapter-${chapterNumber}/${timestamp}-${sanitizedFilename}`;
-
-            // Determine Content Type accurately
-            let contentType = file.type;
-            if (sanitizedFilename.toLowerCase().endsWith('.webp')) {
-                contentType = 'image/webp';
-            } else if (sanitizedFilename.toLowerCase().endsWith('.png')) {
-                contentType = 'image/png';
-            } else if (sanitizedFilename.toLowerCase().endsWith('.jpg') || sanitizedFilename.toLowerCase().endsWith('.jpeg')) {
-                contentType = 'image/jpeg';
-            } else if (sanitizedFilename.toLowerCase().endsWith('.gif')) {
-                contentType = 'image/gif';
-            }
+            const sanitizedFilename = originalName.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9.-]/g, '_');
+            const key = `chapters/manga-${mangaId}/chapter-${chapterNumber}/${timestamp}-${sanitizedFilename}.webp`;
 
             // Upload to R2
             const command = new PutObjectCommand({
                 Bucket: R2_BUCKET_NAME,
                 Key: key,
-                Body: buffer,
-                ContentType: contentType || 'application/octet-stream',
+                Body: webpBuffer,
+                ContentType: 'image/webp',
                 CacheControl: 'public, max-age=31536000, immutable',
             });
 
