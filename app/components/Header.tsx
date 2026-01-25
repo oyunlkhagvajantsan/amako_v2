@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 
-import { Menu, X, User, LogOut, Crown, LogIn } from "lucide-react";
+import { Menu, X, User, LogOut, Crown, LogIn, Search } from "lucide-react";
 import Image from "next/image";
 import NotificationBell from "./notifications/NotificationBell";
 
@@ -41,16 +41,27 @@ export default function Header({ isSticky = true }: { isSticky?: boolean }) {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">
+          <Link href="/" className="text-gray-600 hover:text-gray-900 transition-colors">
+            Нүүр
+          </Link>
           <Link href="/manga" className="text-gray-600 hover:text-gray-900 transition-colors">
             Гаргалт
           </Link>
-          <Link href="/genres" className="text-gray-600 hover:text-gray-900 transition-colors">
+          {/* <Link href="/genres" className="text-gray-600 hover:text-gray-900 transition-colors">
             Хайх
-          </Link>
+          </Link> */}
         </div>
 
         {/* Desktop Auth Buttons */}
         <div className="flex items-center gap-3">
+          {/* Search Button */}
+          <Link
+            href="/genres"
+            className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <Search size={20} />
+          </Link>
+
           {session ? (
             <div className="flex items-center gap-2 md:gap-4">
               <NotificationBell />
@@ -149,7 +160,7 @@ export default function Header({ isSticky = true }: { isSticky?: boolean }) {
               <nav className="flex flex-col px-4 space-y-4">
                 <Link href="/" className="text-lg font-medium text-gray-800" onClick={() => setIsMobileMenuOpen(false)}>Нүүр</Link>
                 <Link href="/manga" className="text-lg font-medium text-gray-800" onClick={() => setIsMobileMenuOpen(false)}>Гаргалт</Link>
-                <Link href="/genres" className="text-lg font-medium text-gray-800" onClick={() => setIsMobileMenuOpen(false)}>Хайх</Link>
+                {/* <Link href="/genres" className="text-lg font-medium text-gray-800" onClick={() => setIsMobileMenuOpen(false)}>Хайх</Link> */}
 
                 <hr className="border-gray-100" />
 

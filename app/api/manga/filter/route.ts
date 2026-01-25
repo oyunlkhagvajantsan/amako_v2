@@ -10,6 +10,7 @@ export async function GET(req: Request) {
     const search = searchParams.get("search") || "";
     const genreIds = searchParams.getAll("genres").map(id => parseInt(id));
     const status = searchParams.get("status");
+    const type = searchParams.get("type");
     const sort = searchParams.get("sort") || "latest"; // latest, popular, a-z
 
     const skip = (page - 1) * limit;
@@ -43,6 +44,10 @@ export async function GET(req: Request) {
             // Filter by Status
             status && status !== "ALL" ? {
                 status: status as MangaStatus
+            } : {},
+            // Filter by Type
+            type && type !== "ALL" ? {
+                type: type as any
             } : {}
         ]
     };
