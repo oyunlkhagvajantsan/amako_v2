@@ -24,6 +24,27 @@ type Manga = {
     };
 };
 
+const statusMap: Record<string, string> = {
+    ALL: "Төлөв",
+    ONGOING: "Гарч байгаа",
+    COMPLETED: "Дууссан",
+    HIATUS: "Түр зогссон"
+};
+
+const typeMap: Record<string, string> = {
+    ALL: "Төрөл",
+    MANGA: "Манга",
+    MANHWA: "Манхва",
+    MANHUA: "Манхуа"
+};
+
+const sortMap: Record<string, string> = {
+    latest: "Сүүлд",
+    popular: "Уншсан",
+    az: "А-Я",
+    za: "Я-А"
+};
+
 export default function MangaListClient() {
     // Data State
     const [mangas, setMangas] = useState<Manga[]>([]);
@@ -115,33 +136,61 @@ export default function MangaListClient() {
                     {/* Filters - 2 columns on mobile, single row on desktop */}
                     <div className="grid grid-cols-2 md:flex gap-2 md:gap-3">
                         {/* Status Filter */}
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
-                            className="px-2 py-1.5 md:px-3 md:py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:ring-[#d8454f] focus:border-[#d8454f] outline-none"
-                        >
-                            <option value="ALL">Төлөв</option>
-                            <option value="ONGOING">Гарч байгаа</option>
-                            <option value="COMPLETED">Дууссан</option>
-                            <option value="HIATUS">Түр зогссон</option>
-                        </select>
+                        <div className="relative">
+                            <details className="group">
+                                <summary className="list-none cursor-pointer px-2 py-1.5 md:px-3 md:py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:ring-[#d8454f] focus:border-[#d8454f] outline-none bg-white select-none">
+                                    {statusMap[statusFilter] || "Төлөв"}
+                                </summary>
+                                <div className="absolute z-10 mt-1 w-full min-w-[120px] bg-white border border-gray-300 rounded-lg shadow-lg">
+                                    <div className="p-1">
+                                        {Object.entries(statusMap).map(([value, label]) => (
+                                            <button
+                                                key={value}
+                                                onClick={(e) => {
+                                                    setStatusFilter(value);
+                                                    setCurrentPage(1);
+                                                    e.currentTarget.closest("details")?.removeAttribute("open");
+                                                }}
+                                                className={`w-full text-left px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded hover:bg-gray-50 ${statusFilter === value ? "text-[#d8454f] font-bold bg-red-50" : "text-gray-700"}`}
+                                            >
+                                                {label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
 
                         {/* Type Filter */}
-                        <select
-                            value={typeFilter}
-                            onChange={(e) => { setTypeFilter(e.target.value); setCurrentPage(1); }}
-                            className="px-2 py-1.5 md:px-3 md:py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:ring-[#d8454f] focus:border-[#d8454f] outline-none"
-                        >
-                            <option value="ALL">Төрөл</option>
-                            <option value="MANGA">Манга</option>
-                            <option value="MANHWA">Манхва</option>
-                            <option value="MANHUA">Манхуа</option>
-                        </select>
+                        <div className="relative">
+                            <details className="group">
+                                <summary className="list-none cursor-pointer px-2 py-1.5 md:px-3 md:py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:ring-[#d8454f] focus:border-[#d8454f] outline-none bg-white select-none">
+                                    {typeMap[typeFilter] || "Төрөл"}
+                                </summary>
+                                <div className="absolute z-10 mt-1 w-full min-w-[120px] bg-white border border-gray-300 rounded-lg shadow-lg">
+                                    <div className="p-1">
+                                        {Object.entries(typeMap).map(([value, label]) => (
+                                            <button
+                                                key={value}
+                                                onClick={(e) => {
+                                                    setTypeFilter(value);
+                                                    setCurrentPage(1);
+                                                    e.currentTarget.closest("details")?.removeAttribute("open");
+                                                }}
+                                                className={`w-full text-left px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded hover:bg-gray-50 ${typeFilter === value ? "text-[#d8454f] font-bold bg-red-50" : "text-gray-700"}`}
+                                            >
+                                                {label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
 
                         {/* Genre Filter (Multi-select with checkboxes) */}
                         <div className="relative">
                             <details className="group">
-                                <summary className="list-none cursor-pointer px-2 py-1.5 md:px-3 md:py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:ring-[#d8454f] focus:border-[#d8454f] outline-none bg-white">
+                                <summary className="list-none cursor-pointer px-2 py-1.5 md:px-3 md:py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:ring-[#d8454f] focus:border-[#d8454f] outline-none bg-white select-none">
                                     {selectedGenres.length > 0
                                         ? `Төрөл (${selectedGenres.length})`
                                         : 'Ангилал'}
@@ -167,16 +216,30 @@ export default function MangaListClient() {
                         </div>
 
                         {/* Sort */}
-                        <select
-                            value={sortBy}
-                            onChange={(e) => { setSortBy(e.target.value); setCurrentPage(1); }}
-                            className="px-2 py-1.5 md:px-3 md:py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:ring-[#d8454f] focus:border-[#d8454f] outline-none"
-                        >
-                            <option value="latest">Сүүлд нэмэгдсэн</option>
-                            <option value="popular">Хамгийн их уншсан</option>
-                            <option value="az">А-Я</option>
-                            <option value="za">Я-А</option>
-                        </select>
+                        <div className="relative">
+                            <details className="group">
+                                <summary className="list-none cursor-pointer px-2 py-1.5 md:px-3 md:py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:ring-[#d8454f] focus:border-[#d8454f] outline-none bg-white select-none">
+                                    {sortMap[sortBy] || "Эрэмбэ"}
+                                </summary>
+                                <div className="absolute z-10 mt-1 w-full min-w-[140px] left-0 md:right-0 md:left-auto bg-white border border-gray-300 rounded-lg shadow-lg">
+                                    <div className="p-1">
+                                        {Object.entries(sortMap).map(([value, label]) => (
+                                            <button
+                                                key={value}
+                                                onClick={(e) => {
+                                                    setSortBy(value);
+                                                    setCurrentPage(1);
+                                                    e.currentTarget.closest("details")?.removeAttribute("open");
+                                                }}
+                                                className={`w-full text-left px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded hover:bg-gray-50 ${sortBy === value ? "text-[#d8454f] font-bold bg-red-50" : "text-gray-700"}`}
+                                            >
+                                                {label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
 
                         {/* Clear Button - spans 2 columns on mobile */}
                         <button
