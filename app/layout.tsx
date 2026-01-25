@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Montserrat, Noto_Sans } from "next/font/google";
 import "./globals.css";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0
 
 
-const inter = Inter({
-  subsets: ["latin"],
+const montserrat = Montserrat({
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-montserrat",
+});
+
+const notoSans = Noto_Sans({
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-noto-sans",
 });
 
 export const metadata: Metadata = {
@@ -29,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.className} antialiased`}
+        className={`${montserrat.className} ${notoSans.variable} antialiased`}
       >
         <Providers>
           {children}
