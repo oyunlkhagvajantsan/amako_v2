@@ -71,7 +71,7 @@ export async function POST(
                         data: {
                             userId: comment.userId,
                             type: "LIKE",
-                            content: `${session.user.name || "Хэрэглэгч"} таны сэтгэгдлийг (${manga?.titleMn}) тааллаа.`,
+                            content: `${session.user.name || "Хэрэглэгч"}-д таны сэтгэгдэл (${manga?.titleMn}) таалагдлаа.`,
                             link: link
                         }
                     });

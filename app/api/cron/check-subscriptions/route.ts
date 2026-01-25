@@ -54,20 +54,9 @@ export async function GET(req: Request) {
                     data: {
                         userId: user.id,
                         type: "SUBSCRIPTION_EXPIRING",
-                        content: "Таны эрх маргааш дуусах тул та эрхээ сунгуулаарай.",
+                        content: "Таны эрх маргааш дуусах гэж байна.",
                         link: "/subscribe",
                     },
-                });
-
-                // Send Email reminder
-                await sendEmail({
-                    to: user.email,
-                    subject: "Amako - Эрх дуусах сануулах",
-                    text: "Сайн байна уу? Таны эрх маргааш дуусах тул та эрхээ сунгуулаарай.",
-                    html: `
-                        <p>Сайн байна уу?</p>
-                        <p>Таны эрх маргааш (<strong>${user.subscriptionEnd?.toLocaleDateString("mn-MN")}</strong>) дуусах тул та <a href="${process.env.NEXTAUTH_URL}/subscribe">энд дарж</a> эрхээ сунгуулаарай.</p>
-                    `,
                 });
             }
         }
@@ -97,20 +86,9 @@ export async function GET(req: Request) {
                 data: {
                     userId: user.id,
                     type: "SUBSCRIPTION_EXPIRED",
-                    content: "Таны эрх дууссан байна. Та дахин эрхээ сунгуулаарай.",
+                    content: "Таны эрх дууссан байна.",
                     link: "/subscribe",
                 },
-            });
-
-            // Send Expiration Email
-            await sendEmail({
-                to: user.email,
-                subject: "Amako - Эрх дууссан мэдэгдэл",
-                text: "Таны эрх дууссан байна. Та дахин эрхээ сунгуулаарай.",
-                html: `
-                    <p>Сайн байна уу?</p>
-                    <p>Таны эрх харамсалтай нь дууссан байна. Үргэлжлүүлэн уншихын тулд <a href="${process.env.NEXTAUTH_URL}/subscribe">энд дарж</a> эрхээ сунгуулаарай.</p>
-                `,
             });
         }
 
