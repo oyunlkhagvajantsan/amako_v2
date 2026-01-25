@@ -42,7 +42,7 @@ export default function ProfileTabs({ user, isSubscribed, daysLeft }: ProfileTab
                                 {isSubscribed ? (
                                     <div className="flex items-center gap-2 px-4 py-1.5 bg-green-50 text-green-700 rounded-full text-sm font-bold border border-green-100">
                                         <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                                        Идэвхтэй ({daysLeft} хоног)
+                                        Идэвхтэй (Дуусах: {new Date(user.subscriptionEnd!).toLocaleDateString("mn-MN")})
                                     </div>
                                 ) : (
                                     <div className="px-4 py-1.5 bg-gray-100 text-gray-600 rounded-full text-sm font-bold border border-gray-200">
