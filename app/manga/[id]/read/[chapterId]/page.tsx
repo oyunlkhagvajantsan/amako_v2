@@ -147,18 +147,7 @@ export default async function ChapterReaderPage({
                         ))}
 
                         {/* Chapter Caption (Author's note) */}
-                        {chapter.caption && (
-                            <div className="max-w-2xl mx-auto my-12 p-8 bg-[#1e1e1e] border-2 border-[#d8454f]/20 rounded-3xl shadow-2xl relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-[#d8454f]/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110" />
-                                <h3 className="text-[#d8454f] font-bold uppercase tracking-widest text-xs mb-4 flex items-center gap-2">
-                                    <span className="w-6 h-[2px] bg-[#d8454f]" />
-                                    Бүлгийн тэмдэглэл
-                                </h3>
-                                <p className="text-gray-200 leading-relaxed whitespace-pre-wrap italic">
-                                    {chapter.caption}
-                                </p>
-                            </div>
-                        )}
+
                     </ProtectedReader>
 
                 </AgeVerificationGuard>
@@ -178,6 +167,18 @@ export default async function ChapterReaderPage({
                             variant="bottom"
                         />
                     </div>
+
+                    {/* Chapter Caption (Simple Text) */}
+                    {chapter.caption && (
+                        <div className="px-4 py-2">
+                            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">
+                                Amako
+                            </h3>
+                            <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+                                {chapter.caption}
+                            </p>
+                        </div>
+                    )}
 
                     {/* Comment Section (Chapter specific) */}
                     <div className="px-4 border-t border-gray-800/50 pt-4">
