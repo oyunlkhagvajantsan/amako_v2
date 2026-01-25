@@ -43,17 +43,20 @@ export async function PATCH(
         // Validate basic fields with Zod (using .partial() for updates)
         const validation = mangaSchema.partial().safeParse(rawData);
         if (!validation.success) {
+            console.error("Manga validation failed:", validation.error.flatten());
             return NextResponse.json(
                 { error: validation.error.issues[0].message },
                 { status: 400 }
             );
         }
 
+        const { genreIds, ...otherUpdates } = validation.data;
+
         const updateData: Prisma.MangaUpdateInput = {
-            ...validation.data,
+            ...otherUpdates,
             isPublished,
-            genres: validation.data.genreIds ? {
-                set: validation.data.genreIds.map(gid => ({ id: gid })),
+            genres: genreIds ? {
+                set: genreIds.map(gid => ({ id: gid })),
             } : undefined,
         };
 

@@ -67,13 +67,14 @@ export default function EditMangaForm({
             });
 
             if (!res.ok) {
-                throw new Error("Failed to update manga");
+                const data = await res.json();
+                throw new Error(data.error || "Failed to update manga");
             }
 
             router.push("/amako-portal-v7/manga");
             router.refresh();
-        } catch (err) {
-            setError("Something went wrong. Please try again.");
+        } catch (err: any) {
+            setError(err.message || "Something went wrong. Please try again.");
             console.error(err);
         } finally {
             setIsLoading(false);
