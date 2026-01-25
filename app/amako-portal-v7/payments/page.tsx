@@ -11,10 +11,12 @@ export const dynamic = "force-dynamic";
 
 async function approvePayment(formData: FormData) {
     "use server";
+    console.log("*** SERVER ACTION APPROVE STARTED ***");
     const id = formData.get("id") as string;
     const userId = formData.get("userId") as string;
     const monthsStr = formData.get("months") as string;
     const months = monthsStr ? parseInt(monthsStr) : 1;
+    console.log("Approving payment:", { id, userId, months });
 
     // 1. Update Payment Status
     await prisma.paymentRequest.update({
@@ -75,21 +77,56 @@ async function approvePayment(formData: FormData) {
     }
 
     revalidatePath("/amako-portal-v7/payments");
+    console.log("*** SERVER ACTION APPROVE FINISHED ***");
 }
 
 async function rejectPayment(formData: FormData) {
     "use server";
+    console.log("*** SERVER ACTION REJECT STARTED ***");
     const id = formData.get("id") as string;
-    await prisma.paymentRequest.update({
+    console.log("Rejecting payment request:", id);
+
+    // 1. Get Payment Request details
+    const paymentRequest = await prisma.paymentRequest.findUnique({
         where: { id },
-        data: { status: "REJECTED" },
+        select: { userId: true, months: true }
     });
 
+    if (!paymentRequest) {
+        console.error("Payment request not found for id:", id);
+        return;
+    }
+    console.log("Found payment request:", paymentRequest);
+
+    try {
+        // 2. Update Status
+        await prisma.paymentRequest.update({
+            where: { id },
+            data: { status: "REJECTED" },
+        });
+        console.log("Payment status updated to REJECTED");
+
+        // 3. Create Notification
+        const notif = await prisma.notification.create({
+            data: {
+                userId: paymentRequest.userId,
+                type: "SYSTEM",
+                content: `Таны ${paymentRequest.months} сарын эрх авах хүсэлт амжилтгүй боллоо. Чатаар лавлана уу.`,
+                link: "/profile",
+            },
+        });
+        console.log("Notification created:", notif);
+    } catch (error) {
+        console.error("Error rejecting payment:", error);
+    }
+
     revalidatePath("/amako-portal-v7/payments");
+    console.log("*** SERVER ACTION REJECT FINISHED ***");
 }
 
 async function deletePayment(formData: FormData) {
     "use server";
+    console.log("*** SERVER ACTION DELETE STARTED ***");
     const session = await getServerSession(authOptions);
     if (session?.user?.role !== "ADMIN") return;
 
@@ -99,6 +136,7 @@ async function deletePayment(formData: FormData) {
     });
 
     revalidatePath("/amako-portal-v7/payments");
+    console.log("*** SERVER ACTION DELETE FINISHED ***");
 }
 
 export default async function PaymentRequestsPage() {
