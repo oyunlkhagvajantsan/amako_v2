@@ -325,8 +325,14 @@ export default function ChapterForm({
             });
 
             if (!res.ok) {
-                const text = await res.text();
-                throw new Error(text || `Failed to ${mode} chapter`);
+                let errorMessage;
+                try {
+                    const errorData = await res.json();
+                    errorMessage = errorData.error || errorData.details || `Failed to ${mode} chapter`;
+                } catch (e) {
+                    errorMessage = await res.text() || `Failed to ${mode} chapter`;
+                }
+                throw new Error(errorMessage);
             }
 
             router.push("/amako-portal-v7/chapters");

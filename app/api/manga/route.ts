@@ -35,6 +35,7 @@ export async function POST(req: Request) {
         // Validate basic fields with Zod
         const validation = mangaSchema.safeParse(rawData);
         if (!validation.success) {
+            console.error("Manga validation failed:", validation.error.flatten());
             return NextResponse.json(
                 { error: validation.error.issues[0].message },
                 { status: 400 }

@@ -50,13 +50,14 @@ export default function CreateMangaPage() {
             });
 
             if (!res.ok) {
-                throw new Error("Failed to create manga");
+                const data = await res.json();
+                throw new Error(data.error || "Failed to create manga");
             }
 
             router.push("/amako-portal-v7");
             router.refresh();
-        } catch (err) {
-            setError("Something went wrong. Please try again.");
+        } catch (err: any) {
+            setError(err.message || "Something went wrong. Please try again.");
         } finally {
             setIsLoading(false);
         }
