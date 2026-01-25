@@ -39,8 +39,8 @@ const typeMap: Record<string, string> = {
 };
 
 const sortMap: Record<string, string> = {
-    latest: "Сүүлд",
-    popular: "Уншсан",
+    latest: "Сүүлд нэмэгдсэн",
+    popular: "Их уншсан",
     az: "А-Я",
     za: "Я-А"
 };
