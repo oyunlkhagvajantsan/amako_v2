@@ -7,6 +7,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { User, Palette, ShieldAlert, Lock, BookOpen, Layers, ArrowLeft } from "lucide-react";
 import CommentSection from "@/app/components/comments/CommentSection";
+import LikeButton from "@/app/components/manga/LikeButton";
 
 export const dynamic = "force-dynamic";
 
@@ -179,14 +180,17 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                             </p>
 
                             {/* Action */}
-                            {manga.chapters.length > 0 && (
-                                <Link
-                                    href={`/manga/${manga.id}/read/${manga.chapters[manga.chapters.length - 1].id}?from=details`} // Link to first chapter (last in array bc desc sort)
-                                    className="inline-flex items-center justify-center px-8 py-3 bg-[#d8454f] hover:bg-[#c13a44] text-white font-bold rounded-full transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                                >
-                                    Эхнээс нь унших
-                                </Link>
-                            )}
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                                {manga.chapters.length > 0 && (
+                                    <Link
+                                        href={`/manga/${manga.id}/read/${manga.chapters[manga.chapters.length - 1].id}?from=details`} // Link to first chapter (last in array bc desc sort)
+                                        className="inline-flex items-center justify-center px-8 py-3 bg-[#d8454f] hover:bg-[#c13a44] text-white font-bold rounded-full transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                    >
+                                        Эхнээс нь унших
+                                    </Link>
+                                )}
+                                <LikeButton mangaId={mangaId} />
+                            </div>
                         </div>
                     </div>
 

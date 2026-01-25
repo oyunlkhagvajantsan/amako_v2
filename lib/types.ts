@@ -68,5 +68,10 @@ export type UserFull = Prisma.UserGetPayload<{
             }
         },
         comments: true,
+        likes: {
+            include: {
+                manga: true
+            }
+        },
     }
 }>;

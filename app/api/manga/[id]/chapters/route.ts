@@ -43,7 +43,31 @@ export async function POST(
                 isPublished,
                 isFree: chapterNumber <= 1,
             },
+            include: {
+                manga: {
+                    select: { titleMn: true }
+                }
+            }
         });
+
+        // Send Notifications to Lifers (Favoriters)
+        if (isPublished) {
+            const favoriters = await prisma.like.findMany({
+                where: { mangaId: parseInt(mangaId) },
+                select: { userId: true }
+            });
+
+            if (favoriters.length > 0) {
+                await prisma.notification.createMany({
+                    data: favoriters.map(f => ({
+                        userId: f.userId,
+                        type: "NEW_CHAPTER",
+                        content: `Шинэ бүлэг орлоо: ${chapter.manga.titleMn} - ${chapterNumber}-р бүлэг`,
+                        link: `/manga/${mangaId}/read/${chapter.id}`,
+                    })),
+                });
+            }
+        }
 
         return NextResponse.json(chapter, { status: 201 });
     } catch (error) {
