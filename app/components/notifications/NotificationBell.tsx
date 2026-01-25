@@ -108,7 +108,7 @@ export default function NotificationBell() {
                                     onClick={() => markAsRead()}
                                     className="text-[11px] font-bold text-[#d8454f] hover:underline flex items-center gap-1"
                                 >
-                                    <Check size={12} /> Бүгдийг уншсан
+                                    <Check size={12} /> Бүгдийг уншсан болгох
                                 </button>
                             )}
                         </div>

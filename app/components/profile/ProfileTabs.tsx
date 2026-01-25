@@ -128,7 +128,7 @@ export default function ProfileTabs({ user, isSubscribed, daysLeft }: ProfileTab
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                         {user.likes.length === 0 ? (
                             <div className="col-span-full">
-                                <EmptyState icon={Heart} message="Таалагдсан манга байхгүй байна." />
+                                <EmptyState icon={Heart} message="Таалагдсан гаргалт байхгүй байна." />
                             </div>
                         ) : (
                             user.likes.map((like) => (

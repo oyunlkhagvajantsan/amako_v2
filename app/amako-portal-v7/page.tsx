@@ -23,7 +23,7 @@ export default async function AdminDashboard() {
 
                 {/* Stat Card 2 */}
                 <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                    <h3 className="text-gray-500 text-sm font-medium mb-2">Нийт Манга</h3>
+                    <h3 className="text-gray-500 text-sm font-medium mb-2">Нийт гаргалт</h3>
                     <p className="text-3xl font-bold text-gray-900">{mangaCount}</p>
                 </div>
 
