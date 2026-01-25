@@ -208,7 +208,8 @@ export default function ChapterForm({
             if (totalTasks > 0) {
                 // Use a standard task queue to avoid race conditions and handle progress accurately
                 const queue = [...uploadTasks];
-                const CONCURRENCY = 3;
+                const CONCURRENCY = 2; // Reduced for stability
+                const MAX_RETRIES = 3;
 
                 const runWorker = async () => {
                     while (queue.length > 0) {
@@ -218,62 +219,78 @@ export default function ChapterForm({
                         const { item, index } = task;
                         const file = item.file!;
 
-                        try {
-                            setUploadProgress({
-                                current: completedUploads + 1,
-                                total: totalTasks,
-                                stage: 'converting'
-                            });
+                        let attempts = 0;
+                        let lastError;
 
-                            let finalBlob: Blob = file;
-                            let finalFileName = file.name;
+                        while (attempts < MAX_RETRIES) {
+                            attempts++;
+                            try {
+                                setUploadProgress({
+                                    current: completedUploads + 1,
+                                    total: totalTasks,
+                                    stage: 'converting'
+                                });
 
-                            // Convert to WebP if it's an image
-                            if (file.type.startsWith('image/')) {
-                                try {
-                                    const { blob } = await convertToWebP(file);
-                                    finalBlob = blob;
-                                    // Change extension to .webp to trigger server-side detection
-                                    finalFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
-                                } catch (err) {
-                                    console.error("WebP conversion failed, using original", err);
+                                let finalBlob: Blob = file;
+                                let finalFileName = file.name;
+
+                                // Convert to WebP if it's an image
+                                if (file.type.startsWith('image/')) {
+                                    try {
+                                        const { blob } = await convertToWebP(file);
+                                        finalBlob = blob;
+                                        // Change extension to .webp to trigger server-side detection
+                                        finalFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
+                                    } catch (err) {
+                                        console.error("WebP conversion failed, using original", err);
+                                    }
+                                }
+
+                                setUploadProgress({
+                                    current: completedUploads + 1,
+                                    total: totalTasks,
+                                    stage: 'uploading'
+                                });
+
+                                const uploadFormData = new FormData();
+                                // Pass the blob and explicitly set the webp filename
+                                uploadFormData.append('file', finalBlob, finalFileName);
+                                uploadFormData.append('mangaId', selectedMangaId);
+                                uploadFormData.append('chapterNumber', chapterNumber);
+
+                                const uploadRes = await fetch('/api/upload/chapter', {
+                                    method: 'POST',
+                                    body: uploadFormData,
+                                });
+
+                                if (!uploadRes.ok) {
+                                    const errData = await uploadRes.json();
+                                    throw new Error(errData.error || 'Upload failed');
+                                }
+
+                                const { url } = await uploadRes.json();
+                                finalImageUrls[index] = url;
+                                completedUploads++;
+
+                                setUploadProgress({
+                                    current: Math.min(completedUploads + 1, totalTasks),
+                                    total: totalTasks,
+                                    stage: 'uploading'
+                                });
+
+                                // Success! Break retry loop
+                                break;
+                            } catch (err: any) {
+                                lastError = err;
+                                console.warn(`Upload attempt ${attempts} failed for page ${index + 1}:`, err);
+                                if (attempts < MAX_RETRIES) {
+                                    // Wait a bit before retrying (exponential backoff)
+                                    await new Promise(r => setTimeout(r, 1000 * attempts));
+                                } else {
+                                    // Throw the last error to be caught by the outer catch
+                                    throw new Error(`Failed uploading page ${index + 1} after ${MAX_RETRIES} attempts: ${err.message}`);
                                 }
                             }
-
-                            setUploadProgress({
-                                current: completedUploads + 1,
-                                total: totalTasks,
-                                stage: 'uploading'
-                            });
-
-                            const uploadFormData = new FormData();
-                            // Pass the blob and explicitly set the webp filename
-                            uploadFormData.append('file', finalBlob, finalFileName);
-                            uploadFormData.append('mangaId', selectedMangaId);
-                            uploadFormData.append('chapterNumber', chapterNumber);
-
-                            const uploadRes = await fetch('/api/upload/chapter', {
-                                method: 'POST',
-                                body: uploadFormData,
-                            });
-
-                            if (!uploadRes.ok) {
-                                const errData = await uploadRes.json();
-                                throw new Error(errData.error || 'Upload failed');
-                            }
-
-                            const { url } = await uploadRes.json();
-                            finalImageUrls[index] = url;
-                            completedUploads++;
-
-                            setUploadProgress({
-                                current: Math.min(completedUploads + 1, totalTasks),
-                                total: totalTasks,
-                                stage: 'uploading'
-                            });
-
-                        } catch (err: any) {
-                            throw new Error(`Failed uploading page ${index + 1}: ${err.message}`);
                         }
                     }
                 };
