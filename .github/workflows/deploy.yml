@@ -14,13 +14,9 @@ jobs:
         run: npm install -g @railway/cli
 
       - name: Deploy to Railway
-        run: |
-          echo "Checking RAILWAY_TOKEN presence..."
-          if [ -z "${{ secrets.RAILWAY_TOKEN }}" ]; then
-            echo "::error::RAILWAY_TOKEN is missing from GitHub Secrets. Please add it in Settings > Secrets > Actions."
-            exit 1
-          fi
-          echo "Attempting deployment..."
-          railway up --detach
+        run: railway up --detach
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          # Providing Project ID explicitly often fixes 'Invalid Token' issues in CI
+          # when using Account Tokens or when the project isn't linked.
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
