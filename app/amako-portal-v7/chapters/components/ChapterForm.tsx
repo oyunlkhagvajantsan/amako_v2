@@ -206,6 +206,7 @@ export default function ChapterForm({
             let completedUploads = 0;
 
             if (totalTasks > 0) {
+                console.log(`[ChapterForm] Found ${totalTasks} new files to upload.`);
                 // Use a standard task queue to avoid race conditions and handle progress accurately
                 const queue = [...uploadTasks];
                 const CONCURRENCY = 2; // Reduced for stability
@@ -301,12 +302,14 @@ export default function ChapterForm({
                         .fill(null)
                         .map(() => runWorker())
                 );
+                console.log(`[ChapterForm] All uploads completed successfully.`);
             }
 
             // 2. Fill in existing URLs
             items.forEach((item, index) => {
                 if (item.url) finalImageUrls[index] = item.url;
             });
+            console.log(`[ChapterForm] Finalizing chapter metadata...`);
 
             // 3. Finalize Chapter in DB
             const chapterData = {
@@ -352,10 +355,12 @@ export default function ChapterForm({
                 throw new Error(errorMessage);
             }
 
+            console.log(`[ChapterForm] Chapter ${mode}ed successfully!`);
             router.push("/amako-portal-v7/chapters");
             router.refresh();
 
         } catch (err: any) {
+            console.error(`[ChapterForm] ${mode} error:`, err);
             setError(err.message || "Something went wrong.");
         } finally {
             setIsLoading(false);

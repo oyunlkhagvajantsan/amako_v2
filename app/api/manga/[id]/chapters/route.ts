@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { handleApiError } from "@/lib/error-utils";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -72,9 +73,6 @@ export async function POST(
         return NextResponse.json(chapter, { status: 201 });
     } catch (error) {
         console.error("Chapter creation error details:", error);
-        return NextResponse.json(
-            { error: "Failed to create chapter", details: error instanceof Error ? error.message : "Unknown error" },
-            { status: 500 }
-        );
+        return handleApiError(error, "ChapterCreation");
     }
 }

@@ -55,9 +55,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
             // Convert file to buffer and process with Sharp
             const buffer = Buffer.from(await file.arrayBuffer());
+            console.log(`[R2 Upload] Buffer created: ${buffer.length} bytes. Starting Sharp processing...`);
+
+            const startTime = Date.now();
             const webpBuffer = await sharp(buffer)
-                .webp({ quality: 90, effort: 6 })
+                .webp({ quality: 90, effort: 4 }) // Effort 4 is faster than 6
                 .toBuffer();
+            const endTime = Date.now();
+
+            console.log(`[R2 Upload] Sharp processing completed in ${endTime - startTime}ms. Final size: ${webpBuffer.length} bytes.`);
 
             // Generate unique filename with folder structure
             const timestamp = Date.now();
