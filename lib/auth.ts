@@ -50,8 +50,9 @@ export const authOptions: NextAuthOptions = {
                 email: { label: "Email", type: "email" },
                 password: { label: "Password", type: "password" }
             },
-            async authorize(credentials) {
-                console.log("Authorize called with:", credentials?.email);
+            async authorize(credentials, req) {
+                const userAgent = req?.headers?.['user-agent'] || 'unknown';
+                console.log(`[NextAuth] Authorize attempt from: ${userAgent}, Email: ${credentials?.email}`);
 
                 if (!credentials?.email || !credentials?.password) {
                     console.log("Missing credentials");

@@ -1,14 +1,10 @@
-import { prisma } from "@/lib/prisma";
+import { UserRepository } from "@/lib/repositories/UserRepository";
+import { MangaRepository } from "@/lib/repositories/MangaRepository";
 
 export default async function AdminDashboard() {
-    const userCount = await prisma.user.count();
-    const mangaCount = await prisma.manga.count();
-    const verifiedCount = await prisma.user.count({
-        where: {
-            isSubscribed: true,
-            subscriptionEnd: { gt: new Date() }
-        }
-    });
+    const userCount = await UserRepository.count();
+    const mangaCount = await MangaRepository.count();
+    const verifiedCount = await UserRepository.countSubscribed();
 
     return (
         <div>
