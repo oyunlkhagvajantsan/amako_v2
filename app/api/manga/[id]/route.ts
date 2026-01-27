@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { MangaRepository } from "@/lib/repositories/MangaRepository";
 import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -89,10 +89,7 @@ export async function PATCH(
             // Optional: Delete old cover image logic could go here
         }
 
-        const manga = await prisma.manga.update({
-            where: { id: parseInt(id) },
-            data: updateData,
-        });
+        const manga = await MangaRepository.update(parseInt(id), updateData);
 
         return NextResponse.json(manga);
     } catch (error) {
@@ -113,9 +110,7 @@ export async function DELETE(
 
         const { id } = params;
 
-        await prisma.manga.delete({
-            where: { id: parseInt(id) },
-        });
+        await MangaRepository.delete(parseInt(id));
 
         return NextResponse.json({ message: "Manga deleted successfully" });
     } catch (error) {

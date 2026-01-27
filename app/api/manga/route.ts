@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { MangaRepository } from "@/lib/repositories/MangaRepository";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
@@ -73,22 +73,20 @@ export async function POST(req: Request) {
         await r2Client.send(command);
         const imageUrl = `${R2_PUBLIC_URL}/${filename}`;
 
-        // Create Manga in DB with genre connections
-        const manga = await prisma.manga.create({
-            data: {
-                title,
-                titleMn,
-                description,
-                author,
-                artist,
-                publishYear,
-                isAdult,
-                status: status || "ONGOING",
-                type: type || "MANGA",
-                coverImage: imageUrl,
-                genres: {
-                    connect: (genreIds || []).map((id: number) => ({ id })),
-                },
+        // Create Manga in DB with genre connections using the Repository pattern
+        const manga = await MangaRepository.create({
+            title,
+            titleMn,
+            description,
+            author,
+            artist,
+            publishYear,
+            isAdult,
+            status: status || "ONGOING",
+            type: type || "MANGA",
+            coverImage: imageUrl,
+            genres: {
+                connect: (genreIds || []).map((id: number) => ({ id })),
             },
         });
 

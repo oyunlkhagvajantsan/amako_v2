@@ -52,21 +52,23 @@ export const authOptions: NextAuthOptions = {
             },
             async authorize(credentials, req) {
                 const userAgent = req?.headers?.['user-agent'] || 'unknown';
-                console.log(`[NextAuth] Authorize attempt from: ${userAgent}, Email: ${credentials?.email}`);
+                const host = req?.headers?.['host'] || 'unknown';
+                console.log(`[NextAuth] Authorize attempt:
+                    User-Agent: ${userAgent}
+                    Host: ${host}
+                    Email: ${credentials?.email}`);
 
                 if (!credentials?.email || !credentials?.password) {
-                    console.log("Missing credentials");
+                    console.log("[NextAuth] Missing credentials");
                     return null;
                 }
 
                 const user = await prisma.user.findUnique({
-                    where: {
-                        email: credentials.email
-                    }
+                    where: { email: credentials.email }
                 });
 
                 if (!user) {
-                    console.log("User not found:", credentials.email);
+                    console.log(`[NextAuth] User not found: ${credentials.email}`);
                     return null;
                 }
 
@@ -76,11 +78,11 @@ export const authOptions: NextAuthOptions = {
                 );
 
                 if (!isPasswordValid) {
-                    console.log("Invalid password for user:", credentials.email);
+                    console.log(`[NextAuth] Invalid password for: ${credentials.email}`);
                     return null;
                 }
 
-                console.log("User authenticated successfully:", user.id);
+                console.log(`[NextAuth] Auth Success: ${user.id} (${user.role})`);
                 return {
                     id: user.id,
                     email: user.email,
@@ -114,9 +116,10 @@ export const authOptions: NextAuthOptions = {
             return token;
         }
     },
+    useSecureCookies: process.env.NODE_ENV === 'production',
     cookies: {
         sessionToken: {
-            name: `next-auth.session-token`,
+            name: process.env.NODE_ENV === 'production' ? `__Secure-next-auth.session-token` : `next-auth.session-token`,
             options: {
                 httpOnly: true,
                 sameSite: 'lax',

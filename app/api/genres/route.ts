@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { GenreRepository } from "@/lib/repositories/GenreRepository";
 
 export async function GET() {
     try {
-        const genres = await prisma.genre.findMany({
-            orderBy: { name: "asc" },
-        });
-
+        const genres = await GenreRepository.findAll();
         return NextResponse.json(genres);
     } catch (error) {
         console.error("Genres fetch error:", error);

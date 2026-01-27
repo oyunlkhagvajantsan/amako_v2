@@ -33,13 +33,17 @@ export class MangaRepository {
     }
 
     static async create(data: Prisma.MangaCreateInput) {
-        return prisma.manga.create({ data });
+        return prisma.manga.create({
+            data,
+            include: { genres: true }
+        });
     }
 
     static async update(id: number, data: Prisma.MangaUpdateInput) {
         return prisma.manga.update({
             where: { id },
             data,
+            include: { genres: true }
         });
     }
 
