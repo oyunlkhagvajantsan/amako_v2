@@ -209,7 +209,7 @@ export default function ChapterForm({
                 console.log(`[ChapterForm] Found ${totalTasks} new files to upload.`);
                 // Use a standard task queue to avoid race conditions and handle progress accurately
                 const queue = [...uploadTasks];
-                const CONCURRENCY = 2; // Reduced for stability
+                const CONCURRENCY = 1; // Sequential is much safer for memory
                 const MAX_RETRIES = 3;
 
                 const runWorker = async () => {
@@ -226,26 +226,10 @@ export default function ChapterForm({
                         while (attempts < MAX_RETRIES) {
                             attempts++;
                             try {
-                                setUploadProgress({
-                                    current: completedUploads + 1,
-                                    total: totalTasks,
-                                    stage: 'converting'
-                                });
-
                                 let finalBlob: Blob = file;
                                 let finalFileName = file.name;
 
-                                // Convert to WebP if it's an image
-                                if (file.type.startsWith('image/')) {
-                                    try {
-                                        const { blob } = await convertToWebP(file);
-                                        finalBlob = blob;
-                                        // Change extension to .webp to trigger server-side detection
-                                        finalFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
-                                    } catch (err) {
-                                        console.error("WebP conversion failed, using original", err);
-                                    }
-                                }
+                                console.log(`[ChapterForm] Uploading page ${index + 1}/${totalTasks}: ${file.name} (${file.size} bytes)`);
 
                                 setUploadProgress({
                                     current: completedUploads + 1,
