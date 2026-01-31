@@ -83,9 +83,8 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
 
     return (
         <div className="min-h-screen bg-white">
-            <Header />
+            <Header hideBorder />
 
-            {/* Return Button */}
             {/* Return Button */}
             <div className="absolute top-20 left-4 z-20 md:left-8">
                 <Link
@@ -202,9 +201,13 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                     </div>
 
                     {/* Chapter List */}
-                    <div className="mt-16 max-w-4xl mx-auto">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-6 border-b pb-2">Бүлгүүд</h2>
-                        <div className="space-y-2">
+                    <div className="mt-16 max-w-5xl mx-auto">
+                        <div className="flex items-center justify-between mb-6 border-b pb-2">
+                            <h2 className="text-2xl font-bold text-gray-900">Бүлгүүд</h2>
+                            <span className="text-sm text-gray-500 font-medium">{manga.chapters.length} бүлэг</span>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
                             {manga.chapters.map((chapter) => {
                                 const isLocked = !chapter.isFree && !isSubscribed;
                                 const isRead = readChapterIds.has(chapter.id);
@@ -213,10 +216,10 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                                     <Link
                                         key={chapter.id}
                                         href={`/manga/${manga.id}/read/${chapter.id}?from=details`}
-                                        className={`flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all group ${isRead ? 'opacity-80' : ''}`}
+                                        className={`flex flex-col gap-2 p-2 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all group ${isRead ? 'opacity-70' : ''}`}
                                     >
                                         {/* Chapter Thumbnail */}
-                                        <div className="relative w-24 h-16 md:w-32 md:h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100 shadow-sm transition-transform group-hover:scale-[1.02]">
+                                        <div className="relative aspect-[16/10] bg-gray-100 rounded-lg overflow-hidden border border-gray-100 shadow-sm transition-transform group-hover:scale-[1.02]">
                                             {chapter.thumbnail ? (
                                                 <Image
                                                     src={chapter.thumbnail}
@@ -229,37 +232,43 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                                                     <BookOpen size={24} />
                                                 </div>
                                             )}
-                                        </div>
 
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-0.5">
-                                                <span className={`font-bold text-sm md:text-base truncate ${isRead ? 'text-gray-500' : 'text-gray-900 group-hover:text-[#d8454f]'}`}>
-                                                    {chapter.chapterNumber}-р бүлэг
-                                                </span>
-                                                {isLocked && <Lock size={14} className="text-gray-400 shrink-0" />}
-                                            </div>
-                                            {chapter.title && (
-                                                <p className="text-xs text-gray-500 truncate">{chapter.title}</p>
-                                            )}
-                                        </div>
-
-                                        <div className="flex items-center gap-4">
+                                            {/* Locked Overlay */}
                                             {isLocked && (
-                                                <div className="bg-gray-100 p-2 rounded-full">
-                                                    <Lock size={16} className="text-gray-400" />
+                                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
+                                                    <div className="bg-white/90 p-1.5 rounded-full shadow-lg">
+                                                        <Lock size={16} className="text-gray-900" />
+                                                    </div>
                                                 </div>
                                             )}
-                                            {!isLocked && (
-                                                <div className="w-8 h-8 rounded-full" />
+
+                                            {/* Read Badge */}
+                                            {isRead && (
+                                                <div className="absolute top-2 right-2 bg-[#d8454f] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                                                    УНШСАН
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="px-1 space-y-0.5">
+                                            <div className="flex items-center gap-1.5">
+                                                <span className={`font-bold text-sm md:text-base ${isRead ? 'text-gray-500' : 'text-gray-900 group-hover:text-[#d8454f]'}`}>
+                                                    {chapter.chapterNumber}-р бүлэг
+                                                </span>
+                                            </div>
+                                            {chapter.title && (
+                                                <p className="text-xs text-gray-500">{chapter.title}</p>
                                             )}
                                         </div>
                                     </Link>
                                 );
                             })}
-                            {manga.chapters.length === 0 && (
-                                <p className="text-gray-500 italic">Одоогоор бүлэг нэмэгдээгүй байна.</p>
-                            )}
                         </div>
+                        {manga.chapters.length === 0 && (
+                            <div className="text-center py-12">
+                                <p className="text-gray-500 italic">Одоогоор бүлэг нэмэгдээгүй байна.</p>
+                            </div>
+                        )}
                     </div>
 
                     {/* Comment Section */}

@@ -8,13 +8,13 @@ import { Menu, X, User, LogOut, Crown, LogIn, Search } from "lucide-react";
 import Image from "next/image";
 import NotificationBell from "./notifications/NotificationBell";
 
-export default function Header({ isSticky = true }: { isSticky?: boolean }) {
+export default function Header({ isSticky = true, hideBorder = false }: { isSticky?: boolean; hideBorder?: boolean }) {
   const { data: session } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
   return (
-    <header className={`${isSticky ? 'sticky top-0' : 'relative'} left-0 right-0 z-50 bg-white border-b border-gray-200`}>
+    <header className={`${isSticky ? 'sticky top-0' : 'relative'} left-0 right-0 z-50 bg-white ${hideBorder ? '' : 'border-b border-gray-200'}`}>
       <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-2">
