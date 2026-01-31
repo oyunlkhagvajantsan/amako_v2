@@ -27,6 +27,7 @@ export async function POST(req: Request) {
             type: formData.get("type"),
             publishYear: formData.get("publishYear") ? parseInt(formData.get("publishYear") as string) : undefined,
             isAdult: formData.get("isAdult") === "on",
+            isOneshot: formData.get("isOneshot") === "on",
             genreIds: formData.getAll("genreIds").map(id => parseInt(id as string)),
         };
 
@@ -49,7 +50,7 @@ export async function POST(req: Request) {
             );
         }
 
-        const { title, titleMn, description, author, artist, status, type, publishYear, isAdult, genreIds } = validation.data;
+        const { title, titleMn, description, author, artist, status, type, publishYear, isAdult, isOneshot, genreIds } = validation.data;
 
         // Handle Image Upload with WebP conversion and R2
         const buffer = Buffer.from(await coverImage.arrayBuffer());
@@ -82,6 +83,7 @@ export async function POST(req: Request) {
             artist,
             publishYear,
             isAdult,
+            isOneshot,
             status: status || "ONGOING",
             type: type || "MANGA",
             coverImage: imageUrl,

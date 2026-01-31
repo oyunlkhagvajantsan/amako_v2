@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,92 +8,195 @@ datasource db {
   directUrl = env("DIRECT_DATABASE_URL")
 }
 
-// User model for authentication and subscriptions
 model User {
-  id       String  @id @default(cuid())
-  email    String  @unique
-  name     String?
-  password String
-  role     Role    @default(USER)
-
-  // Subscription info
-  isSubscribed    Boolean   @default(false)
+  id              String           @id @default(cuid())
+  email           String           @unique
+  name            String?
+  password        String
+  role            Role             @default(USER)
+  isSubscribed    Boolean          @default(false)
   subscriptionEnd DateTime?
-
-  // Activity tracking
-  readHistory     ReadHistory[]
-  comments        Comment[]
-  likes           Like[]
-  commentLikes    CommentLike[]
-  paymentRequests PaymentRequest[]
-  notifications   Notification[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   ageVerified     Boolean          @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  comments        Comment[]
+  commentLikes    CommentLike[]
+  likes           Like[]
+  notifications   Notification[]
+  paymentRequests PaymentRequest[]
+  readHistory     ReadHistory[]
 }
 
 model Notification {
   id        String   @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  type      String   // e.g., "REPLY", "LIKE", "SYSTEM"
-  content   String   @db.Text
-  link      String?  // URL to navigate to when clicked
+  type      String
+  content   String
+  link      String?
   isRead    Boolean  @default(false)
-  
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+model Manga {
+  id            Int         @id @default(autoincrement())
+  title         String
+  titleMn       String
+  description   String?
+  descriptionMn String?
+  coverImage    String
+  bannerImage   String?
+  author        String?
+  artist        String?
+  publishYear   Int?
+  status        MangaStatus @default(ONGOING)
+  type          MangaType   @default(MANGA)
+  viewCount     Int         @default(0)
+  likeCount     Int         @default(0)
+  featured      Boolean     @default(false)
+  isPublished   Boolean     @default(false)
+  isAdult       Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  isOneshot     Boolean     @default(false)
+  chapters      Chapter[]
+  comments      Comment[]
+  likes         Like[]
+  genres        Genre[]     @relation("GenreToManga")
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([viewCount])
+}
+
+model Chapter {
+  id            Int           @id @default(autoincrement())
+  mangaId       Int
+  chapterNumber Float
+  title         String?
+  titleMn       String?
+  images        String[]
+  isFree        Boolean       @default(false)
+  isPublished   Boolean       @default(false)
+  viewCount     Int           @default(0)
+  publishedAt   DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  thumbnail     String?
+  caption       String?
+  manga         Manga         @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  comments      Comment[]
+  readHistory   ReadHistory[]
+
+  @@unique([mangaId, chapterNumber])
+  @@index([mangaId])
+  @@index([publishedAt])
+}
+
+model Genre {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  nameMn    String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  mangas    Manga[]  @relation("GenreToManga")
+}
+
+model ReadHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  chapterId Int
+  lastPage  Int      @default(0)
+  completed Boolean  @default(false)
+  readAt    DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  chapter   Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chapterId])
+  @@index([userId])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  mangaId   Int
+  createdAt DateTime @default(now())
+  manga     Manga    @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, mangaId])
+  @@index([userId])
+  @@index([mangaId])
+}
+
+model CommentLike {
+  id        String   @id @default(cuid())
+  userId    String
+  commentId String
+  createdAt DateTime @default(now())
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@index([userId])
+  @@index([commentId])
+}
+
+model Comment {
+  id        String        @id @default(cuid())
+  userId    String
+  mangaId   Int
+  content   String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  isHidden  Boolean       @default(false)
+  parentId  String?
+  chapterId Int?
+  chapter   Chapter?      @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  manga     Manga         @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  parent    Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[]     @relation("CommentReplies")
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes     CommentLike[]
+
+  @@index([mangaId])
+  @@index([userId])
+  @@index([parentId])
+  @@index([createdAt])
+}
+
+model PaymentRequest {
+  id        String        @id @default(cuid())
+  userId    String
+  amount    Float
+  months    Int           @default(1)
+  imageUrl  String
+  status    PaymentStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationCode {
+  id        String           @id @default(cuid())
+  email     String
+  code      String
+  type      VerificationType @default(RESET_PASSWORD)
+  expiresAt DateTime
+  createdAt DateTime         @default(now())
+
+  @@index([email])
 }
 
 enum Role {
   USER
   ADMIN
   MODERATOR
-}
-
-// Manga model - main content
-model Manga {
-  id            Int     @id @default(autoincrement())
-  title         String
-  titleMn       String // Mongolian title
-  description   String? @db.Text
-  descriptionMn String? @db.Text
-
-  // Images
-  coverImage  String // Main cover image URL
-  bannerImage String? // Optional banner
-
-  // Metadata
-  author String?
-  artist String?
-  publishYear Int? // Year manga was published
-  status MangaStatus @default(ONGOING)
-  type   MangaType   @default(MANGA)
-
-  // Stats
-  viewCount Int @default(0)
-  likeCount Int @default(0)
-
-  // Relationships
-  chapters Chapter[]
-  genres   Genre[]
-  likes    Like[]
-  comments Comment[]
-
-  // Flags
-  featured    Boolean @default(false)
-  isPublished Boolean @default(false)
-  isAdult     Boolean @default(false) // 18+ content
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([status])
-  @@index([createdAt])
-  @@index([viewCount])
 }
 
 enum MangaStatus {
@@ -112,169 +212,10 @@ enum MangaType {
   ONESHOT
 }
 
-// Chapter model
-model Chapter {
-  id      Int    @id @default(autoincrement())
-  mangaId Int
-  manga   Manga  @relation(fields: [mangaId], references: [id], onDelete: Cascade)
-
-  // Chapter info
-  chapterNumber Float // Allows for 1.5, 2.5 etc
-  title         String?
-  titleMn       String?
-
-  // Images - stored as JSON array of URLs
-  images    String[] // Array of image URLs
-  thumbnail String?  // URL of the chapter preview image
-  caption   String?  @db.Text // Author note at the end of the chapter
-
-  // Access control
-  isFree Boolean @default(false) // First 1 chapter free
-  isPublished Boolean @default(false)
-
-  // Stats
-  viewCount Int @default(0)
-
-  // Tracking
-  readHistory ReadHistory[]
-  comments    Comment[]
-
-  publishedAt DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@unique([mangaId, chapterNumber])
-  @@index([mangaId])
-  @@index([publishedAt])
-}
-
-// Genre/Category model
-model Genre {
-  id     Int    @id @default(autoincrement())
-  name   String @unique
-  nameMn String @unique // Mongolian name
-  slug   String @unique
-
-  mangas Manga[]
-
-  createdAt DateTime @default(now())
-}
-
-// Read history tracking
-model ReadHistory {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  chapterId Int
-  chapter   Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-
-  // Progress tracking
-  lastPage  Int     @default(0)
-  completed Boolean @default(false)
-
-  readAt    DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, chapterId])
-  @@index([userId])
-}
-
-// Likes/Favorites
-model Like {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  mangaId Int
-  manga   Manga  @relation(fields: [mangaId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@unique([userId, mangaId])
-  @@index([userId])
-  @@index([mangaId])
-}
-
-// Comment Likes
-model CommentLike {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  commentId String
-  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-
-  @@unique([userId, commentId])
-  @@index([userId])
-  @@index([commentId])
-}
-
-// Comments
-model Comment {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  mangaId Int
-  manga   Manga  @relation(fields: [mangaId], references: [id], onDelete: Cascade)
-
-  content String @db.Text
-
-  // Threading
-  parentId String?
-  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies  Comment[] @relation("CommentReplies")
-
-  // Context
-  chapterId Int?
-  chapter   Chapter? @relation(fields: [chapterId], references: [id], onDelete: Cascade)
-
-  // Moderation
-  isHidden Boolean @default(false)
-
-  // Engagement
-  likes CommentLike[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([mangaId])
-  @@index([userId])
-  @@index([parentId])
-  @@index([createdAt])
-}
-
-// Subscription Payments
-model PaymentRequest {
-  id        String        @id @default(cuid())
-  userId    String
-  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  amount    Float
-  months    Int           @default(1)
-  imageUrl  String
-  status    PaymentStatus @default(PENDING)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-
-  @@index([userId])
-}
-
 enum PaymentStatus {
   PENDING
   APPROVED
   REJECTED
-}
-
-model VerificationCode {
-  id        String           @id @default(cuid())
-  email     String
-  code      String
-  type      VerificationType @default(RESET_PASSWORD)
-  expiresAt DateTime
-  createdAt DateTime         @default(now())
-
-  @@index([email])
 }
 
 enum VerificationType {

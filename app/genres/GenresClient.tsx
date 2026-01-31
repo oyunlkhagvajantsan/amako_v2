@@ -13,6 +13,8 @@ type Manga = {
     viewCount: number;
     updatedAt: string;
     status: string;
+    isAdult: boolean;
+    isOneshot: boolean;
     _count: {
         chapters: number;
     };

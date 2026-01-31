@@ -21,6 +21,7 @@ export default async function Home() {
       status: true,
       type: true,
       isAdult: true,
+      isOneshot: true,
       _count: { select: { chapters: true } }
     }
   });
@@ -39,6 +40,8 @@ export default async function Home() {
           id: true,
           titleMn: true,
           coverImage: true,
+          isAdult: true,
+          isOneshot: true,
         }
       }
     }
@@ -53,6 +56,8 @@ export default async function Home() {
       id: true,
       titleMn: true,
       coverImage: true,
+      isAdult: true,
+      isOneshot: true,
       _count: { select: { chapters: true } }
     }
   });
@@ -66,6 +71,8 @@ export default async function Home() {
       id: true,
       titleMn: true,
       coverImage: true,
+      isAdult: true,
+      isOneshot: true,
       _count: { select: { chapters: true } }
     }
   });

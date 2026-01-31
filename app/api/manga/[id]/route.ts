@@ -35,6 +35,7 @@ export async function PATCH(
             type: formData.get("type"),
             publishYear: formData.get("publishYear") ? parseInt(formData.get("publishYear") as string) : undefined,
             isAdult: formData.get("isAdult") === "on",
+            isOneshot: formData.get("isOneshot") === "on",
             genreIds: formData.getAll("genreIds").map(gid => parseInt(gid as string)),
         };
 

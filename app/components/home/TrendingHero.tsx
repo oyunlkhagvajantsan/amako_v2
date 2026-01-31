@@ -97,8 +97,15 @@ export default function TrendingHero({ manga }: TrendingHeroProps) {
 
                                     {/* 18+ Badge */}
                                     {m.isAdult && (
-                                        <span className="text-[10px] md:text-[9px] font-bold text-red-600 bg-red-50 px-2 md:px-1.5 py-0.5 rounded border border-red-100">
+                                        <span className="text-[10px] md:text-[9px] font-bold text-white bg-[#d8454f] px-2 md:px-1.5 py-0.5 rounded border border-[#d8454f]">
                                             18+
+                                        </span>
+                                    )}
+
+                                    {/* Oneshot Badge */}
+                                    {m.isOneshot && (
+                                        <span className="text-[10px] md:text-[9px] font-bold text-white bg-[#d8454f] px-2 md:px-1.5 py-0.5 rounded border border-[#d8454f]">
+                                            Oneshot
                                         </span>
                                     )}
                                 </div>

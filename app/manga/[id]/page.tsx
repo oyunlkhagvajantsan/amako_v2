@@ -167,6 +167,13 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                                     </div>
                                 )}
 
+                                {/* Oneshot Indicator */}
+                                {manga.isOneshot && (
+                                    <div className="px-3 py-1 bg-blue-100 rounded-full text-sm font-medium text-blue-700 flex items-center gap-1">
+                                        <Layers size={14} /> Oneshot
+                                    </div>
+                                )}
+
                                 {/* Genres */}
                                 {manga.genres.map((genre) => (
                                     <div key={genre.id} className="px-3 py-1 bg-[#d8454f]/10 rounded-full text-sm font-medium text-[#d8454f]">

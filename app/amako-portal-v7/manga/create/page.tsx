@@ -175,7 +175,7 @@ export default function CreateMangaPage() {
                     </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="flex gap-6">
                     <label className="flex items-center gap-2 cursor-pointer">
                         <input
                             name="isAdult"
@@ -183,6 +183,15 @@ export default function CreateMangaPage() {
                             className="w-4 h-4 text-[#d8454f] border-gray-300 rounded focus:ring-[#d8454f]"
                         />
                         <span className="text-sm font-medium text-gray-700">18+</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                            name="isOneshot"
+                            type="checkbox"
+                            className="w-4 h-4 text-[#d8454f] border-gray-300 rounded focus:ring-[#d8454f]"
+                        />
+                        <span className="text-sm font-medium text-gray-700">Oneshot</span>
                     </label>
                 </div>
 

@@ -8,6 +8,9 @@ interface MangaCardProps {
         titleMn: string;
         coverImage: string;
         viewCount?: number;
+        isAdult?: boolean;
+        isOneshot?: boolean;
+        type?: string;
         _count?: {
             chapters: number;
         };
@@ -20,6 +23,9 @@ interface MangaCardProps {
 }
 
 export default function MangaCard({ manga, badge, subtitle, customLink, className = "", showViewCount }: MangaCardProps) {
+    const isAdult = manga.isAdult;
+    const isOneshot = manga.isOneshot;
+
     return (
         <Link
             href={customLink || `/manga/${manga.id}`}
@@ -46,6 +52,20 @@ export default function MangaCard({ manga, badge, subtitle, customLink, classNam
                         </div>
                     )
                 )}
+
+                {/* Additional Tags (18+, Oneshot) */}
+                <div className="absolute bottom-2 left-2 flex flex-col gap-1 items-start">
+                    {isAdult && (
+                        <div className="bg-black/40 backdrop-blur-sm text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-lg w-fit">
+                            18+
+                        </div>
+                    )}
+                    {isOneshot && (
+                        <div className="bg-black/40 backdrop-blur-sm text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-lg w-fit">
+                            Oneshot
+                        </div>
+                    )}
+                </div>
             </div>
 
             <h3 className="font-medium text-sm text-gray-900 mb-1 break-words whitespace-normal text-center leading-tight">

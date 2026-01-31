@@ -21,6 +21,7 @@ type MangaData = {
     type: string;
     publishYear: number | null;
     isAdult: boolean;
+    isOneshot: boolean;
     isPublished: boolean;
     coverImage: string;
     genres: Genre[];
@@ -232,7 +233,7 @@ export default function EditMangaForm({
                     </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="flex gap-6">
                     <label className="flex items-center gap-2 cursor-pointer">
                         <input
                             name="isAdult"
@@ -241,6 +242,16 @@ export default function EditMangaForm({
                             className="w-4 h-4 text-[#d8454f] border-gray-300 rounded focus:ring-[#d8454f]"
                         />
                         <span className="text-sm font-medium text-gray-700">18+</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                            name="isOneshot"
+                            type="checkbox"
+                            defaultChecked={manga.isOneshot}
+                            className="w-4 h-4 text-[#d8454f] border-gray-300 rounded focus:ring-[#d8454f]"
+                        />
+                        <span className="text-sm font-medium text-gray-700">Oneshot</span>
                     </label>
                 </div>
 

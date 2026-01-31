@@ -14,6 +14,7 @@ export const mangaSchema = z.object({
     artist: z.string().optional(),
     publishYear: z.number().int().min(1900).max(2100).optional().or(z.null()),
     isAdult: z.boolean().default(false),
+    isOneshot: z.boolean().default(false),
     genreIds: z.array(z.number()).optional(),
 });
 

@@ -19,6 +19,8 @@ type Manga = {
     viewCount: number;
     updatedAt: string;
     status: string;
+    isAdult: boolean;
+    isOneshot: boolean;
     _count: {
         chapters: number;
     };
@@ -59,6 +61,8 @@ export default function MangaListClient() {
     const [typeFilter, setTypeFilter] = useState("ALL");
     const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
     const [sortBy, setSortBy] = useState("latest");
+    const [isAdultFilter, setIsAdultFilter] = useState(false);
+    const [isOneshotFilter, setIsOneshotFilter] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
 
     // Fetch All Genres
@@ -83,6 +87,8 @@ export default function MangaListClient() {
         if (searchQuery) params.append("search", searchQuery);
         if (statusFilter !== "ALL") params.append("status", statusFilter);
         if (typeFilter !== "ALL") params.append("type", typeFilter);
+        if (isAdultFilter) params.append("isAdult", "true");
+        if (isOneshotFilter) params.append("isOneshot", "true");
         selectedGenres.forEach(id => params.append("genres", id.toString()));
         params.append("sort", sortBy);
 
@@ -95,7 +101,7 @@ export default function MangaListClient() {
             })
             .catch(err => console.error("Filter error:", err))
             .finally(() => setIsLoading(false));
-    }, [currentPage, searchQuery, statusFilter, typeFilter, selectedGenres, sortBy]);
+    }, [currentPage, searchQuery, statusFilter, typeFilter, selectedGenres, sortBy, isAdultFilter, isOneshotFilter]);
 
     const toggleGenre = (genreId: number) => {
         setSelectedGenres(prev =>
@@ -109,6 +115,8 @@ export default function MangaListClient() {
         setStatusFilter("ALL");
         setTypeFilter("ALL");
         setSelectedGenres([]);
+        setIsAdultFilter(false);
+        setIsOneshotFilter(false);
         setSortBy("latest");
         setCurrentPage(1);
     };
@@ -239,6 +247,22 @@ export default function MangaListClient() {
                                     </div>
                                 </div>
                             </details>
+                        </div>
+
+                        {/* Boolean Toggles */}
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => { setIsAdultFilter(!isAdultFilter); setCurrentPage(1); }}
+                                className={`px-2 py-1.5 md:px-3 md:py-2 border rounded-lg text-xs md:text-sm font-medium transition-colors ${isAdultFilter ? "bg-[#d8454f] text-white border-[#d8454f]" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"}`}
+                            >
+                                18+
+                            </button>
+                            <button
+                                onClick={() => { setIsOneshotFilter(!isOneshotFilter); setCurrentPage(1); }}
+                                className={`px-2 py-1.5 md:px-3 md:py-2 border rounded-lg text-xs md:text-sm font-medium transition-colors ${isOneshotFilter ? "bg-[#d8454f] text-white border-[#d8454f]" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"}`}
+                            >
+                                Oneshot
+                            </button>
                         </div>
 
                         {/* Clear Button - spans 2 columns on mobile */}

@@ -11,12 +11,16 @@ export async function GET(req: Request) {
     const genreIds = searchParams.getAll("genres").map(id => parseInt(id));
     const status = searchParams.get("status");
     const type = searchParams.get("type");
+    const isAdult = searchParams.get("isAdult") === "true";
+    const isOneshot = searchParams.get("isOneshot") === "true";
     const sort = searchParams.get("sort") || "latest"; // latest, popular, a-z
 
     const skip = (page - 1) * limit;
 
     const where: Prisma.MangaWhereInput = {
         isPublished: true,
+        ...(isAdult && { isAdult: true }),
+        ...(isOneshot && { isOneshot: true }),
         AND: [
             // Search by title (English or Mongolian)
             // Workaround for Postgres collation not supporting Cyrillic case-insensitivity:
@@ -59,9 +63,9 @@ export async function GET(req: Request) {
     } else if (sort === "popular") {
         orderBy = { viewCount: "desc" };
     } else if (sort === "az") {
-        orderBy = { title: "asc" };
+        orderBy = { titleMn: "asc" };
     } else if (sort === "za") {
-        orderBy = { title: "desc" };
+        orderBy = { titleMn: "desc" };
     }
 
     try {
