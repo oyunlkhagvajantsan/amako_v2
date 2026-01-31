@@ -227,7 +227,7 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
                                 <div className={`p-1.5 rounded-lg transition-colors ${isReplying ? "bg-[#d8454f]/10" : (isDark ? "group-hover:bg-white/5" : "group-hover:bg-gray-100")}`}>
                                     <MessageSquare size={14} />
                                 </div>
-                                <span>Хариулах</span>
+                                <span>Хариу бичих</span>
                             </button>
                         )}
 
@@ -249,7 +249,7 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
                                 isReply
                                 onCancel={() => setIsReplying(false)}
                                 initialValue={`@${comment.user.name} `}
-                                placeholder={`${comment.user.name}-д хариулах...`}
+                                placeholder={`${comment.user.name}-д хариу бичих...`}
                                 isLoading={replyMutation.isPending}
                                 variant={variant}
                             />
