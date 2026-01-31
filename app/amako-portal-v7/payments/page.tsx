@@ -157,84 +157,86 @@ export default async function PaymentRequestsPage() {
             <h1 className="text-2xl font-bold text-gray-900 mb-6">Төлбөрийн хүсэлтүүд</h1>
 
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                <table className="w-full text-left text-sm text-gray-500">
-                    <thead className="bg-gray-50 text-gray-700 uppercase font-medium">
-                        <tr>
-                            <th className="px-6 py-4">User</th>
-                            <th className="px-6 py-4">Months</th>
-                            <th className="px-6 py-4">Amount</th>
-                            <th className="px-6 py-4">Date</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                        {requests.length === 0 ? (
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-gray-500">
+                        <thead className="bg-gray-50 text-gray-700 uppercase font-medium">
                             <tr>
-                                <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
-                                    Хүсэлт ирээгүй байна.
-                                </td>
+                                <th className="px-6 py-4">User</th>
+                                <th className="px-6 py-4">Months</th>
+                                <th className="px-6 py-4">Amount</th>
+                                <th className="px-6 py-4">Date</th>
+                                <th className="px-6 py-4">Status</th>
+                                <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
-                        ) : (
-                            requests.map((req) => (
-                                <tr key={req.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4">
-                                        <div className="font-medium text-gray-900">{req.user.email}</div>
-                                        <div className="text-xs">{req.user.name}</div>
-                                    </td>
-                                    <td className="px-6 py-4 text-gray-900 font-medium">
-                                        {req.months} сар
-                                    </td>
-                                    <td className="px-6 py-4 font-bold text-gray-900">
-                                        {req.amount.toLocaleString()}₮
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        {new Date(req.createdAt).toLocaleDateString()}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${req.status === "APPROVED" ? "bg-green-100 text-green-700" :
-                                            req.status === "REJECTED" ? "bg-red-100 text-red-700" :
-                                                "bg-yellow-100 text-yellow-700"
-                                            }`}>
-                                            {req.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex justify-end gap-2">
-                                            {req.status === "PENDING" && (
-                                                <>
-                                                    <form action={approvePayment}>
-                                                        <input type="hidden" name="id" value={req.id} />
-                                                        <input type="hidden" name="userId" value={req.userId} />
-                                                        <input type="hidden" name="months" value={req.months} />
-                                                        <button className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-bold transition-colors">
-                                                            Approve
-                                                        </button>
-                                                    </form>
-                                                    <form action={rejectPayment}>
-                                                        <input type="hidden" name="id" value={req.id} />
-                                                        <button className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-bold transition-colors">
-                                                            Reject
-                                                        </button>
-                                                    </form>
-                                                </>
-                                            )}
-                                            {/* Delete button for all requests - ADMIN ONLY */}
-                                            {isAdmin && (
-                                                <form action={deletePayment}>
-                                                    <input type="hidden" name="id" value={req.id} />
-                                                    <button className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded text-xs font-bold transition-colors">
-                                                        Delete
-                                                    </button>
-                                                </form>
-                                            )}
-                                        </div>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                            {requests.length === 0 ? (
+                                <tr>
+                                    <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                                        Хүсэлт ирээгүй байна.
                                     </td>
                                 </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                            ) : (
+                                requests.map((req) => (
+                                    <tr key={req.id} className="hover:bg-gray-50">
+                                        <td className="px-6 py-4">
+                                            <div className="font-medium text-gray-900">{req.user.email}</div>
+                                            <div className="text-xs">{req.user.name}</div>
+                                        </td>
+                                        <td className="px-6 py-4 text-gray-900 font-medium">
+                                            {req.months} сар
+                                        </td>
+                                        <td className="px-6 py-4 font-bold text-gray-900">
+                                            {req.amount.toLocaleString()}₮
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {new Date(req.createdAt).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${req.status === "APPROVED" ? "bg-green-100 text-green-700" :
+                                                req.status === "REJECTED" ? "bg-red-100 text-red-700" :
+                                                    "bg-yellow-100 text-yellow-700"
+                                                }`}>
+                                                {req.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <div className="flex justify-end gap-2">
+                                                {req.status === "PENDING" && (
+                                                    <>
+                                                        <form action={approvePayment}>
+                                                            <input type="hidden" name="id" value={req.id} />
+                                                            <input type="hidden" name="userId" value={req.userId} />
+                                                            <input type="hidden" name="months" value={req.months} />
+                                                            <button className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-xs font-bold transition-colors">
+                                                                Approve
+                                                            </button>
+                                                        </form>
+                                                        <form action={rejectPayment}>
+                                                            <input type="hidden" name="id" value={req.id} />
+                                                            <button className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-bold transition-colors">
+                                                                Reject
+                                                            </button>
+                                                        </form>
+                                                    </>
+                                                )}
+                                                {/* Delete button for all requests - ADMIN ONLY */}
+                                                {isAdmin && (
+                                                    <form action={deletePayment}>
+                                                        <input type="hidden" name="id" value={req.id} />
+                                                        <button className="px-3 py-1 bg-gray-600 hover:bg-gray-700 text-white rounded text-xs font-bold transition-colors">
+                                                            Delete
+                                                        </button>
+                                                    </form>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
