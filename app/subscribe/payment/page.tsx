@@ -161,11 +161,11 @@ export default function PaymentPage() {
                                 <span className="font-medium text-gray-500">Гүйлгээний утга:</span>
                                 <span className="font-bold text-black-500">{session?.user?.email}</span>
                                 <button
-                                    onClick={() => copyToClipboard(PAYMENT_INFO.iban, "iban")}
+                                    onClick={() => copyToClipboard(session?.user?.email || "", "email")}
                                     className="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-xs transition-colors"
                                     title="Copy"
                                 >
-                                    {copiedField === "iban" ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
+                                    {copiedField === "email" ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
                                 </button>
                             </div>
                         </div>
