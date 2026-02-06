@@ -53,7 +53,7 @@ export async function POST(
                 user: {
                     select: {
                         id: true,
-                        name: true,
+                        username: true,
                         role: true
                     }
                 }
@@ -79,7 +79,7 @@ export async function POST(
                     console.log("Created notification data:", {
                         userId: parentComment.userId,
                         type: "REPLY",
-                        content: `${session.user.name || "Хэрэглэгч"} таны сэтгэгдэлд (${manga?.titleMn}) хариу бичлээ.`,
+                        content: `${session.user.username || "Хэрэглэгч"} таны сэтгэгдэлд (${manga?.titleMn}) хариу бичлээ.`,
                         link: link
                     });
 
@@ -87,7 +87,7 @@ export async function POST(
                         data: {
                             userId: parentComment.userId,
                             type: "REPLY",
-                            content: `${session.user.name || "Хэрэглэгч"} таны сэтгэгдэлд (${manga?.titleMn}) хариу бичлээ.`,
+                            content: `${session.user.username || "Хэрэглэгч"} таны сэтгэгдэлд (${manga?.titleMn}) хариу бичлээ.`,
                             link: link
                         }
                     });

@@ -147,7 +147,7 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
                         {comment.user.image ? (
                             <img src={comment.user.image} alt="" className="w-full h-full object-cover" />
                         ) : (
-                            <span className="text-sm font-bold uppercase">{comment.user.name?.[0] || "?"}</span>
+                            <span className="text-sm font-bold uppercase">{comment.user.username?.[0] || "?"}</span>
                         )}
                     </div>
                 </div>
@@ -158,7 +158,7 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                                 <span className={`font-bold text-sm ${comment.user.role === "ADMIN" ? "text-[#d8454f]" : (isDark ? "text-white" : "text-gray-900")}`}>
-                                    {comment.user.name || "Гишүүн"}
+                                    {comment.user.username || "Гишүүн"}
                                 </span>
                                 {comment.user.role === "ADMIN" && (
                                     <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border ${isDark ? "bg-[#d8454f]/20 text-[#d8454f] border-[#d8454f]/20" : "bg-[#d8454f]/10 text-[#d8454f] border-[#d8454f]/10"}`}>Админ</span>
@@ -248,8 +248,8 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
                                 onSubmit={handleReply}
                                 isReply
                                 onCancel={() => setIsReplying(false)}
-                                initialValue={`@${comment.user.name} `}
-                                placeholder={`${comment.user.name}-д хариу бичих...`}
+                                initialValue={`@${comment.user.username} `}
+                                placeholder={`${comment.user.username}-д хариу бичих...`}
                                 isLoading={replyMutation.isPending}
                                 variant={variant}
                             />

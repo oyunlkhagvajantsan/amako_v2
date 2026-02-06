@@ -27,7 +27,7 @@ async function approvePayment(formData: FormData) {
     // 2. Update User Subscription
     const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { subscriptionEnd: true, email: true, name: true }
+        select: { subscriptionEnd: true, email: true, username: true }
     });
 
     // If user is already subscribed (and not expired), add to existing end date.
@@ -64,7 +64,7 @@ async function approvePayment(formData: FormData) {
         await sendEmail({
             to: user.email,
             subject: "Amako - Эрх сунгагдлаа.",
-            text: `Hi ${user.name || 'User'}, your subscription for ${months} month(s) has been approved! It will end on ${newEndDate.toLocaleDateString("mn-MN")}.`,
+            text: `Hi ${user.username || 'User'}, your subscription for ${months} month(s) has been approved! It will end on ${newEndDate.toLocaleDateString("mn-MN")}.`,
             html: `
                 <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
                     <h2 style="color: #d8454f;">Амжилттй!</h2>
@@ -147,7 +147,7 @@ export default async function PaymentRequestsPage() {
         orderBy: { createdAt: "desc" },
         include: {
             user: {
-                select: { name: true, email: true }
+                select: { username: true, email: true }
             }
         }
     });
@@ -181,7 +181,7 @@ export default async function PaymentRequestsPage() {
                                     <tr key={req.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4">
                                             <div className="font-medium text-gray-900">{req.user.email}</div>
-                                            <div className="text-xs">{req.user.name}</div>
+                                            <div className="text-xs">{req.user.username}</div>
                                         </td>
                                         <td className="px-6 py-4 text-gray-900 font-medium">
                                             {req.months} сар

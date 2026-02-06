@@ -14,10 +14,19 @@ export async function GET(req: NextRequest) {
         }
 
         const comments = await prisma.comment.findMany({
-            include: {
+            select: {
+                id: true,
+                content: true,
+                createdAt: true,
+                updatedAt: true,
+                isHidden: true,
+                parentId: true,
+                userId: true,
+                mangaId: true,
+                chapterId: true,
                 user: {
                     select: {
-                        name: true,
+                        username: true,
                         email: true
                     }
                 },

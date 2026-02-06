@@ -23,7 +23,7 @@ export type ChapterWithManga = Prisma.ChapterGetPayload<{
 // Comment related types
 export interface CommentUser {
     id: string;
-    name: string | null;
+    username: string | null;
     image: string | null;
     role: "USER" | "ADMIN" | "MODERATOR";
 }

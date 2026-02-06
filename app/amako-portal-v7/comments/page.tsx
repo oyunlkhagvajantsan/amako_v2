@@ -10,7 +10,7 @@ interface Comment {
     createdAt: string;
     isHidden: boolean;
     user: {
-        name: string | null;
+        username: string | null;
         email: string;
     };
     manga: {
@@ -142,7 +142,7 @@ export default function AdminCommentsPage() {
                                 {filteredComments.map((comment) => (
                                     <tr key={comment.id} className={`hover:bg-gray-50 transition-colors ${comment.isHidden ? 'bg-gray-50/50' : ''}`}>
                                         <td className="px-6 py-4">
-                                            <div className="font-medium text-gray-900">{comment.user.name || "Нэргүй"}</div>
+                                            <div className="font-medium text-gray-900">{comment.user.username || "Нэргүй"}</div>
                                             <div className="text-xs text-gray-500">{comment.user.email}</div>
                                         </td>
                                         <td className="px-6 py-4">

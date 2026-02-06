@@ -11,7 +11,7 @@ datasource db {
 model User {
   id              String           @id @default(cuid())
   email           String           @unique
-  name            String?
+  username        String           @unique
   password        String
   role            Role             @default(USER)
   isSubscribed    Boolean          @default(false)
@@ -65,6 +65,7 @@ model Manga {
   comments      Comment[]
   likes         Like[]
   genres        Genre[]     @relation("GenreToManga")
+  deletedAt     DateTime?
 
   @@index([status])
   @@index([createdAt])
@@ -89,6 +90,7 @@ model Chapter {
   manga         Manga         @relation(fields: [mangaId], references: [id], onDelete: Cascade)
   comments      Comment[]
   readHistory   ReadHistory[]
+  deletedAt     DateTime?
 
   @@unique([mangaId, chapterNumber])
   @@index([mangaId])

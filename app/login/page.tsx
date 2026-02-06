@@ -26,7 +26,7 @@ function LoginForm() {
         try {
             const res = await signIn("credentials", {
                 redirect: false,
-                email: formData.email,
+                identifier: formData.email,
                 password: formData.password,
             });
 
@@ -78,14 +78,14 @@ function LoginForm() {
 
                     <div className="space-y-4">
                         <div>
-                            <label htmlFor="email-address" className="sr-only">Имэйл хаяг</label>
+                            <label htmlFor="email-address" className="sr-only">Имэйл эсвэл хэрэглэгчийн нэр</label>
                             <input
                                 id="email-address"
-                                name="email"
-                                type="email"
+                                name="identifier"
+                                type="text"
                                 required
                                 className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[#d8454f] focus:border-[#d8454f] focus:z-10 sm:text-sm"
-                                placeholder="Имэйл хаяг"
+                                placeholder="Имэйл эсвэл хэрэглэгчийн нэр"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             />

@@ -9,7 +9,7 @@ declare module "next-auth" {
         user: {
             id: string;
             email: string;
-            name: string;
+            username: string;
             image?: string;
             role: "USER" | "ADMIN" | "MODERATOR";
             ageVerified: boolean;
@@ -19,7 +19,7 @@ declare module "next-auth" {
     interface User {
         id: string;
         email: string;
-        name: string | null;
+        username: string;
         role: "USER" | "ADMIN" | "MODERATOR";
         ageVerified: boolean;
     }
@@ -28,15 +28,18 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
     interface JWT {
         id: string;
+        username: string;
         role: "USER" | "ADMIN" | "MODERATOR";
         ageVerified: boolean;
     }
 }
 
 export const authOptions: NextAuthOptions = {
-    adapter: PrismaAdapter(prisma),
+    adapter: PrismaAdapter(prisma as any),
     session: {
         strategy: "jwt",
+        maxAge: 24 * 60 * 60, // 24 hours
+        updateAge: 60 * 60, // 1 hour
     },
     pages: {
         signIn: "/login",
@@ -47,28 +50,35 @@ export const authOptions: NextAuthOptions = {
         CredentialsProvider({
             name: "Credentials",
             credentials: {
-                email: { label: "Email", type: "email" },
+                identifier: { label: "Email or Username", type: "text" },
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials, req) {
                 const userAgent = req?.headers?.['user-agent'] || 'unknown';
                 const host = req?.headers?.['host'] || 'unknown';
                 console.log(`[NextAuth] Authorize attempt:
-                    User-Agent: ${userAgent}
-                    Host: ${host}
-                    Email: ${credentials?.email}`);
+                    Identifier: '${credentials?.identifier}' (len: ${credentials?.identifier?.length})
+                    Password len: ${credentials?.password?.length}
+                    Password first/last chars: ${credentials?.password?.charCodeAt(0)}/${credentials?.password?.charCodeAt(credentials.password.length - 1)}
+                `);
 
-                if (!credentials?.email || !credentials?.password) {
+                if (!credentials?.identifier || !credentials?.password) {
                     console.log("[NextAuth] Missing credentials");
                     return null;
                 }
 
-                const user = await prisma.user.findUnique({
-                    where: { email: credentials.email }
+                // Check for email or username
+                const user = await prisma.user.findFirst({
+                    where: {
+                        OR: [
+                            { email: credentials.identifier },
+                            { username: credentials.identifier }
+                        ]
+                    }
                 });
 
                 if (!user) {
-                    console.log(`[NextAuth] User not found: ${credentials.email}`);
+                    console.log(`[NextAuth] User not found: ${credentials.identifier}`);
                     return null;
                 }
 
@@ -78,7 +88,7 @@ export const authOptions: NextAuthOptions = {
                 );
 
                 if (!isPasswordValid) {
-                    console.log(`[NextAuth] Invalid password for: ${credentials.email}`);
+                    console.log(`[NextAuth] Invalid password for: ${credentials.identifier}`);
                     return null;
                 }
 
@@ -86,7 +96,7 @@ export const authOptions: NextAuthOptions = {
                 return {
                     id: user.id,
                     email: user.email,
-                    name: user.name,
+                    username: user.username,
                     role: user.role,
                     ageVerified: user.ageVerified,
                 };
@@ -99,6 +109,7 @@ export const authOptions: NextAuthOptions = {
                 session.user.id = token.id;
                 session.user.role = token.role;
                 session.user.ageVerified = token.ageVerified;
+                session.user.username = token.username;
             }
             return session;
         },
@@ -107,6 +118,7 @@ export const authOptions: NextAuthOptions = {
                 token.id = user.id;
                 token.role = user.role;
                 token.ageVerified = user.ageVerified;
+                token.username = user.username;
             }
 
             if (trigger === "update" && session?.user) {

@@ -31,7 +31,7 @@ export async function GET(req: Request) {
                     lte: tomorrow,
                 },
             },
-            select: { id: true, email: true, name: true, subscriptionEnd: true }
+            select: { id: true, email: true, username: true, subscriptionEnd: true }
         });
 
         logger.info(`Found ${expiringSoon.length} expiring subscriptions.`);
@@ -69,7 +69,7 @@ export async function GET(req: Request) {
                     lt: now,
                 },
             },
-            select: { id: true, email: true, name: true }
+            select: { id: true, email: true, username: true }
         });
 
         logger.info(`Found ${expired.length} newly expired subscriptions.`);

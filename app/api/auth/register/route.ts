@@ -17,16 +17,21 @@ export async function POST(req: Request) {
             );
         }
 
-        const { name, email, password } = validation.data;
+        const { email, password, username } = validation.data;
 
-        // Check if user exists
-        const existingUser = await prisma.user.findUnique({
-            where: { email },
+        // Check if user exists (email or username)
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    { email },
+                    { username }
+                ]
+            },
         });
 
         if (existingUser) {
             return NextResponse.json(
-                { error: "Энэ имэйл бүртгэлтэй байна" },
+                { error: "Имэйл эсвэл хэрэглэгчийн нэр бүртгэлтэй байна" },
                 { status: 400 }
             );
         }
@@ -37,15 +42,15 @@ export async function POST(req: Request) {
         // Create user
         const user = await prisma.user.create({
             data: {
-                name,
                 email,
+                username,
                 password: hashedPassword,
                 role: "USER", // Default role
             },
         });
 
         return NextResponse.json(
-            { message: "User created successfully", user: { id: user.id, email: user.email } },
+            { message: "User created successfully", user: { id: user.id, email: user.email, username: user.username } },
             { status: 201 }
         );
     } catch (error) {

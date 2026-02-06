@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 export default function SignupPage() {
     const router = useRouter();
     const [formData, setFormData] = useState({
-        name: "",
+        username: "",
         email: "",
         password: "",
     });
@@ -61,16 +61,16 @@ export default function SignupPage() {
 
                     <div className="space-y-4">
                         <div>
-                            <label htmlFor="name" className="sr-only">Нэр</label>
+                            <label htmlFor="username" className="sr-only">Хэрэглэгчийн нэр</label>
                             <input
-                                id="name"
-                                name="name"
+                                id="username"
+                                name="username"
                                 type="text"
                                 required
                                 className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[#d8454f] focus:border-[#d8454f] focus:z-10 sm:text-sm"
-                                placeholder="Нэр"
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                placeholder="Хэрэглэгчийн нэр"
+                                value={formData.username}
+                                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                             />
                         </div>
                         <div>
@@ -114,10 +114,6 @@ export default function SignupPage() {
                                 <div className={`text-xs flex items-center gap-2 ${/[0-9]/.test(formData.password) ? 'text-green-600' : 'text-gray-400'}`}>
                                     <div className={`w-1 h-1 rounded-full ${/[0-9]/.test(formData.password) ? 'bg-green-600' : 'bg-gray-300'}`} />
                                     Тоо (0-9)
-                                </div>
-                                <div className={`text-xs flex items-center gap-2 ${/[^A-Za-z0-9]/.test(formData.password) ? 'text-green-600' : 'text-gray-400'}`}>
-                                    <div className={`w-1 h-1 rounded-full ${/[^A-Za-z0-9]/.test(formData.password) ? 'bg-green-600' : 'bg-gray-300'}`} />
-                                    Тусгай тэмдэгт (!@#$%...)
                                 </div>
                             </div>
                         </div>
