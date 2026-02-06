@@ -26,6 +26,8 @@ async function main() {
         { name: 'Sports', nameMn: 'Спорт', slug: 'sports' },
         { name: 'Historical', nameMn: 'Түүхэн', slug: 'historical' },
         { name: 'Martial Arts', nameMn: 'Тулааны урлаг', slug: 'martial-arts' },
+        { name: 'Tragedy', nameMn: 'Эмгэнэлт', slug: 'tragedy' },
+        { name: 'Crime', nameMn: 'Гэмт хэрэг', slug: 'crime' },
     ];
 
     for (const genre of genres) {
@@ -48,11 +50,30 @@ async function main() {
         },
         create: {
             email: 'ama.yuri002@gmail.com',
+            username: 'ama_admin',
             password: hashedPassword,
             role: 'ADMIN',
         },
     });
     console.log('✅ Admin user created successfully!');
+
+    // Create moderator user
+    console.log('Creating moderator user...');
+    const modPassword = await bcrypt.hash('moderator123', 10);
+
+    await prisma.user.upsert({
+        where: { email: 'moderator@example.com' },
+        update: {
+            role: 'MODERATOR',
+        },
+        create: {
+            email: 'moderator@example.com',
+            username: 'ama_mod',
+            password: modPassword,
+            role: 'MODERATOR',
+        },
+    });
+    console.log('✅ Moderator user created successfully!');
 
     console.log('\n🎉 Database seeding completed!');
 }
