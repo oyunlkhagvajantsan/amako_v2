@@ -37,17 +37,19 @@ export default withAuth(
                 console.warn(`[Middleware] Unauthorized role for admin path: ${token.role}`);
                 return NextResponse.redirect(new URL("/", req.url));
             }
-
-            // Note: If NO token exists, withAuth's authorized() callback 
-            // Handles the redirect to the sign-in page.
         }
 
         // 3. API Rate Limiting & Protection
         if (path.startsWith('/api')) {
+            // Allow auth-related API calls
+            if (path.startsWith('/api/auth')) {
+                return response;
+            }
+
             const limitResponse = await handleRateLimiting(req, ip, path);
             if (limitResponse) return limitResponse;
 
-            // CORS logic (retained and integrated)
+            // CORS logic
             const origin = req.headers.get('origin');
             const allowedOrigins = [
                 process.env.NEXT_PUBLIC_FRONTEND_URL,
@@ -72,10 +74,22 @@ export default withAuth(
     {
         callbacks: {
             authorized: ({ token, req }) => {
-                if (req.nextUrl.pathname.startsWith("/amako-portal-v7")) {
-                    return !!token;
+                const path = req.nextUrl.pathname;
+
+                // Public paths that don't require login
+                const publicPaths = [
+                    "/login",
+                    "/signup",
+                    "/forgot-password",
+                    "/reset-password",
+                ];
+
+                if (publicPaths.some(p => path.startsWith(p)) || path.startsWith("/api/auth")) {
+                    return true;
                 }
-                return true;
+
+                // Everything else requires a token
+                return !!token;
             },
         },
     }
@@ -85,6 +99,6 @@ export const config = {
     matcher: [
         "/amako-portal-v7/:path*",
         "/api/:path*",
-        "/((?!_next/static|_next/image|favicon.ico).*)",
+        "/((?!_next/static|_next/image|favicon.ico|uploads).*)",
     ],
 };
