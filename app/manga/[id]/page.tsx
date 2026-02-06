@@ -167,7 +167,7 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                                 )}
 
                                 {/* Oneshot Indicator */}
-                                {manga.isOneshot && (
+                                {(manga as any).isOneshot && (
                                     <div className="px-3 py-1 bg-blue-100 rounded-full text-sm font-medium text-blue-700 flex items-center gap-1">
                                         <Layers size={14} /> Oneshot
                                     </div>
