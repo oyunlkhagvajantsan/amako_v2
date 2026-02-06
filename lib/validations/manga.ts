@@ -6,7 +6,7 @@ const MangaType = z.enum(["MANGA", "MANHWA", "MANHUA", "ONESHOT"]);
 export const mangaSchema = z.object({
     title: z.string().min(1, "Гарчиг оруулна уу").max(255),
     titleMn: z.string().min(1, "Монгол гарчиг оруулна уу").max(255),
-    description: z.string().min(1, "Тайлбар оруулна уу"),
+    description: z.string().optional(),
     coverImage: z.string().url("Зурагны URL буруу байна").optional().or(z.literal("")),
     status: MangaStatus,
     type: MangaType,
