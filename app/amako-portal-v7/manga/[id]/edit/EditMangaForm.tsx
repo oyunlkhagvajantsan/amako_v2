@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import SelectCoverModal from "@/app/components/SelectCoverModal";
 
 type Genre = {
     id: number;
@@ -42,6 +43,8 @@ export default function EditMangaForm({
     const [selectedGenres, setSelectedGenres] = useState<number[]>(
         manga.genres.map((g) => g.id)
     );
+    const [showCoverModal, setShowCoverModal] = useState(false);
+    const [selectedCoverUrl, setSelectedCoverUrl] = useState("");
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -54,6 +57,10 @@ export default function EditMangaForm({
         selectedGenres.forEach((genreId) => {
             formData.append("genreIds", String(genreId));
         });
+
+        if (selectedCoverUrl) {
+            formData.append("coverImageUrl", selectedCoverUrl);
+        }
 
         // Handle isAdult checkbox (if unchecked, it won't be in formData, so we don't need to do anything special as API checks for "on")
         // But wait, uncheck needs to send false? 
@@ -272,27 +279,52 @@ export default function EditMangaForm({
                     </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-4">
                     <label className="text-sm font-medium text-gray-700">Cover зураг (Шинэчлэх бол оруулах)</label>
 
                     <div className="flex gap-4 items-center mb-2">
                         <div className="relative w-20 h-28 rounded-lg overflow-hidden border border-gray-200">
                             <Image
-                                src={manga.coverImage}
+                                src={selectedCoverUrl || manga.coverImage}
                                 alt={manga.title}
                                 fill
                                 className="object-cover"
                             />
                         </div>
-                        <p className="text-sm text-gray-500">Одоогийн зураг</p>
+                        <p className="text-sm text-gray-500">
+                            {selectedCoverUrl ? "Сонгогдсон зураг" : "Одоогийн зураг"}
+                        </p>
+                        {selectedCoverUrl && (
+                            <button
+                                type="button"
+                                onClick={() => setSelectedCoverUrl("")}
+                                className="text-sm text-red-600 hover:text-red-700 font-medium"
+                            >
+                                Reset
+                            </button>
+                        )}
                     </div>
 
-                    <input
-                        name="coverImage"
-                        type="file"
-                        accept="image/*"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-[#d8454f] hover:file:bg-gray-100"
-                    />
+                    {!selectedCoverUrl && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <input
+                                name="coverImage"
+                                type="file"
+                                accept="image/*"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-[#d8454f] hover:file:bg-gray-100"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowCoverModal(true)}
+                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Select from Library
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 <div className="pt-4 flex items-center justify-between">
@@ -315,6 +347,12 @@ export default function EditMangaForm({
                     </button>
                 </div>
             </form>
+
+            <SelectCoverModal
+                isOpen={showCoverModal}
+                onClose={() => setShowCoverModal(false)}
+                onSelect={(url) => setSelectedCoverUrl(url)}
+            />
         </div>
     );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import SelectCoverModal from "@/app/components/SelectCoverModal";
 
 type Genre = {
     id: number;
@@ -15,6 +16,8 @@ export default function CreateMangaPage() {
     const [error, setError] = useState("");
     const [genres, setGenres] = useState<Genre[]>([]);
     const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
+    const [showCoverModal, setShowCoverModal] = useState(false);
+    const [selectedCoverUrl, setSelectedCoverUrl] = useState("");
 
     // Fetch genres on mount
     useEffect(() => {
@@ -42,6 +45,10 @@ export default function CreateMangaPage() {
         selectedGenres.forEach((genreId) => {
             formData.append("genreIds", genreId.toString());
         });
+
+        if (selectedCoverUrl) {
+            formData.append("coverImageUrl", selectedCoverUrl);
+        }
 
         try {
             const res = await fetch("/api/manga", {
@@ -215,15 +222,43 @@ export default function CreateMangaPage() {
                     )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-4">
                     <label className="text-sm font-medium text-gray-700">Cover зураг</label>
-                    <input
-                        name="coverImage"
-                        type="file"
-                        accept="image/*"
-                        required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-[#d8454f] hover:file:bg-gray-100"
-                    />
+
+                    {selectedCoverUrl ? (
+                        <div className="relative aspect-[2/3] w-40 rounded-lg overflow-hidden border border-gray-200 group">
+                            <img src={selectedCoverUrl} alt="Selected cover" className="object-cover w-full h-full" />
+                            <button
+                                type="button"
+                                onClick={() => setSelectedCoverUrl("")}
+                                className="absolute top-2 right-2 p-1 bg-white/90 rounded-full shadow-sm hover:bg-white text-gray-600 transition-colors"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <input
+                                name="coverImage"
+                                type="file"
+                                accept="image/*"
+                                required={!selectedCoverUrl}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-50 file:text-[#d8454f] hover:file:bg-gray-100"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowCoverModal(true)}
+                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Select from Library
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 <div className="pt-4">
@@ -236,6 +271,12 @@ export default function CreateMangaPage() {
                     </button>
                 </div>
             </form>
+
+            <SelectCoverModal
+                isOpen={showCoverModal}
+                onClose={() => setShowCoverModal(false)}
+                onSelect={(url) => setSelectedCoverUrl(url)}
+            />
         </div>
     );
 }

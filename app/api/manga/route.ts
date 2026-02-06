@@ -31,7 +31,8 @@ export async function POST(req: Request) {
             genreIds: formData.getAll("genreIds").map(id => parseInt(id as string)),
         };
 
-        const coverImage = formData.get("coverImage") as File;
+        const coverImage = formData.get("coverImage") as File | null;
+        const coverImageUrl = formData.get("coverImageUrl") as string | null;
 
         // Validate basic fields with Zod
         const validation = mangaSchema.safeParse(rawData);
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
             );
         }
 
-        if (!coverImage || !(coverImage instanceof File)) {
+        if ((!coverImage || !(coverImage instanceof File)) && !coverImageUrl) {
             return NextResponse.json(
                 { error: "Ковер зураг оруулна уу" },
                 { status: 400 }
@@ -52,27 +53,38 @@ export async function POST(req: Request) {
 
         const { title, titleMn, description, author, artist, status, type, publishYear, isAdult, isOneshot, genreIds } = validation.data;
 
-        // Handle Image Upload with WebP conversion and R2
-        const buffer = Buffer.from(await coverImage.arrayBuffer());
+        let finalImageUrl = coverImageUrl;
 
-        // Convert to WebP using sharp in memory
-        const webpBuffer = await sharp(buffer)
-            .webp({ quality: 90, effort: 6 })
-            .toBuffer();
+        // Handle Image Upload with WebP conversion and R2 if file is provided
+        if (coverImage && coverImage instanceof File) {
+            const buffer = Buffer.from(await coverImage.arrayBuffer());
 
-        const filename = `covers/cover-${Date.now()}-${coverImage.name.replace(/\s/g, "-").replace(/\.[^.]+$/, "")}.webp`;
+            // Convert to WebP using sharp in memory
+            const webpBuffer = await sharp(buffer)
+                .webp({ quality: 90, effort: 6 })
+                .toBuffer();
 
-        // Upload to R2
-        const command = new PutObjectCommand({
-            Bucket: R2_BUCKET_NAME,
-            Key: filename,
-            Body: webpBuffer,
-            ContentType: 'image/webp',
-            CacheControl: 'public, max-age=31536000, immutable',
-        });
+            const filename = `covers/cover-${Date.now()}-${coverImage.name.replace(/\s/g, "-").replace(/\.[^.]+$/, "")}.webp`;
 
-        await r2Client.send(command);
-        const imageUrl = `${R2_PUBLIC_URL}/${filename}`;
+            // Upload to R2
+            const command = new PutObjectCommand({
+                Bucket: R2_BUCKET_NAME,
+                Key: filename,
+                Body: webpBuffer,
+                ContentType: 'image/webp',
+                CacheControl: 'public, max-age=31536000, immutable',
+            });
+
+            await r2Client.send(command);
+            finalImageUrl = `${R2_PUBLIC_URL}/${filename}`;
+        }
+
+        if (!finalImageUrl) {
+            return NextResponse.json(
+                { error: "Ковер зураг боловсруулж чадсангүй" },
+                { status: 500 }
+            );
+        }
 
         // Create Manga in DB with genre connections using the Repository pattern
         const manga = await MangaRepository.create({
@@ -86,7 +98,7 @@ export async function POST(req: Request) {
             isOneshot,
             status: status || "ONGOING",
             type: type || "MANGA",
-            coverImage: imageUrl,
+            coverImage: finalImageUrl,
             genres: {
                 connect: (genreIds || []).map((id: number) => ({ id })),
             },

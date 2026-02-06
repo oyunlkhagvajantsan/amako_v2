@@ -62,8 +62,13 @@ export async function PATCH(
         };
 
         // Handle Image Upload if provided
+        // Handle Image Upload if provided or URL
         const coverImage = formData.get("coverImage") as File | null;
-        if (coverImage && coverImage.size > 0) {
+        const coverImageUrl = formData.get("coverImageUrl") as string | null;
+
+        if (coverImageUrl) {
+            updateData.coverImage = coverImageUrl;
+        } else if (coverImage && coverImage.size > 0) {
             const buffer = Buffer.from(await coverImage.arrayBuffer());
 
             // Convert to WebP using sharp in memory
