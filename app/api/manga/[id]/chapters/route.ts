@@ -3,6 +3,31 @@ import { prisma } from "@/lib/prisma";
 import { handleApiError } from "@/lib/error-utils";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { Chapter } from "@prisma/client";
+
+export async function GET(
+    req: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id: mangaId } = await params;
+
+        const latestChapter = await prisma.chapter.findFirst({
+            where: {
+                mangaId: parseInt(mangaId),
+                deletedAt: null
+            },
+            orderBy: { chapterNumber: "desc" },
+            select: { chapterNumber: true }
+        });
+
+        return NextResponse.json({
+            latestChapterNumber: latestChapter ? latestChapter.chapterNumber : 0
+        });
+    } catch (error) {
+        return handleApiError(error, "GetLatestChapter");
+    }
+}
 
 export async function POST(
     req: Request,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { BookOpen } from "lucide-react";
@@ -42,12 +42,36 @@ export default function ChapterForm({
 }: ChapterFormProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const [isFetchingChapter, setIsFetchingChapter] = useState(false);
     const [error, setError] = useState("");
 
     // Form State
     const [selectedMangaId, setSelectedMangaId] = useState(
         initialData?.mangaId.toString() || preselectedMangaId?.toString() || ""
     );
+
+    // Fetch latest chapter number when manga is selected in create mode
+    useEffect(() => {
+        if (mode === 'create' && selectedMangaId && !initialData) {
+            const fetchLatestChapter = async () => {
+                setIsFetchingChapter(true);
+                try {
+                    const res = await fetch(`/api/manga/${selectedMangaId}/chapters`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        const nextNumber = (data.latestChapterNumber || 0) + 1;
+                        setChapterNumber(nextNumber.toString());
+                    }
+                } catch (err) {
+                    console.error("Failed to fetch latest chapter:", err);
+                } finally {
+                    setIsFetchingChapter(false);
+                }
+            };
+            fetchLatestChapter();
+        }
+    }, [selectedMangaId, mode, initialData]);
+
     const [chapterNumber, setChapterNumber] = useState(initialData?.chapterNumber.toString() || "");
     const [title, setTitle] = useState(initialData?.title || "");
     const [caption, setCaption] = useState(initialData?.caption || "");
@@ -377,6 +401,7 @@ export default function ChapterForm({
                         </option>
                     ))}
                 </select>
+                {isFetchingChapter && <p className="text-[10px] text-blue-500 mt-1 animate-pulse">Дугаар автоматаар бөглөж байна...</p>}
                 {mode === 'edit' && <p className="text-[10px] text-gray-400 mt-1">Manga cannot be changed during edit.</p>}
             </div>
 
