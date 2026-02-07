@@ -9,7 +9,7 @@ interface ProtectedReaderProps {
 export default function ProtectedReader({ children }: ProtectedReaderProps) {
     return (
         <main
-            className="max-w-3xl mx-auto bg-black min-h-screen relative select-none"
+            className="max-w-3xl mx-auto bg-background relative select-none"
             onContextMenu={(e) => e.preventDefault()}
         >
             <div className="relative">

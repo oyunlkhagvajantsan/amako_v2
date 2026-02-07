@@ -10,18 +10,28 @@
   --secondary: #d8454f;
   --accent: #d8454f;
 
-  /* Dark Theme */
+  /* Theme Defaults (Light) */
   --background: #FFFFFF;
-  --surface: #F5F5F5;
-  --surface-elevated: #EEEEEE;
+  --surface: #F8F9FA;
+  --surface-elevated: #FFFFFF;
   --foreground: #171717;
   --muted: #666666;
+  --border: #F1F1F1;
 
   /* Semantic Colors */
   --success: #6BCF7F;
   --warning: #FFD93D;
   --error: #FF6B6B;
   --info: #4ECDC4;
+}
+
+.dark {
+  --background: #181718;
+  --surface: #212021;
+  --surface-elevated: #2A292A;
+  --foreground: #F5F5F5;
+  --muted: #A0A0A0;
+  --border: #323132;
 }
 
 @theme inline {
@@ -31,6 +41,7 @@
   --color-surface-elevated: var(--surface-elevated);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+  --color-border: var(--border);
   --color-primary: var(--primary);
   --color-primary-dark: var(--primary-dark);
   --color-secondary: var(--secondary);

@@ -9,14 +9,13 @@ import { logger } from "@/lib/logger";
 
 import { CommentData, CommentItemProps } from "@/lib/types";
 
-export default function CommentItem({ comment, mangaId, onRefresh, isReply, variant = 'light' }: CommentItemProps) {
+export default function CommentItem({ comment, mangaId, onRefresh, isReply }: CommentItemProps) {
     const { data: session } = useSession();
     const queryClient = useQueryClient();
     const [isReplying, setIsReplying] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showReplies, setShowReplies] = useState(true);
 
-    const isDark = variant === 'dark';
 
     const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "MODERATOR";
     const isLikedByMe = comment.likes?.length > 0;
@@ -139,11 +138,11 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
     };
 
     return (
-        <div className={`group/item ${isReply ? `mt-4 ml-6 pl-6 border-l-2 ${isDark ? "border-white/5" : "border-gray-100"}` : "mb-8"}`}>
+        <div className={`group/item ${isReply ? "mt-4 ml-6 pl-6 border-l-2 border-border" : "mb-8"}`}>
             <div className="flex gap-4">
                 {/* Avatar */}
                 <div className="flex-shrink-0">
-                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center border shadow-sm overflow-hidden ${isDark ? "bg-white/5 text-gray-400 border-white/5" : "bg-gradient-to-br from-gray-50 to-gray-100 text-gray-400 border-gray-100"}`}>
+                    <div className="w-11 h-11 rounded-2xl flex items-center justify-center border border-border shadow-sm overflow-hidden bg-surface text-muted">
                         {comment.user.image ? (
                             <img src={comment.user.image} alt="" className="w-full h-full object-cover" />
                         ) : (
@@ -154,16 +153,16 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
 
                 {/* Content Area */}
                 <div className="flex-grow min-w-0">
-                    <div className={`rounded-2xl p-4 border transition-all duration-300 ${isDark ? "bg-white/5 border-white/5 hover:border-white/10" : "bg-white border-gray-100 shadow-sm hover:shadow-md hover:border-gray-200"}`}>
+                    <div className="rounded-2xl p-4 border border-border bg-background transition-all duration-300 group-hover:border-primary/20 shadow-sm hover:shadow-md">
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
-                                <span className={`font-bold text-sm ${comment.user.role === "ADMIN" ? "text-[#d8454f]" : (isDark ? "text-white" : "text-gray-900")}`}>
+                                <span className={`font-bold text-sm ${comment.user.role === "ADMIN" ? "text-primary" : "text-foreground"}`}>
                                     {comment.user.username || "Гишүүн"}
                                 </span>
                                 {comment.user.role === "ADMIN" && (
-                                    <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border ${isDark ? "bg-[#d8454f]/20 text-[#d8454f] border-[#d8454f]/20" : "bg-[#d8454f]/10 text-[#d8454f] border-[#d8454f]/10"}`}>Админ</span>
+                                    <span className="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border bg-primary/10 text-primary border-primary/20">Админ</span>
                                 )}
-                                <span className={`text-[11px] font-medium ${isDark ? "text-white/30" : "text-gray-400"}`}>{formatDate(comment.createdAt)}</span>
+                                <span className="text-[11px] font-medium text-muted/50">{formatDate(comment.createdAt)}</span>
                             </div>
 
                             {/* Options Menu (Admin or Owner) */}
@@ -171,17 +170,17 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
                                 <div className="relative">
                                     <button
                                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                        className={`p-1.5 rounded-lg transition-colors ${isDark ? "text-white/30 hover:text-white hover:bg-white/5" : "text-gray-400 hover:text-gray-900 hover:bg-gray-50"}`}
+                                        className="p-1.5 rounded-lg transition-colors text-muted hover:text-foreground hover:bg-surface"
                                     >
                                         <MoreVertical size={16} />
                                     </button>
 
                                     {isMenuOpen && (
-                                        <div className={`absolute right-0 mt-1 w-40 border rounded-xl shadow-xl z-10 py-1.5 animate-in fade-in zoom-in-95 duration-100 ${isDark ? "bg-[#1e1e1e] border-white/10" : "bg-white border-gray-100"}`}>
+                                        <div className="absolute right-0 mt-1 w-40 border border-border rounded-xl shadow-xl z-20 py-1.5 animate-in fade-in zoom-in-95 duration-100 bg-surface-elevated">
                                             {isAdmin && (
                                                 <button
                                                     onClick={() => handleModerate("hide")}
-                                                    className={`w-full text-left px-4 py-2 text-xs flex items-center gap-2 transition-colors ${isDark ? "hover:bg-white/5 text-gray-300" : "hover:bg-gray-50 text-gray-700"}`}
+                                                    className="w-full text-left px-4 py-2 text-xs flex items-center gap-2 transition-colors hover:bg-surface text-foreground/80 hover:text-foreground"
                                                 >
                                                     {comment.isHidden ? <Eye size={14} className="text-green-500" /> : <EyeOff size={14} className="text-amber-500" />}
                                                     {comment.isHidden ? "Ил болгох" : "Нуух"}
@@ -190,7 +189,7 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
                                             <button
                                                 onClick={() => handleModerate("delete")}
                                                 disabled={moderateMutation.isPending}
-                                                className={`w-full text-left px-4 py-2 text-xs flex items-center gap-2 transition-colors disabled:opacity-50 ${isDark ? "hover:bg-red-500/10 text-red-500" : "hover:bg-red-50 text-red-500"}`}
+                                                className="w-full text-left px-4 py-2 text-xs flex items-center gap-2 transition-colors disabled:opacity-50 hover:bg-error/10 text-error"
                                             >
                                                 <Trash2 size={14} className={moderateMutation.isPending ? "animate-spin" : ""} />
                                                 Устгах
@@ -201,7 +200,7 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
                             )}
                         </div>
 
-                        <p className={`text-[14px] leading-relaxed ${comment.isHidden ? `italic line-through ${isDark ? "text-white/20" : "text-gray-300"}` : (isDark ? "text-gray-300" : "text-gray-700")}`}>
+                        <p className={`text-[14px] leading-relaxed ${comment.isHidden ? "italic line-through text-muted/40" : "text-foreground/90"}`}>
                             {comment.content}
                         </p>
                     </div>
@@ -211,9 +210,9 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
                         <button
                             onClick={handleLike}
                             disabled={likeMutation.isPending}
-                            className={`flex items-center gap-1.5 text-[12px] font-bold transition-all disabled:opacity-50 ${isLikedByMe ? "text-[#d8454f]" : (isDark ? "text-white/30 hover:text-[#d8454f]" : "text-gray-400 hover:text-[#d8454f]")}`}
+                            className={`flex items-center gap-1.5 text-[12px] font-bold transition-all disabled:opacity-50 ${isLikedByMe ? "text-[#d8454f]" : "text-muted hover:text-[#d8454f]"}`}
                         >
-                            <div className={`p-1.5 rounded-lg transition-colors ${isLikedByMe ? "bg-[#d8454f]/10" : (isDark ? "group-hover:bg-white/5" : "group-hover:bg-gray-100")}`}>
+                            <div className={`p-1.5 rounded-lg transition-colors ${isLikedByMe ? "bg-[#d8454f]/10" : "group-hover:bg-surface"}`}>
                                 <ThumbsUp size={14} fill={isLikedByMe ? "currentColor" : "none"} className={likeMutation.isPending ? "animate-pulse" : ""} />
                             </div>
                             {comment._count.likes > 0 && <span>{comment._count.likes}</span>}
@@ -222,9 +221,9 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
                         {!isReply && (
                             <button
                                 onClick={() => setIsReplying(!isReplying)}
-                                className={`flex items-center gap-1.5 text-[12px] font-bold transition-all ${isReplying ? "text-[#d8454f]" : (isDark ? "text-white/30 hover:text-white" : "text-gray-400 hover:text-gray-900")}`}
+                                className={`flex items-center gap-1.5 text-[12px] font-bold transition-all ${isReplying ? "text-primary" : "text-muted hover:text-foreground"}`}
                             >
-                                <div className={`p-1.5 rounded-lg transition-colors ${isReplying ? "bg-[#d8454f]/10" : (isDark ? "group-hover:bg-white/5" : "group-hover:bg-gray-100")}`}>
+                                <div className={`p-1.5 rounded-lg transition-colors ${isReplying ? "bg-primary/10" : "hover:bg-surface"}`}>
                                     <MessageSquare size={14} />
                                 </div>
                                 <span>Хариу бичих</span>
@@ -234,7 +233,7 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
                         {!isReply && comment.replies && comment.replies.length > 0 && (
                             <button
                                 onClick={() => setShowReplies(!showReplies)}
-                                className={`text-[11px] font-bold transition-all ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full ${isDark ? "bg-white/5 text-gray-400 hover:text-[#d8454f] hover:bg-[#d8454f]/10" : "bg-gray-50 text-gray-400 hover:text-[#d8454f] hover:bg-[#d8454f]/5"}`}
+                                className="text-[11px] font-bold transition-all ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface text-muted hover:text-primary hover:bg-primary/10"
                             >
                                 {showReplies ? "Хариуг нуух" : `Хариуг харах (${comment.replies.length})`}
                             </button>
@@ -251,7 +250,6 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
                                 initialValue={`@${comment.user.username} `}
                                 placeholder={`${comment.user.username}-д хариу бичих...`}
                                 isLoading={replyMutation.isPending}
-                                variant={variant}
                             />
                         </div>
                     )}
@@ -266,7 +264,6 @@ export default function CommentItem({ comment, mangaId, onRefresh, isReply, vari
                                     mangaId={mangaId}
                                     onRefresh={() => { }} // Removed since we use Query invalidation
                                     isReply
-                                    variant={variant}
                                 />
                             ))}
                         </div>

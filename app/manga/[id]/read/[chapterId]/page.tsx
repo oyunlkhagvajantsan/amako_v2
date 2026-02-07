@@ -94,14 +94,14 @@ export default async function ChapterReaderPage({
     }
 
     return (
-        <div className="min-h-screen bg-[#1a1a1a] text-white">
+        <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
             {/* Navbar */}
             <Header isSticky={false} />
 
             {/* Chapter Header - Non-sticky */}
-            <header className="bg-[#1a1a1a] border-b border-gray-800 shadow-md">
+            <header className="bg-background/90 backdrop-blur-md border-b border-border sticky top-0 z-40 transition-all">
                 <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-                    <Link href={`/manga/${mangaId}`} className="flex items-center gap-2 hover:text-gray-300 transition-colors">
+                    <Link href={`/manga/${mangaId}`} className="flex items-center gap-2 hover:text-primary transition-colors">
                         <ChevronLeft size={24} />
                         <span className="font-medium truncate max-w-[200px] hidden sm:inline">{chapter.manga?.titleMn}</span>
                     </Link>
@@ -119,14 +119,14 @@ export default async function ChapterReaderPage({
 
             {/* Reader Content - Vertical Scroll */}
             {isLocked ? (
-                <main className="max-w-3xl mx-auto bg-black min-h-screen flex flex-col items-center justify-center py-32 px-4 text-center">
-                    <div className="w-24 h-24 bg-gray-900 rounded-full flex items-center justify-center mb-6 text-[#d8454f]">
+                <main className="max-w-3xl mx-auto bg-background min-h-screen flex flex-col items-center justify-center py-32 px-4 text-center">
+                    <div className="w-24 h-24 bg-surface rounded-full flex items-center justify-center mb-6 text-primary border border-border">
                         <Lock size={48} />
                     </div>
                     <h2 className="text-2xl font-bold mb-2">Цааш нь уншихыг хүсвэл эрхээ сунгана уу.</h2>
                     <Link
                         href="/subscribe"
-                        className="px-8 py-3 bg-[#d8454f] hover:bg-[#c13a44] text-white font-bold rounded-lg transition-transform hover:scale-105"
+                        className="px-8 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg transition-transform hover:scale-105"
                     >
                         Эрх авах
                     </Link>
@@ -155,9 +155,9 @@ export default async function ChapterReaderPage({
 
             {/* Navigation & Discussion Section */}
             {!isLocked && (
-                <div className={`max-w-3xl mx-auto pb-20 ${chapter.caption ? "space-y-8" : "space-y-0"}`}>
+                <div className={`max-w-3xl mx-auto pb-20 mt-4 px-4 ${chapter.caption ? "space-y-6" : "space-y-0"}`}>
                     {/* Chapter Navigation (Bottom) */}
-                    <div className="bg-[#1a1a1a] text-center p-4 rounded-3xl border border-gray-800/50">
+                    <div className="bg-surface text-center p-4 rounded-3xl">
                         <ChapterNav
                             mangaId={mangaId}
                             currentChapterId={chapterId}
@@ -171,17 +171,17 @@ export default async function ChapterReaderPage({
                     {/* Chapter Caption (Simple Text) */}
                     {chapter.caption && (
                         <div className="px-4 py-2">
-                            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">
+                            <h3 className="text-xs font-bold text-muted uppercase tracking-widest mb-1">
                                 Amako
                             </h3>
-                            <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+                            <p className="text-foreground/80 text-sm leading-relaxed whitespace-pre-wrap">
                                 {chapter.caption}
                             </p>
                         </div>
                     )}
 
                     {/* Comment Section (Chapter specific) */}
-                    <div className="px-4 border-t border-gray-800/50 pt-4">
+                    <div className="px-4 pt-4">
                         <ErrorBoundary>
                             <CommentSection mangaId={mangaId} chapterId={chapterId} variant="dark" />
                         </ErrorBoundary>

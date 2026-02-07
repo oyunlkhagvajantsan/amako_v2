@@ -60,10 +60,10 @@ export default function TrendingHero({ manga }: TrendingHeroProps) {
                     <Link
                         key={m.id}
                         href={`/manga/${m.id}`}
-                        className="flex-shrink-0 w-[calc(100vw-2rem)] md:w-[440px] bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all snap-start overflow-hidden group flex"
+                        className="flex-shrink-0 w-[calc(100vw-2rem)] md:w-[440px] bg-surface-elevated rounded-xl border border-border shadow-sm hover:shadow-md transition-all snap-start overflow-hidden group flex"
                     >
                         {/* Vertical Image (Uncropped) */}
-                        <div className="relative w-[140px] md:w-[100px] aspect-[2/3] flex-shrink-0 bg-gray-100">
+                        <div className="relative w-[140px] md:w-[100px] aspect-[2/3] flex-shrink-0 bg-surface">
                             {m.coverImage && (
                                 <Image
                                     src={m.coverImage}
@@ -77,7 +77,7 @@ export default function TrendingHero({ manga }: TrendingHeroProps) {
                         {/* Side Content */}
                         <div className="flex-1 p-4 md:p-3 flex flex-col justify-between min-w-0">
                             <div>
-                                <h3 className="text-lg md:text-base font-bold text-gray-900 line-clamp-3 leading-snug group-hover:text-[#d8454f] transition-colors mb-4 md:mb-2">
+                                <h3 className="text-lg md:text-base font-bold text-foreground line-clamp-3 leading-snug group-hover:text-primary transition-colors mb-4 md:mb-2">
                                     {m.titleMn}
                                 </h3>
 
@@ -111,7 +111,7 @@ export default function TrendingHero({ manga }: TrendingHeroProps) {
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between pt-2 border-t border-gray-50 mt-auto">
+                            <div className="flex items-center justify-between pt-2 border-t border-border mt-auto">
                                 <div className="flex items-center gap-1 text-gray-400 text-xs md:text-[10px] font-medium">
                                     <BookOpen size={12} className="md:hidden" />
                                     <BookOpen size={10} className="hidden md:block" />

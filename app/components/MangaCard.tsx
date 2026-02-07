@@ -31,7 +31,7 @@ export default function MangaCard({ manga, badge, subtitle, customLink, classNam
             href={customLink || `/manga/${manga.id}`}
             className={`flex-shrink-0 group block ${className || "w-full"}`}
         >
-            <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-gray-200 mb-2">
+            <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-surface-elevated mb-2 shadow-sm border border-transparent group-hover:border-primary/20 transition-all">
                 <Image
                     src={manga.coverImage}
                     alt={manga.titleMn}
@@ -68,12 +68,12 @@ export default function MangaCard({ manga, badge, subtitle, customLink, classNam
                 </div>
             </div>
 
-            <h3 className="font-medium text-sm text-gray-900 mb-1 break-words whitespace-normal text-center leading-tight">
+            <h3 className="font-medium text-sm text-foreground mb-1 break-words whitespace-normal text-center leading-tight">
                 {manga.titleMn}
             </h3>
 
             {subtitle && (
-                <div className="text-xs text-gray-500 text-center">
+                <div className="text-xs text-muted text-center">
                     {subtitle}
                 </div>
             )}

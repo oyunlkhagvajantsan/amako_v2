@@ -33,14 +33,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${montserrat.className} ${notoSans.variable} antialiased`}
       >
         <Providers>
           {children}
+          <Footer />
         </Providers>
-        <Footer />
       </body>
     </html>
   );

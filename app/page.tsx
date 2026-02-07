@@ -78,14 +78,14 @@ export default async function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Header />
 
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Trending Hero Section */}
         <section>
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-3">
+            <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
               <span className="w-2 h-8 bg-[#d8454f] rounded-full" />
               Алдартай
             </h2>
@@ -99,7 +99,7 @@ export default async function Home() {
         {/* Latest Updates Section */}
         <section>
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-3">
+            <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
               <span className="w-2 h-8 bg-[#d8454f] rounded-full" />
               Сүүлд нэмэгдсэн
             </h2>
@@ -147,7 +147,7 @@ function ContentSection({ title, items, type }: { title: string, items: any[], t
   return (
     <section>
       <div className="flex items-center justify-between mb-8">
-        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-3">
+        <h2 className="text-xl font-bold text-foreground flex items-center gap-3">
           <span className="w-2 h-8 bg-[#d8454f] rounded-full" />
           {title}
         </h2>

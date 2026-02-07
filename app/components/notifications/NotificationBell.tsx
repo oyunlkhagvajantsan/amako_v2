@@ -22,21 +22,14 @@ export default function NotificationBell() {
 
     const fetchNotifications = useCallback(async () => {
         if (!session) {
-            console.log("NotificationBell: No session, skipping fetch.");
             return;
         }
         try {
-            console.log("NotificationBell: Fetching notifications for user:", session.user.id);
             const res = await fetch("/api/notifications");
-            console.log("NotificationBell: Fetch status:", res.status);
             if (res.ok) {
                 const data = await res.json();
-                console.log("NotificationBell: Fetched", data.length, "notifications.");
                 setNotifications(data);
                 setUnreadCount(data.filter((n: Notification) => !n.isRead).length);
-            } else {
-                const error = await res.json();
-                console.error("NotificationBell: Fetch failed", error);
             }
         } catch (error) {
             console.error("Fetch notifications error:", error);
@@ -45,7 +38,6 @@ export default function NotificationBell() {
 
     useEffect(() => {
         fetchNotifications();
-        // Poll for new notifications every 5 seconds for testing
         const interval = setInterval(fetchNotifications, 5000);
         return () => clearInterval(interval);
     }, [fetchNotifications]);
@@ -82,12 +74,12 @@ export default function NotificationBell() {
             {/* Bell Icon */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`relative p-2 rounded-full transition-all duration-300 ${isOpen ? "bg-red-50 text-[#d8454f]" : "text-gray-600 hover:bg-gray-100"}`}
+                className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 ${isOpen ? "bg-primary/10 text-primary" : "text-muted hover:text-foreground hover:bg-surface"}`}
                 title="Мэдэгдэл"
             >
-                <Bell size={22} className={unreadCount > 0 ? "animate-swing" : ""} />
+                <Bell size={20} className={unreadCount > 0 ? "animate-swing" : ""} />
                 {unreadCount > 0 && (
-                    <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-[#d8454f] text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-white">
+                    <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-primary text-white text-[9px] font-extrabold rounded-full flex items-center justify-center ring-2 ring-background">
                         {unreadCount > 9 ? "9+" : unreadCount}
                     </span>
                 )}
@@ -100,22 +92,22 @@ export default function NotificationBell() {
                         className="fixed inset-0 z-40 md:hidden"
                         onClick={() => setIsOpen(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-80 md:w-96 bg-white border border-gray-100 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                        <div className="p-4 border-b border-gray-50 flex items-center justify-between bg-gray-50/50">
-                            <h3 className="font-bold text-gray-900">Мэдэгдэл</h3>
+                    <div className="absolute right-0 mt-2 w-80 md:w-96 bg-surface-elevated border border-border rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                        <div className="p-4 border-b border-border flex items-center justify-between bg-surface/50">
+                            <h3 className="font-bold text-foreground">Мэдэгдэл</h3>
                             {unreadCount > 0 && (
                                 <button
                                     onClick={() => markAsRead()}
-                                    className="text-[11px] font-bold text-[#d8454f] hover:underline flex items-center gap-1"
+                                    className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1"
                                 >
-                                    <Check size={12} /> Бүгдийг уншсан болгох
+                                    <Check size={12} /> Бүгдийг уншсан
                                 </button>
                             )}
                         </div>
 
                         <div className="max-h-[400px] overflow-y-auto">
                             {notifications.length > 0 ? (
-                                <div className="divide-y divide-gray-50">
+                                <div className="divide-y divide-border">
                                     {notifications.map((n) => (
                                         <div
                                             key={n.id}
@@ -126,30 +118,30 @@ export default function NotificationBell() {
                                                     window.location.href = n.link;
                                                 }
                                             }}
-                                            className={`p-4 flex gap-3 cursor-pointer transition-colors ${n.isRead ? "hover:bg-gray-50" : "bg-red-50/30 hover:bg-red-50/50"}`}
+                                            className={`p-4 flex gap-3 cursor-pointer transition-colors ${n.isRead ? "hover:bg-surface" : "bg-primary/5 hover:bg-primary/10"}`}
                                         >
-                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${n.type === "REPLY" ? "bg-blue-50 text-blue-500" : "bg-red-50 text-red-500"}`}>
+                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${n.type === "REPLY" ? "bg-info/10 text-info" : "bg-primary/10 text-primary"}`}>
                                                 {n.type === "REPLY" ? <Inbox size={18} /> : <Check size={18} />}
                                             </div>
                                             <div className="flex-grow min-w-0">
-                                                <p className={`text-sm leading-snug ${n.isRead ? "text-gray-600" : "text-gray-900 font-medium"}`}>
+                                                <p className={`text-sm leading-snug ${n.isRead ? "text-muted" : "text-foreground font-medium"}`}>
                                                     {n.content}
                                                 </p>
                                                 <div className="flex items-center gap-2 mt-1.5">
-                                                    <span className="text-[10px] text-gray-400 font-medium">{formatDate(n.createdAt)}</span>
-                                                    {!n.isRead && <span className="w-1.5 h-1.5 bg-[#d8454f] rounded-full" />}
+                                                    <span className="text-[10px] text-muted font-medium">{formatDate(n.createdAt)}</span>
+                                                    {!n.isRead && <span className="w-1.5 h-1.5 bg-primary rounded-full" />}
                                                 </div>
                                             </div>
                                             {n.link && (
-                                                <ExternalLink size={14} className="text-gray-300 mt-1" />
+                                                <ExternalLink size={14} className="text-muted/30 mt-1" />
                                             )}
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                <div className="py-12 text-center text-gray-400">
+                                <div className="py-12 text-center text-muted/30">
                                     <Bell size={40} className="mx-auto mb-3 opacity-20" />
-                                    <p className="text-sm">Шинэ мэдэгдэл байхгүй байна.</p>
+                                    <p className="text-sm">Мэдэгдэл байхгүй байна.</p>
                                 </div>
                             )}
                         </div>
@@ -159,3 +151,4 @@ export default function NotificationBell() {
         </div>
     );
 }
+

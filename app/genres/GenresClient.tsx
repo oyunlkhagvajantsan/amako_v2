@@ -60,27 +60,27 @@ export default function GenresClient() {
     }, [currentPage, searchQuery]);
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-background transition-colors duration-300">
             <Header />
 
             <main className="container mx-auto px-4 py-8">
-                <h1 className="text-xl font-bold mb-6 text-gray-900">Хайлт</h1>
+                <h1 className="text-xl font-bold mb-6 text-foreground">Хайлт</h1>
 
                 {/* Search Bar */}
                 <div className="mb-8">
                     <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={20} />
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
                             placeholder="Хайх..."
-                            className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg text-base focus:ring-[#d8454f] focus:border-[#d8454f] outline-none"
+                            className="w-full pl-12 pr-4 py-3 bg-surface border border-border rounded-lg text-base focus:ring-primary focus:border-primary outline-none text-foreground placeholder-muted"
                             autoFocus
                         />
                     </div>
                     {searchQuery && (
-                        <p className="text-sm text-gray-500 mt-3">
+                        <p className="text-sm text-muted mt-3">
                             {totalMangas} илэрц олдлоо
                         </p>
                     )}
@@ -90,7 +90,7 @@ export default function GenresClient() {
                 {isLoading ? (
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 animate-pulse">
                         {[...Array(10)].map((_, i) => (
-                            <div key={i} className="aspect-[2/3] bg-gray-200 rounded-xl" />
+                            <div key={i} className="aspect-[2/3] bg-surface rounded-xl" />
                         ))}
                     </div>
                 ) : mangas.length > 0 ? (
@@ -109,14 +109,13 @@ export default function GenresClient() {
                         ))}
                     </div>
                 ) : searchQuery ? (
-                    <div className="text-center py-20 bg-gray-50 rounded-xl border border-gray-200">
-                        <p className="text-gray-500 text-lg">Илэрц олдсонгүй.</p>
-                        <p className="text-gray-400 text-sm mt-2">Өөр түлхүүр үг ашиглан хайж үзнэ үү.</p>
+                    <div className="text-center py-20 bg-surface rounded-xl border border-border">
+                        <p className="text-muted text-lg">Илэрц олдсонгүй.</p>
+                        <p className="text-muted/60 text-sm mt-2">Өөр түлхүүр үг ашиглан хайж үзнэ үү.</p>
                     </div>
                 ) : (
-                    <div className="text-center py-20 bg-gray-50 rounded-xl border border-gray-200">
-                        <Search className="mx-auto mb-4 text-gray-300" size={48} />
-                        {/* <p className="text-gray-500 text-lg">Манга хайхын тулд нэрийг оруулна уу</p> */}
+                    <div className="text-center py-20 bg-surface rounded-xl border border-border">
+                        <Search className="mx-auto mb-4 text-muted/30" size={48} />
                     </div>
                 )}
 
@@ -126,7 +125,7 @@ export default function GenresClient() {
                         <button
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                             disabled={currentPage === 1}
-                            className="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-2 rounded-lg border border-border hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed text-foreground"
                         >
                             Өмнөх
                         </button>
@@ -139,8 +138,8 @@ export default function GenresClient() {
                                         key={page}
                                         onClick={() => setCurrentPage(page)}
                                         className={`w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors ${currentPage === page
-                                            ? "bg-[#d8454f] text-white"
-                                            : "bg-white border border-gray-200 hover:bg-gray-50 text-gray-700"
+                                            ? "bg-primary text-white"
+                                            : "bg-background border border-border hover:bg-surface text-foreground/70"
                                             }`}
                                     >
                                         {page}
@@ -155,7 +154,7 @@ export default function GenresClient() {
                         <button
                             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                             disabled={currentPage === totalPages}
-                            className="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-2 rounded-lg border border-border hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed text-foreground"
                         >
                             Дараах
                         </button>

@@ -51,7 +51,6 @@ export interface CommentItemProps {
     mangaId: number;
     onRefresh: () => void;
     isReply?: boolean;
-    variant?: 'light' | 'dark';
 }
 
 // User related types

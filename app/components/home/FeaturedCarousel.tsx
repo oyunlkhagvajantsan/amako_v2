@@ -55,7 +55,7 @@ export default function FeaturedCarousel({ manga }: FeaturedCarouselProps) {
                         className="object-cover opacity-30 blur-2xl scale-110 transition-all duration-1000"
                     />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-black/40 z-10" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-black/40 z-10" />
             </div>
 
             {/* Content Layer */}
@@ -78,13 +78,13 @@ export default function FeaturedCarousel({ manga }: FeaturedCarouselProps) {
                     <div className="flex-1 text-center md:text-left space-y-6">
                         <div className="inline-flex gap-2">
                             {current.genres?.slice(0, 3).map((g: any, i: number) => (
-                                <span key={i} className="text-[10px] font-black uppercase tracking-[0.2em] text-[#d8454f] bg-white/90 px-3 py-1 rounded-full shadow-sm">
+                                <span key={i} className="text-[10px] font-black uppercase tracking-[0.2em] text-primary bg-surface-elevated/90 px-3 py-1 rounded-full shadow-sm">
                                     {g.nameMn}
                                 </span>
                             ))}
                         </div>
 
-                        <h2 className="text-4xl md:text-6xl font-black text-gray-900 md:text-white drop-shadow-sm line-clamp-2 animate-in fade-in slide-in-from-left duration-700">
+                        <h2 className="text-4xl md:text-6xl font-black text-foreground md:text-white drop-shadow-sm line-clamp-2 animate-in fade-in slide-in-from-left duration-700">
                             {current.titleMn}
                         </h2>
 

@@ -82,14 +82,14 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
     };
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-background transition-colors duration-300">
             <Header hideBorder />
 
             {/* Return Button */}
             <div className="absolute top-20 left-4 z-20 md:left-8">
                 <Link
                     href="/manga"
-                    className="flex items-center justify-center w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full shadow-md text-gray-700 hover:text-gray-900 transition-all hover:scale-105"
+                    className="flex items-center justify-center w-10 h-10 bg-surface/80 backdrop-blur-sm rounded-full shadow-md text-foreground/70 hover:text-foreground transition-all hover:scale-105 border border-border"
                 >
                     <ArrowLeft size={20} />
                 </Link>
@@ -106,14 +106,14 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                             className="object-cover opacity-30 blur-xl scale-110"
                         />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
                 </div>
 
                 <main className="container mx-auto px-4 pt-12 relative z-10">
                     <div className="flex flex-col md:flex-row gap-8">
                         {/* Cover Image */}
                         <div className="w-48 md:w-64 flex-shrink-0 mx-auto md:mx-0">
-                            <div className="aspect-[2/3] relative rounded-lg shadow-xl overflow-hidden bg-gray-200">
+                            <div className="aspect-[2/3] relative rounded-lg shadow-xl overflow-hidden bg-surface border border-border">
                                 {manga.coverImage && (
                                     <Image
                                         src={manga.coverImage}
@@ -127,7 +127,7 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
 
                         {/* Info */}
                         <div className="flex-1 text-center md:text-left pt-4 md:pt-0">
-                            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-6">{manga.titleMn}</h1>
+                            <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6">{manga.titleMn}</h1>
 
                             <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-8">
                                 {/* Status */}
@@ -136,8 +136,8 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                                 </div>
 
                                 {/* Chapter Count */}
-                                <div className="px-3 py-1 bg-gray-100 rounded-full text-sm font-medium text-gray-700 flex items-center gap-1">
-                                    <BookOpen size={14} /> {manga.chapters.length} Бүлэг
+                                <div className="px-3 py-1 bg-surface-elevated rounded-full text-sm font-medium text-muted flex items-center gap-1 border border-border">
+                                    <BookOpen size={14} /> {manga.chapters.length} бүлэг
                                 </div>
 
                                 {/* Manga Type */}
@@ -181,7 +181,7 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                                 ))}
                             </div>
 
-                            <p className="text-gray-700 max-w-2xl mb-8 leading-relaxed">
+                            <p className="text-foreground/80 max-w-2xl mb-8 leading-relaxed">
                                 {manga.description}
                             </p>
 
@@ -202,9 +202,9 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
 
                     {/* Chapter List */}
                     <div className="mt-16 max-w-5xl mx-auto">
-                        <div className="flex items-center justify-between mb-6 border-b pb-2">
-                            <h2 className="text-2xl font-bold text-gray-900">Бүлгүүд</h2>
-                            <span className="text-sm text-gray-500 font-medium">{manga.chapters.length} бүлэг</span>
+                        <div className="flex items-center justify-between mb-6 border-b border-border pb-2">
+                            <h2 className="text-2xl font-bold text-foreground">Бүлгүүд</h2>
+                            <span className="text-sm text-muted font-medium">{manga.chapters.length} бүлэг</span>
                         </div>
 
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
@@ -216,10 +216,10 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                                     <Link
                                         key={chapter.id}
                                         href={`/manga/${manga.id}/read/${chapter.id}?from=details`}
-                                        className={`flex flex-col gap-2 p-2 rounded-xl hover:bg-gray-50 border border-transparent hover:border-gray-200 transition-all group ${isRead ? 'opacity-70' : ''}`}
+                                        className={`flex flex-col gap-2 p-2 rounded-xl hover:bg-surface border border-transparent hover:border-border transition-all group ${isRead ? 'opacity-70' : ''}`}
                                     >
                                         {/* Chapter Thumbnail */}
-                                        <div className="relative aspect-[16/10] bg-gray-100 rounded-lg overflow-hidden border border-gray-100 shadow-sm transition-transform group-hover:scale-[1.02]">
+                                        <div className="relative aspect-[16/10] bg-surface rounded-lg overflow-hidden border border-border shadow-sm transition-transform group-hover:scale-[1.02]">
                                             {chapter.thumbnail ? (
                                                 <Image
                                                     src={chapter.thumbnail}
@@ -228,7 +228,7 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                                                     className="object-cover"
                                                 />
                                             ) : (
-                                                <div className="absolute inset-0 flex items-center justify-center bg-gray-50 text-gray-300">
+                                                <div className="absolute inset-0 flex items-center justify-center bg-surface-elevated text-muted">
                                                     <BookOpen size={24} />
                                                 </div>
                                             )}
@@ -242,22 +242,22 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                                                 </div>
                                             )}
 
-                                            {/* Read Badge */}
+                                            {/* Read Badge
                                             {isRead && (
                                                 <div className="absolute top-2 right-2 bg-[#d8454f] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
                                                     УНШСАН
                                                 </div>
-                                            )}
+                                            )} */}
                                         </div>
 
                                         <div className="px-1 space-y-0.5">
                                             <div className="flex items-center gap-1.5">
-                                                <span className={`font-bold text-sm md:text-base ${isRead ? 'text-gray-500' : 'text-gray-900 group-hover:text-[#d8454f]'}`}>
+                                                <span className={`font-bold text-sm md:text-base ${isRead ? 'text-muted' : 'text-foreground group-hover:text-primary'}`}>
                                                     {chapter.chapterNumber}-р бүлэг
                                                 </span>
                                             </div>
                                             {chapter.title && (
-                                                <p className="text-xs text-gray-500">{chapter.title}</p>
+                                                <p className="text-xs text-muted">{chapter.title}</p>
                                             )}
                                         </div>
                                     </Link>

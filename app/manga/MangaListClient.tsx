@@ -152,14 +152,14 @@ export default function MangaListClient() {
     };
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-background transition-colors duration-300">
             <Header />
 
             <main className="container mx-auto px-4 py-8">
-                <h1 className="text-xl font-bold mb-6 text-gray-900">Бүх гаргалт</h1>
+                <h1 className="text-xl font-bold mb-6 text-foreground">Бүх гаргалт</h1>
 
                 {/* Compact Filter Bar */}
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 md:p-4 mb-6 md:mb-8">
+                <div className="bg-surface border border-border rounded-lg p-3 md:p-4 mb-6 md:mb-8">
                     {/* Search Input */}
                     <div className="mb-3 relative">
                         <div className="relative z-20">
@@ -171,18 +171,18 @@ export default function MangaListClient() {
                                 onFocus={() => setIsInputFocused(true)}
                                 onBlur={() => setTimeout(() => setIsInputFocused(false), 200)}
                                 placeholder="Хайх..."
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-[#d8454f] focus:border-[#d8454f] outline-none"
+                                className="w-full px-3 py-2 bg-background border border-border rounded-lg text-sm focus:ring-primary focus:border-primary outline-none transition-all placeholder:text-muted"
                             />
                         </div>
 
                         {/* Search History Dropdown */}
                         {isInputFocused && history.length > 0 && !searchQuery && (
-                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-30 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
-                                <div className="p-2 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider pl-1 font-sans">Сүүлийн хайлтууд</span>
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-surface-elevated border border-border rounded-lg shadow-xl z-30 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                                <div className="p-2 border-b border-border flex justify-between items-center bg-surface">
+                                    <span className="text-xs font-semibold text-muted uppercase tracking-wider pl-1 font-sans">Сүүлийн хайлтууд</span>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); clearHistory(); }}
-                                        className="text-xs text-red-500 hover:text-red-600 font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                                        className="text-xs text-error hover:text-error/80 font-medium px-2 py-1 rounded hover:bg-error/10 transition-colors"
                                     >
                                         Цэвэрлэх
                                     </button>
@@ -191,16 +191,16 @@ export default function MangaListClient() {
                                     {history.map((term, index) => (
                                         <div
                                             key={index}
-                                            className="group flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors"
+                                            className="group flex items-center px-4 py-2 hover:bg-surface cursor-pointer transition-colors"
                                             onClick={() => handleHistoryClick(term)}
                                         >
-                                            <History size={14} className="text-gray-400 mr-3 group-hover:text-[#d8454f] transition-colors" />
-                                            <span className="flex-1 text-sm text-gray-700 group-hover:text-gray-900">{term}</span>
+                                            <History size={14} className="text-muted mr-3 group-hover:text-primary transition-colors" />
+                                            <span className="flex-1 text-sm text-foreground/80 group-hover:text-foreground">{term}</span>
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); removeSearchTerm(term); }}
-                                                className="p-1 opacity-0 group-hover:opacity-100 hover:bg-gray-200 rounded-full transition-all"
+                                                className="p-1 opacity-0 group-hover:opacity-100 hover:bg-surface-elevated rounded-full transition-all"
                                             >
-                                                <X size={14} className="text-gray-400" />
+                                                <X size={14} className="text-muted" />
                                             </button>
                                         </div>
                                     ))}
@@ -214,10 +214,10 @@ export default function MangaListClient() {
                         {/* Status Filter */}
                         <div className="relative">
                             <details className="group">
-                                <summary className="list-none cursor-pointer px-2 py-1.5 md:px-3 md:py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:ring-[#d8454f] focus:border-[#d8454f] outline-none bg-white select-none">
+                                <summary className="list-none cursor-pointer px-2 py-1.5 md:px-3 md:py-2 border border-border rounded-lg text-xs md:text-sm focus:ring-primary focus:border-primary outline-none bg-background select-none text-foreground/80 group-hover:text-foreground transition-all">
                                     {statusMap[statusFilter] || "Төлөв"}
                                 </summary>
-                                <div className="absolute z-10 mt-1 w-full min-w-[120px] bg-white border border-gray-300 rounded-lg shadow-lg">
+                                <div className="absolute z-10 mt-1 w-full min-w-[120px] bg-surface-elevated border border-border rounded-lg shadow-lg">
                                     <div className="p-1">
                                         {Object.entries(statusMap).map(([value, label]) => (
                                             <button
@@ -227,7 +227,7 @@ export default function MangaListClient() {
                                                     setCurrentPage(1);
                                                     e.currentTarget.closest("details")?.removeAttribute("open");
                                                 }}
-                                                className={`w-full text-left px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded hover:bg-gray-50 ${statusFilter === value ? "text-[#d8454f] font-bold bg-red-50" : "text-gray-700"}`}
+                                                className={`w-full text-left px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded hover:bg-surface ${statusFilter === value ? "text-primary font-bold bg-primary/10" : "text-foreground/70"}`}
                                             >
                                                 {label}
                                             </button>
@@ -240,10 +240,10 @@ export default function MangaListClient() {
                         {/* Type Filter */}
                         <div className="relative">
                             <details className="group">
-                                <summary className="list-none cursor-pointer px-2 py-1.5 md:px-3 md:py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:ring-[#d8454f] focus:border-[#d8454f] outline-none bg-white select-none">
+                                <summary className="list-none cursor-pointer px-2 py-1.5 md:px-3 md:py-2 border border-border rounded-lg text-xs md:text-sm focus:ring-primary focus:border-primary outline-none bg-background select-none text-foreground/80 group-hover:text-foreground transition-all">
                                     {typeMap[typeFilter] || "Төрөл"}
                                 </summary>
-                                <div className="absolute z-10 mt-1 w-full min-w-[120px] bg-white border border-gray-300 rounded-lg shadow-lg">
+                                <div className="absolute z-10 mt-1 w-full min-w-[120px] bg-surface-elevated border border-border rounded-lg shadow-lg">
                                     <div className="p-1">
                                         {Object.entries(typeMap).map(([value, label]) => (
                                             <button
@@ -253,7 +253,7 @@ export default function MangaListClient() {
                                                     setCurrentPage(1);
                                                     e.currentTarget.closest("details")?.removeAttribute("open");
                                                 }}
-                                                className={`w-full text-left px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded hover:bg-gray-50 ${typeFilter === value ? "text-[#d8454f] font-bold bg-red-50" : "text-gray-700"}`}
+                                                className={`w-full text-left px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded hover:bg-surface ${typeFilter === value ? "text-primary font-bold bg-primary/10" : "text-foreground/70"}`}
                                             >
                                                 {label}
                                             </button>
@@ -266,22 +266,22 @@ export default function MangaListClient() {
                         {/* Genre Filter (Multi-select with checkboxes) */}
                         <div className="relative">
                             <details className="group">
-                                <summary className="list-none cursor-pointer px-2 py-1.5 md:px-3 md:py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:ring-[#d8454f] focus:border-[#d8454f] outline-none bg-white select-none">
+                                <summary className="list-none cursor-pointer px-2 py-1.5 md:px-3 md:py-2 border border-border rounded-lg text-xs md:text-sm focus:ring-primary focus:border-primary outline-none bg-background select-none text-foreground/80 group-hover:text-foreground transition-all">
                                     {selectedGenres.length > 0
                                         ? `Төрөл (${selectedGenres.length})`
                                         : 'Ангилал'}
                                 </summary>
-                                <div className="absolute z-10 mt-1 w-48 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                <div className="absolute z-10 mt-1 w-48 bg-surface-elevated border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
                                     <div className="p-2 space-y-2">
                                         {allGenres.map(genre => (
-                                            <label key={genre.id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded">
+                                            <label key={genre.id} className="flex items-center gap-2 cursor-pointer hover:bg-surface p-1 rounded">
                                                 <input
                                                     type="checkbox"
                                                     checked={selectedGenres.includes(genre.id)}
                                                     onChange={() => toggleGenre(genre.id)}
-                                                    className="rounded border-gray-300 text-[#d8454f] focus:ring-[#d8454f]"
+                                                    className="rounded border-border text-primary focus:ring-primary bg-background"
                                                 />
-                                                <span className="text-xs md:text-sm text-gray-700">
+                                                <span className="text-xs md:text-sm text-foreground/70">
                                                     {genre.nameMn}
                                                 </span>
                                             </label>
@@ -294,10 +294,10 @@ export default function MangaListClient() {
                         {/* Sort */}
                         <div className="relative">
                             <details className="group">
-                                <summary className="list-none cursor-pointer px-2 py-1.5 md:px-3 md:py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:ring-[#d8454f] focus:border-[#d8454f] outline-none bg-white select-none">
+                                <summary className="list-none cursor-pointer px-2 py-1.5 md:px-3 md:py-2 border border-border rounded-lg text-xs md:text-sm focus:ring-primary focus:border-primary outline-none bg-background select-none text-foreground/80 group-hover:text-foreground transition-all">
                                     {sortMap[sortBy] || "Эрэмбэ"}
                                 </summary>
-                                <div className="absolute z-10 mt-1 w-full min-w-[140px] left-0 md:right-0 md:left-auto bg-white border border-gray-300 rounded-lg shadow-lg">
+                                <div className="absolute z-10 mt-1 w-full min-w-[140px] left-0 md:right-0 md:left-auto bg-surface-elevated border border-border rounded-lg shadow-lg">
                                     <div className="p-1">
                                         {Object.entries(sortMap).map(([value, label]) => (
                                             <button
@@ -307,7 +307,7 @@ export default function MangaListClient() {
                                                     setCurrentPage(1);
                                                     e.currentTarget.closest("details")?.removeAttribute("open");
                                                 }}
-                                                className={`w-full text-left px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded hover:bg-gray-50 ${sortBy === value ? "text-[#d8454f] font-bold bg-red-50" : "text-gray-700"}`}
+                                                className={`w-full text-left px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm rounded hover:bg-surface ${sortBy === value ? "text-primary font-bold bg-primary/10" : "text-foreground/70"}`}
                                             >
                                                 {label}
                                             </button>
@@ -321,13 +321,13 @@ export default function MangaListClient() {
                         <div className="flex gap-2">
                             <button
                                 onClick={() => { setIsAdultFilter(!isAdultFilter); setCurrentPage(1); }}
-                                className={`px-2 py-1.5 md:px-3 md:py-2 border rounded-lg text-xs md:text-sm font-medium transition-colors ${isAdultFilter ? "bg-[#d8454f] text-white border-[#d8454f]" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"}`}
+                                className={`px-2 py-1.5 md:px-3 md:py-2 border rounded-lg text-xs md:text-sm font-medium transition-colors ${isAdultFilter ? "bg-primary text-white border-primary" : "bg-background text-foreground/70 border-border hover:bg-surface"}`}
                             >
                                 18+
                             </button>
                             <button
                                 onClick={() => { setIsOneshotFilter(!isOneshotFilter); setCurrentPage(1); }}
-                                className={`px-2 py-1.5 md:px-3 md:py-2 border rounded-lg text-xs md:text-sm font-medium transition-colors ${isOneshotFilter ? "bg-[#d8454f] text-white border-[#d8454f]" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"}`}
+                                className={`px-2 py-1.5 md:px-3 md:py-2 border rounded-lg text-xs md:text-sm font-medium transition-colors ${isOneshotFilter ? "bg-primary text-white border-primary" : "bg-background text-foreground/70 border-border hover:bg-surface"}`}
                             >
                                 Oneshot
                             </button>
@@ -336,7 +336,7 @@ export default function MangaListClient() {
                         {/* Clear Button - spans 2 columns on mobile */}
                         <button
                             onClick={clearFilters}
-                            className="col-span-2 md:col-span-1 px-3 py-1.5 md:px-4 md:py-2 bg-red-50 text-red-600 rounded-lg text-xs md:text-sm font-medium hover:bg-red-100 transition-colors whitespace-nowrap"
+                            className="col-span-2 md:col-span-1 px-3 py-1.5 md:px-4 md:py-2 bg-error/10 text-error rounded-lg text-xs md:text-sm font-medium hover:bg-error/20 transition-colors whitespace-nowrap"
                         >
                             Цэвэрлэх
                         </button>
@@ -345,7 +345,7 @@ export default function MangaListClient() {
 
                 {/* Results Count */}
                 <div className="mb-6">
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted">
                         {totalMangas} илэрц олдлоо
                     </p>
                 </div>
@@ -354,7 +354,7 @@ export default function MangaListClient() {
                 {isLoading ? (
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 animate-pulse">
                         {[...Array(10)].map((_, i) => (
-                            <div key={i} className="aspect-[2/3] bg-gray-200 rounded-xl" />
+                            <div key={i} className="aspect-[2/3] bg-surface rounded-xl" />
                         ))}
                     </div>
                 ) : mangas.length > 0 ? (
@@ -373,11 +373,11 @@ export default function MangaListClient() {
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-20 bg-gray-50 rounded-xl border border-gray-200">
-                        <p className="text-gray-500 text-lg">Илэрц олдсонгүй.</p>
+                    <div className="text-center py-20 bg-surface rounded-xl border border-border">
+                        <p className="text-muted text-lg">Илэрц олдсонгүй.</p>
                         <button
                             onClick={clearFilters}
-                            className="mt-4 text-[#d8454f] font-medium hover:underline"
+                            className="mt-4 text-primary font-medium hover:underline"
                         >
                             Шүүлтүүрийг цэвэрлэх
                         </button>
@@ -390,7 +390,7 @@ export default function MangaListClient() {
                         <button
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                             disabled={currentPage === 1}
-                            className="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-2 rounded-lg border border-border hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed text-foreground"
                         >
                             Өмнөх
                         </button>
@@ -403,8 +403,8 @@ export default function MangaListClient() {
                                         key={page}
                                         onClick={() => setCurrentPage(page)}
                                         className={`w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors ${currentPage === page
-                                            ? "bg-[#d8454f] text-white"
-                                            : "bg-white border border-gray-200 hover:bg-gray-50 text-gray-700"
+                                            ? "bg-primary text-white"
+                                            : "bg-background border border-border hover:bg-surface text-foreground/70"
                                             }`}
                                     >
                                         {page}
@@ -419,7 +419,7 @@ export default function MangaListClient() {
                         <button
                             onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                             disabled={currentPage === totalPages}
-                            className="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-4 py-2 rounded-lg border border-border hover:bg-surface disabled:opacity-50 disabled:cursor-not-allowed text-foreground"
                         >
                             Дараах
                         </button>

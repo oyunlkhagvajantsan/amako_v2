@@ -52,9 +52,9 @@ export default function ChangePasswordForm() {
     }
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-            <div className="px-6 py-4 border-b border-gray-100">
-                <h3 className="font-bold text-gray-900 flex items-center gap-2">
+        <div className="bg-surface rounded-xl shadow-sm border border-border overflow-hidden mb-8">
+            <div className="px-6 py-4 border-b border-border">
+                <h3 className="font-bold text-foreground flex items-center gap-2">
                     <Lock size={18} />
                     Нууц үг солих
                 </h3>
@@ -62,25 +62,25 @@ export default function ChangePasswordForm() {
             <div className="p-6">
                 <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
                     {message && (
-                        <div className={`p-3 rounded-lg text-sm ${message.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+                        <div className={`p-3 rounded-lg text-sm ${message.type === "success" ? "bg-success/10 text-success" : "bg-error/10 text-error"}`}>
                             {message.text}
                         </div>
                     )}
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-muted mb-1">
                             Одоогийн нууц үг
                         </label>
                         <input
                             type="password"
                             name="currentPassword"
                             required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d8454f]/20 focus:border-[#d8454f] transition-colors"
+                            className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-foreground outline-none"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-muted mb-1">
                             Шинэ нууц үг
                         </label>
                         <input
@@ -89,30 +89,30 @@ export default function ChangePasswordForm() {
                             required
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d8454f]/20 focus:border-[#d8454f] transition-colors"
+                            className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-foreground outline-none"
                         />
                         <div className="mt-2 space-y-1">
-                            <div className={`text-xs flex items-center gap-2 ${newPassword.length >= 8 ? 'text-green-600' : 'text-gray-400'}`}>
-                                <div className={`w-1 h-1 rounded-full ${newPassword.length >= 8 ? 'bg-green-600' : 'bg-gray-300'}`} />
+                            <div className={`text-xs flex items-center gap-2 ${newPassword.length >= 8 ? 'text-success' : 'text-muted'}`}>
+                                <div className={`w-1 h-1 rounded-full ${newPassword.length >= 8 ? 'bg-success' : 'bg-muted/30'}`} />
                                 Дор хаяж 8 тэмдэгт
                             </div>
-                            <div className={`text-xs flex items-center gap-2 ${/[A-Z]/.test(newPassword) ? 'text-green-600' : 'text-gray-400'}`}>
-                                <div className={`w-1 h-1 rounded-full ${/[A-Z]/.test(newPassword) ? 'bg-green-600' : 'bg-gray-300'}`} />
+                            <div className={`text-xs flex items-center gap-2 ${/[A-Z]/.test(newPassword) ? 'text-success' : 'text-muted'}`}>
+                                <div className={`w-1 h-1 rounded-full ${/[A-Z]/.test(newPassword) ? 'bg-success' : 'bg-muted/30'}`} />
                                 Том үсэг (A-Z)
                             </div>
-                            <div className={`text-xs flex items-center gap-2 ${/[0-9]/.test(newPassword) ? 'text-green-600' : 'text-gray-400'}`}>
-                                <div className={`w-1 h-1 rounded-full ${/[0-9]/.test(newPassword) ? 'bg-green-600' : 'bg-gray-300'}`} />
+                            <div className={`text-xs flex items-center gap-2 ${/[0-9]/.test(newPassword) ? 'text-success' : 'text-muted'}`}>
+                                <div className={`w-1 h-1 rounded-full ${/[0-9]/.test(newPassword) ? 'bg-success' : 'bg-muted/30'}`} />
                                 Тоо (0-9)
                             </div>
-                            <div className={`text-xs flex items-center gap-2 ${/[^A-Za-z0-9]/.test(newPassword) ? 'text-green-600' : 'text-gray-400'}`}>
-                                <div className={`w-1 h-1 rounded-full ${/[^A-Za-z0-9]/.test(newPassword) ? 'bg-green-600' : 'bg-gray-300'}`} />
+                            <div className={`text-xs flex items-center gap-2 ${/[^A-Za-z0-9]/.test(newPassword) ? 'text-success' : 'text-muted'}`}>
+                                <div className={`w-1 h-1 rounded-full ${/[^A-Za-z0-9]/.test(newPassword) ? 'bg-success' : 'bg-muted/30'}`} />
                                 Тусгай тэмдэгт (!@#$%...)
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-muted mb-1">
                             Шинэ нууц үг давтах
                         </label>
                         <input
@@ -120,14 +120,14 @@ export default function ChangePasswordForm() {
                             name="confirmPassword"
                             required
                             minLength={6}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#d8454f]/20 focus:border-[#d8454f] transition-colors"
+                            className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-foreground outline-none"
                         />
                     </div>
 
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="px-4 py-2 bg-[#d8454f] text-white font-medium rounded-lg hover:bg-[#c13a44] transition-colors disabled:opacity-50"
+                        className="px-4 py-2 bg-primary text-white font-medium rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
                     >
                         {isLoading ? "Уншиж байна..." : "Хадгалах"}
                     </button>
@@ -136,3 +136,4 @@ export default function ChangePasswordForm() {
         </div>
     );
 }
+

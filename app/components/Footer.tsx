@@ -4,7 +4,7 @@ import { Facebook } from "lucide-react";
 
 export default function Footer() {
     return (
-        <footer className="bg-gray-900 text-white py-12 mt-0">
+        <footer className="bg-[#111929] text-gray-400 py-12 mt-0 border-t border-white/5">
             <div className="container mx-auto px-4 flex flex-col items-center justify-center text-center">
                 <div className="flex items-center gap-6 mb-8">
                     <div className="relative w-24 h-8">
@@ -36,11 +36,11 @@ export default function Footer() {
                         </Link>
                     </div>
                 </div>
-                <div className="flex flex-wrap justify-center gap-6 mb-6 text-sm text-gray-400">
+                <div className="flex flex-wrap justify-center gap-6 mb-6 text-sm">
                     {/* <Link href="#" className="hover:text-white transition-colors">Бидний тухай</Link> */}
 
                     {/* <Link href="#" className="hover:text-white transition-colors">Үйлчилгээний нөхцөл</Link> */}
-                    <p className="text-gray-500 text-xs">© 2026 Аmako Manga.</p>
+                    <p className="text-gray-600 text-xs">© 2026 Аmako Manga.</p>
                 </div>
 
             </div>
