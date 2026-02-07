@@ -18,6 +18,7 @@ export default function AdminLayoutClient({
     const navigation = [
         { name: "Хяналтын самбар", href: "/amako-portal-v7", icon: "📊" },
         { name: "Гаргалт нэмэх", href: "/amako-portal-v7/manga/create", icon: "➕" },
+        { name: "Бүлэг нэмэх", href: "/amako-portal-v7/chapters/create", icon: "➕" },
         { name: "Гаргалтууд", href: "/amako-portal-v7/manga", icon: "📚" },
         { name: "Бүлгүүд", href: "/amako-portal-v7/chapters", icon: "📑" },
         { name: "Төлбөр", href: "/amako-portal-v7/payments", icon: "💳" },

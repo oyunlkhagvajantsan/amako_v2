@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import Image from "next/image";
 import { revalidatePath } from "next/cache";
+import { Eye } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -130,6 +131,15 @@ export default async function MangaListPage() {
                                                     className="px-3 py-1 bg-purple-50 text-purple-600 hover:bg-purple-100 rounded text-xs font-bold transition-colors"
                                                 >
                                                     + Бүлэг
+                                                </Link>
+                                                <Link
+                                                    href={`/manga/${manga.id}`}
+                                                    target="_blank"
+                                                    className="px-3 py-1 bg-green-50 text-green-600 hover:bg-green-100 rounded text-xs font-bold transition-colors flex items-center gap-1"
+                                                    title="View on site"
+                                                >
+                                                    <Eye size={12} />
+
                                                 </Link>
                                                 <Link
                                                     href={`/amako-portal-v7/manga/${manga.id}/edit`}

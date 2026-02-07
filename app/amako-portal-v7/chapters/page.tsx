@@ -9,7 +9,7 @@ import { authOptions } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 
 
-import { Lock, Unlock, Trash2, RotateCcw } from "lucide-react";
+import { Lock, Unlock, Trash2, RotateCcw, Eye } from "lucide-react";
 
 async function togglePublishStatus(formData: FormData) {
     "use server";
@@ -274,6 +274,15 @@ export default async function ChaptersListPage({
                                                 ) : (
                                                     // Normal actions for active chapters
                                                     <>
+                                                        <Link
+                                                            href={`/manga/${chapter.mangaId}/read/${chapter.id}`}
+                                                            target="_blank"
+                                                            className="px-3 py-1 bg-green-50 text-green-600 hover:bg-green-100 rounded text-xs font-bold transition-colors flex items-center gap-1"
+                                                            title="View on site"
+                                                        >
+                                                            <Eye size={12} />
+
+                                                        </Link>
                                                         <form action={togglePublishStatus}>
                                                             <input type="hidden" name="id" value={chapter.id} />
                                                             <input type="hidden" name="currentStatus" value={String(chapter.isPublished)} />
