@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Header from "@/app/components/Header";
 import MangaCard from "@/app/components/MangaCard";
+import { X, History } from "lucide-react";
+import { useSearchHistory } from "@/lib/hooks/useSearchHistory";
+import { useSearchParams } from "next/navigation";
 
 type Genre = {
     id: number;
@@ -56,7 +59,9 @@ export default function MangaListClient() {
     const [isLoading, setIsLoading] = useState(true);
 
     // Filter State
-    const [searchQuery, setSearchQuery] = useState("");
+    const searchParams = useSearchParams();
+    const urlSearchQuery = searchParams.get("search") || "";
+    const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
     const [statusFilter, setStatusFilter] = useState("ALL");
     const [typeFilter, setTypeFilter] = useState("ALL");
     const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
@@ -64,6 +69,17 @@ export default function MangaListClient() {
     const [isAdultFilter, setIsAdultFilter] = useState(false);
     const [isOneshotFilter, setIsOneshotFilter] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [isInputFocused, setIsInputFocused] = useState(false);
+
+    const { history, addSearchTerm, removeSearchTerm, clearHistory } = useSearchHistory();
+
+    // Sync search query with URL
+    useEffect(() => {
+        if (urlSearchQuery && urlSearchQuery !== searchQuery) {
+            setSearchQuery(urlSearchQuery);
+            addSearchTerm(urlSearchQuery);
+        }
+    }, [urlSearchQuery, addSearchTerm]);
 
     // Fetch All Genres
     useEffect(() => {
@@ -121,6 +137,20 @@ export default function MangaListClient() {
         setCurrentPage(1);
     };
 
+    const handleHistoryClick = (term: string) => {
+        setSearchQuery(term);
+        setCurrentPage(1);
+        setIsInputFocused(false);
+        addSearchTerm(term); // Re-add to move to front
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter" && searchQuery.trim()) {
+            addSearchTerm(searchQuery);
+            setIsInputFocused(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-white">
             <Header />
@@ -131,14 +161,52 @@ export default function MangaListClient() {
                 {/* Compact Filter Bar */}
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 md:p-4 mb-6 md:mb-8">
                     {/* Search Input */}
-                    <div className="mb-3">
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                            placeholder="Хайх..."
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-[#d8454f] focus:border-[#d8454f] outline-none"
-                        />
+                    <div className="mb-3 relative">
+                        <div className="relative z-20">
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+                                onKeyDown={handleKeyDown}
+                                onFocus={() => setIsInputFocused(true)}
+                                onBlur={() => setTimeout(() => setIsInputFocused(false), 200)}
+                                placeholder="Хайх..."
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-[#d8454f] focus:border-[#d8454f] outline-none"
+                            />
+                        </div>
+
+                        {/* Search History Dropdown */}
+                        {isInputFocused && history.length > 0 && !searchQuery && (
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-30 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                                <div className="p-2 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider pl-1 font-sans">Сүүлийн хайлтууд</span>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); clearHistory(); }}
+                                        className="text-xs text-red-500 hover:text-red-600 font-medium px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                                    >
+                                        Цэвэрлэх
+                                    </button>
+                                </div>
+                                <div className="max-h-64 overflow-y-auto">
+                                    {history.map((term, index) => (
+                                        <div
+                                            key={index}
+                                            className="group flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors"
+                                            onClick={() => handleHistoryClick(term)}
+                                        >
+                                            <History size={14} className="text-gray-400 mr-3 group-hover:text-[#d8454f] transition-colors" />
+                                            <span className="flex-1 text-sm text-gray-700 group-hover:text-gray-900">{term}</span>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); removeSearchTerm(term); }}
+                                                className="p-1 opacity-0 group-hover:opacity-100 hover:bg-gray-200 rounded-full transition-all"
+                                            >
+                                                <X size={14} className="text-gray-400" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Filters - 2 columns on mobile, single row on desktop */}
