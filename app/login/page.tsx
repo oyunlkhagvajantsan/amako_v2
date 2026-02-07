@@ -45,33 +45,33 @@ function LoginForm() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-            <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+        <div className="min-h-screen flex items-center justify-center bg-background px-4">
+            <div className="max-w-md w-full space-y-8 bg-surface p-8 rounded-3xl shadow-sm border border-border">
                 <div className="text-center">
-                    <Link href="/" className="inline-block mb-6 relative w-40 h-12">
+                    <Link href="/" className="inline-block mb-6 relative w-40 h-10">
                         <Image
                             src="/uploads/images/logo_text.webp"
                             alt="Amako Logo"
                             fill
-                            className="object-contain"
+                            className="object-contain dark:invert transition-all"
                             priority
                         />
                     </Link>
-                    <h2 className="text-2xl font-bold text-gray-900">Нэвтрэх</h2>
-                    <p className="mt-2 text-sm text-gray-600">
+                    <h2 className="text-2xl font-bold text-foreground">Нэвтрэх</h2>
+                    <p className="mt-2 text-sm text-muted">
                         Тавтай морил!
                     </p>
                 </div>
 
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     {registered && (
-                        <div className="bg-green-50 text-green-600 p-3 rounded-lg text-sm text-center">
+                        <div className="bg-success/10 text-success p-3 rounded-xl text-sm text-center border border-success/20">
                             Бүртгэл амжилттай! Та одоо нэвтэрнэ үү.
                         </div>
                     )}
 
                     {error && (
-                        <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center">
+                        <div className="bg-error/10 text-error p-3 rounded-xl text-sm text-center border border-error/20">
                             {error}
                         </div>
                     )}
@@ -84,8 +84,8 @@ function LoginForm() {
                                 name="identifier"
                                 type="text"
                                 required
-                                className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[#d8454f] focus:border-[#d8454f] focus:z-10 sm:text-sm"
-                                placeholder="Имэйл эсвэл хэрэглэгчийн нэр"
+                                className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-border bg-background placeholder-muted text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
+                                placeholder="Имэйл эсвэл нэвтрэх нэр"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             />
@@ -97,7 +97,7 @@ function LoginForm() {
                                 name="password"
                                 type="password"
                                 required
-                                className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-[#d8454f] focus:border-[#d8454f] focus:z-10 sm:text-sm"
+                                className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-border bg-background placeholder-muted text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
                                 placeholder="Нууц үг"
                                 value={formData.password}
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -106,7 +106,7 @@ function LoginForm() {
                     </div>
 
                     <div className="flex items-center justify-end">
-                        <Link href="/forgot-password" className="text-sm font-medium text-[#d8454f] hover:text-[#c13a44]">
+                        <Link href="/forgot-password" university-link="true" className="text-sm font-medium text-primary hover:text-primary-dark transition-colors">
                             Нууц үгээ мартсан?
                         </Link>
                     </div>
@@ -115,7 +115,7 @@ function LoginForm() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-[#d8454f] hover:bg-[#c13a44] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#d8454f] disabled:opacity-70 transition-colors"
+                            className="group relative w-full flex justify-center py-3.5 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-70 transition-all active:scale-[0.98] shadow-lg shadow-primary/10"
                         >
                             {isLoading ? "Уншиж байна..." : "Нэвтрэх"}
                         </button>
@@ -123,8 +123,8 @@ function LoginForm() {
                 </form>
 
                 <div className="text-center text-sm">
-                    <span className="text-gray-600">Бүртгэлгүй юу? </span>
-                    <Link href="/signup" className="font-medium text-[#d8454f] hover:text-[#c13a44]">
+                    <span className="text-muted">Бүртгэлгүй юу? </span>
+                    <Link href="/signup" className="font-bold text-primary hover:text-primary-dark transition-colors">
                         Бүртгүүлэх
                     </Link>
                 </div>
@@ -135,7 +135,7 @@ function LoginForm() {
 
 export default function LoginPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center text-muted">Loading...</div>}>
             <LoginForm />
         </Suspense>
     );
