@@ -224,7 +224,10 @@ export default function Header({ isSticky = true, hideBorder = false }: { isStic
                           <Crown size={16} /> Эрх сунгах
                         </Link>
                         <button
-                          onClick={() => signOut({ callbackUrl: window.location.origin })}
+                          onClick={() => {
+                            document.cookie = "amako_session_active=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                            signOut({ callbackUrl: window.location.origin });
+                          }}
                           className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-error hover:bg-surface"
                         >
                           <LogOut size={16} /> Гарах
@@ -309,6 +312,7 @@ export default function Header({ isSticky = true, hideBorder = false }: { isStic
                     </Link>
                     <button
                       onClick={() => {
+                        document.cookie = "amako_session_active=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
                         signOut({ callbackUrl: window.location.origin });
                         setIsMobileMenuOpen(false);
                       }}

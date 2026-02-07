@@ -33,6 +33,9 @@ function LoginForm() {
             if (res?.error) {
                 setError("Имэйл эсвэл нууц үг буруу байна.");
             } else {
+                // Set session-only active cookie for SessionGuard
+                document.cookie = "amako_session_active=true; path=/;";
+
                 const callbackUrl = searchParams.get("callbackUrl");
                 router.push(callbackUrl || "/");
                 router.refresh();

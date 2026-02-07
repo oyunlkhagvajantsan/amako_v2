@@ -26,6 +26,7 @@ export const metadata: Metadata = {
 
 import { Providers } from "./providers";
 import Footer from "./components/Footer";
+import SessionGuard from "./components/SessionGuard";
 
 export default function RootLayout({
   children,
@@ -38,7 +39,9 @@ export default function RootLayout({
         className={`${montserrat.className} ${notoSans.variable} antialiased`}
       >
         <Providers>
-          {children}
+          <SessionGuard>
+            {children}
+          </SessionGuard>
           <Footer />
         </Providers>
       </body>
