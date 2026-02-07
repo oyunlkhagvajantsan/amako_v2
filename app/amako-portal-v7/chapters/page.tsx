@@ -292,10 +292,12 @@ export default async function ChaptersListPage({
                                                         >
                                                             Edit
                                                         </Link>
-                                                        <form action={deleteChapter}>
-                                                            <input type="hidden" name="id" value={chapter.id} />
-                                                            <DeleteChapterButtonInline />
-                                                        </form>
+                                                        {isAdmin && (
+                                                            <form action={deleteChapter}>
+                                                                <input type="hidden" name="id" value={chapter.id} />
+                                                                <DeleteChapterButtonInline />
+                                                            </form>
+                                                        )}
                                                     </>
                                                 )}
                                             </div>
