@@ -25,6 +25,23 @@ model User {
   notifications   Notification[]
   paymentRequests PaymentRequest[]
   readHistory     ReadHistory[]
+  auditLogs       AuditLog[]
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  action     String   // e.g. "DELETE_MANGA", "UPDATE_USER_ROLE"
+  targetType String   // e.g. "MANGA", "USER", "PAYMENT"
+  targetId   String   // The ID of the affected record
+  details    String?  // Optional JSON string of changes
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
 }
 
 model Notification {

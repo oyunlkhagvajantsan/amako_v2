@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { handleApiError } from "@/lib/error-utils";
 
+import { recordAuditAction } from "@/lib/audit";
+
 /**
  * PATCH: Hide/Show a comment (Moderation).
  * Only for Admins and Moderators.
@@ -20,10 +22,21 @@ export async function PATCH(
 
         const { id: commentId } = await context.params;
         const { isHidden } = await req.json();
+        const ip = req.headers.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
 
         const updatedComment = await prisma.comment.update({
             where: { id: commentId },
             data: { isHidden }
+        });
+
+        // Audit Log
+        await recordAuditAction({
+            userId: session.user.id,
+            action: "MODERATE_COMMENT",
+            targetType: "COMMENT",
+            targetId: commentId,
+            ipAddress: ip,
+            details: { isHidden }
         });
 
         return NextResponse.json(updatedComment);
@@ -47,11 +60,12 @@ export async function DELETE(
         }
 
         const { id: commentId } = await context.params;
+        const ip = req.headers.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
 
         // Fetch the comment to check ownership
         const comment = await prisma.comment.findUnique({
             where: { id: commentId },
-            select: { userId: true }
+            select: { userId: true, content: true }
         });
 
         if (!comment) {
@@ -69,6 +83,18 @@ export async function DELETE(
         await prisma.comment.delete({
             where: { id: commentId }
         });
+
+        // Audit Log (Only if deleted by Admin/Moderator)
+        if (isAdmin && !isOwner) {
+            await recordAuditAction({
+                userId: session.user.id,
+                action: "DELETE_COMMENT",
+                targetType: "COMMENT",
+                targetId: commentId,
+                ipAddress: ip,
+                details: { contentSnippet: comment.content.substring(0, 50) }
+            });
+        }
 
         return NextResponse.json({ success: true, message: "Comment deleted" });
     } catch (error) {

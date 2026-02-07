@@ -8,6 +8,7 @@ import { r2Client, R2_BUCKET_NAME, R2_PUBLIC_URL } from "@/lib/r2";
 import sharp from "sharp";
 import { mangaSchema } from "@/lib/validations/manga";
 import { handleApiError } from "@/lib/error-utils";
+import { recordAuditAction } from "@/lib/audit";
 
 export async function PATCH(
     req: Request,
@@ -22,6 +23,7 @@ export async function PATCH(
 
         const { id } = params;
         const formData = await req.formData();
+        const ip = req.headers.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
 
         console.log("Received update request for ID:", id);
 
@@ -97,6 +99,16 @@ export async function PATCH(
 
         const manga = await MangaRepository.update(parseInt(id), updateData);
 
+        // Record Audit Log
+        await recordAuditAction({
+            userId: session.user.id,
+            action: "UPDATE_MANGA",
+            targetType: "MANGA",
+            targetId: id,
+            ipAddress: ip,
+            details: { title: manga.title }
+        });
+
         return NextResponse.json(manga);
     } catch (error) {
         return handleApiError(error, "UPDATE_MANGA");
@@ -115,8 +127,18 @@ export async function DELETE(
         }
 
         const { id } = params;
+        const ip = req.headers.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
 
         await MangaRepository.delete(parseInt(id));
+
+        // Record Audit Log
+        await recordAuditAction({
+            userId: session.user.id,
+            action: "DELETE_MANGA",
+            targetType: "MANGA",
+            targetId: id,
+            ipAddress: ip
+        });
 
         return NextResponse.json({ message: "Manga deleted successfully" });
     } catch (error) {

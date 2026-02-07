@@ -9,8 +9,13 @@ import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
+import { recordAuditAction } from "@/lib/audit";
+
 async function approvePayment(formData: FormData) {
     "use server";
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return;
+
     console.log("*** SERVER ACTION APPROVE STARTED ***");
     const id = formData.get("id") as string;
     const userId = formData.get("userId") as string;
@@ -49,6 +54,15 @@ async function approvePayment(formData: FormData) {
         },
     });
 
+    // Audit Log
+    await recordAuditAction({
+        userId: session.user.id,
+        action: "APPROVE_PAYMENT",
+        targetType: "PAYMENT_REQUEST",
+        targetId: id,
+        details: { targetUserId: userId, months, newEndDate: newEndDate.toISOString() }
+    });
+
     // 3. Create Notification for User
     await prisma.notification.create({
         data: {
@@ -82,6 +96,9 @@ async function approvePayment(formData: FormData) {
 
 async function rejectPayment(formData: FormData) {
     "use server";
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return;
+
     console.log("*** SERVER ACTION REJECT STARTED ***");
     const id = formData.get("id") as string;
     console.log("Rejecting payment request:", id);
@@ -106,6 +123,15 @@ async function rejectPayment(formData: FormData) {
         });
         console.log("Payment status updated to REJECTED");
 
+        // Audit Log
+        await recordAuditAction({
+            userId: session.user.id,
+            action: "REJECT_PAYMENT",
+            targetType: "PAYMENT_REQUEST",
+            targetId: id,
+            details: { targetUserId: paymentRequest.userId }
+        });
+
         // 3. Create Notification
         const notif = await prisma.notification.create({
             data: {
@@ -126,11 +152,20 @@ async function rejectPayment(formData: FormData) {
 
 async function deletePayment(formData: FormData) {
     "use server";
-    console.log("*** SERVER ACTION DELETE STARTED ***");
     const session = await getServerSession(authOptions);
-    if (session?.user?.role !== "ADMIN") return;
+    if (!session || session.user.role !== "ADMIN") return;
 
+    console.log("*** SERVER ACTION DELETE STARTED ***");
     const id = formData.get("id") as string;
+
+    // Audit Log (Before delete because we need targetId)
+    await recordAuditAction({
+        userId: session.user.id,
+        action: "DELETE_PAYMENT",
+        targetType: "PAYMENT_REQUEST",
+        targetId: id
+    });
+
     await prisma.paymentRequest.delete({
         where: { id },
     });
