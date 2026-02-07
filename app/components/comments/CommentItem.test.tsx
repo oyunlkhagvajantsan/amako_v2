@@ -18,7 +18,7 @@ const mockComment = {
     isHidden: false,
     user: {
         id: 'user-1',
-        name: 'Test User',
+        username: 'Test User',
         image: null,
         role: 'USER',
     },
