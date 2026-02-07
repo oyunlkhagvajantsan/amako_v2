@@ -67,7 +67,7 @@ async function approvePayment(formData: FormData) {
             text: `Hi ${user.username || 'User'}, your subscription for ${months} month(s) has been approved! It will end on ${newEndDate.toLocaleDateString("mn-MN")}.`,
             html: `
                 <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                    <h2 style="color: #d8454f;">Амжилттй!</h2>
+                    <h2 style="color: #d8454f;">Амжилттай!</h2>
                     <p>Сайн байна уу? Таны <strong>${months}</strong> сарын эрх авах хүсэлт амжилттай батлагдлаа.</p>
                     <p>Эрх дуусах хугацаа: <strong>${newEndDate.toLocaleDateString("mn-MN")}</strong></p>
                     <p>Та <a href="${process.env.NEXTAUTH_URL}/profile" style="color: #d8454f; font-weight: bold;">профайл</a> хэсгээс дэлгэрэнгүйг харна уу.</p>
