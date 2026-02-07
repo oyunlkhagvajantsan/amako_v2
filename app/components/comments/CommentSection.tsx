@@ -64,7 +64,7 @@ export default function CommentSection({ mangaId, chapterId, variant = 'light' }
                 isHidden: false,
                 user: {
                     id: session.user.id,
-                    name: session.user.name,
+                    username: session.user.username,
                     image: session.user.image || null,
                     role: session.user.role,
                 },

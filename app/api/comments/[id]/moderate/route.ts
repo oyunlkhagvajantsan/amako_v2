@@ -10,7 +10,7 @@ import { handleApiError } from "@/lib/error-utils";
  */
 export async function PATCH(
     req: NextRequest,
-    context: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await getServerSession(authOptions);
@@ -38,7 +38,7 @@ export async function PATCH(
  */
 export async function DELETE(
     req: NextRequest,
-    context: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await getServerSession(authOptions);

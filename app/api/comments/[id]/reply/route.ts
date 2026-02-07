@@ -10,7 +10,7 @@ import { replyCommentSchema } from "@/lib/validations/comment";
  */
 export async function POST(
     req: NextRequest,
-    context: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await getServerSession(authOptions);

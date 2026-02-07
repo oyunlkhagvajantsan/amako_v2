@@ -9,7 +9,7 @@ import { handleApiError } from "@/lib/error-utils";
  */
 export async function POST(
     req: NextRequest,
-    context: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await getServerSession(authOptions);
@@ -71,7 +71,7 @@ export async function POST(
                         data: {
                             userId: comment.userId,
                             type: "LIKE",
-                            content: `${session.user.name || "Хэрэглэгч"}-д таны сэтгэгдэл (${manga?.titleMn}) таалагдлаа.`,
+                            content: `${session.user.username || "Хэрэглэгч"}-д таны сэтгэгдэл (${manga?.titleMn}) таалагдлаа.`,
                             link: link
                         }
                     });

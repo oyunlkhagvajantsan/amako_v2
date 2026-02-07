@@ -36,7 +36,7 @@ export default function ProfileTabs({ user, isSubscribed, daysLeft }: ProfileTab
                             <UserIcon size={48} />
                         </div>
                         <div className="text-center md:text-left flex-grow">
-                            <h2 className="text-2xl font-black text-gray-900 mb-1">{user.name}</h2>
+                            <h2 className="text-2xl font-black text-gray-900 mb-1">{user.username}</h2>
                             <p className="text-gray-500 font-medium mb-4">{user.email}</p>
                             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
                                 {isSubscribed ? (
