@@ -108,7 +108,7 @@ export default function Header({ isSticky = true, hideBorder = false }: { isStic
             </button>
 
             {isSearchDropdownOpen && (
-              <div className="absolute right-0 top-full pt-2 w-80 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
+              <div className="fixed inset-x-4 top-[64px] md:absolute md:inset-auto md:right-0 md:top-full md:pt-2 md:w-80 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
                 <div className="bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
                   {/* Search Input In Dropdown */}
                   <div className="p-3 border-b border-gray-50 bg-gray-50/30">
