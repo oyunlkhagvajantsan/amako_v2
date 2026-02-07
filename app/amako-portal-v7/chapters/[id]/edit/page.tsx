@@ -62,7 +62,7 @@ export default async function EditChapterPage({ params }: { params: Promise<{ id
                     <div className="bg-red-50 border border-red-100 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
                         <div>
                             <h3 className="text-red-800 font-bold">Danger Zone: Delete Chapter</h3>
-                            <p className="text-red-600 text-sm">Permanently delete this chapter. Images in storage must be deleted manually if structured organization was used.</p>
+                            <p className="text-red-600 text-sm">Move this chapter to deleted items. Can be restored later from the chapters list.</p>
                         </div>
                         <form action={async () => {
                             "use server";

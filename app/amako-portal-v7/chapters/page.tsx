@@ -1,12 +1,15 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import Image from "next/image";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 
-import { Lock, Unlock } from "lucide-react";
+import { Lock, Unlock, Trash2, RotateCcw } from "lucide-react";
 
 async function togglePublishStatus(formData: FormData) {
     "use server";
@@ -34,30 +37,89 @@ async function toggleAccessStatus(formData: FormData) {
     revalidatePath("/amako-portal-v7/chapters");
 }
 
+async function deleteChapter(formData: FormData) {
+    "use server";
+    const chapterId = formData.get("id") as string;
+
+    await prisma.chapter.delete({
+        where: { id: parseInt(chapterId) }
+    });
+
+    revalidatePath("/amako-portal-v7/chapters");
+}
+
+async function restoreChapter(formData: FormData) {
+    "use server";
+    const chapterId = formData.get("id") as string;
+
+    // Restore by setting deletedAt to null
+    // We need to use raw update since the middleware filters deleted items
+    await prisma.$executeRaw`
+        UPDATE "Chapter"
+        SET "deletedAt" = NULL
+        WHERE id = ${parseInt(chapterId)}
+    `;
+
+    revalidatePath("/amako-portal-v7/chapters");
+}
+
 import ChapterFilter from "./components/ChapterFilter";
+import DeleteChapterButtonInline from "./components/DeleteChapterButtonInline";
+
 
 export default async function ChaptersListPage({
     searchParams
 }: {
-    searchParams: Promise<{ mangaId?: string }>
+    searchParams: Promise<{ mangaId?: string; view?: string }>
 }) {
-    const { mangaId } = await searchParams;
+    const { mangaId, view } = await searchParams;
     const filterMangaId = mangaId ? parseInt(mangaId) : undefined;
+    const showDeleted = view === "deleted";
+
+    // Get user session to check if admin
+    const session = await getServerSession(authOptions);
+    const isAdmin = session?.user?.role === "ADMIN";
+
 
     // Fetch chapters with optional manga filtering
-    const chapters = await prisma.chapter.findMany({
-        where: filterMangaId ? { mangaId: filterMangaId } : {},
-        orderBy: { createdAt: "desc" },
-        take: 50,
-        include: {
-            manga: {
-                select: {
-                    title: true,
-                    coverImage: true,
+    // For deleted view, we need to bypass the middleware filter
+    const chapters = showDeleted && isAdmin
+        ? await prisma.$queryRaw<Array<any>>`
+            SELECT 
+                c.id, c."mangaId", c."chapterNumber", c.title, c."isFree", 
+                c."isPublished", c."viewCount", c."createdAt", c."deletedAt",
+                m.title as "mangaTitle", m."coverImage" as "mangaCoverImage"
+            FROM "Chapter" c
+            INNER JOIN "Manga" m ON c."mangaId" = m.id
+            WHERE c."deletedAt" IS NOT NULL
+            ${filterMangaId ? Prisma.sql`AND c."mangaId" = ${filterMangaId}` : Prisma.empty}
+            ORDER BY c."deletedAt" DESC
+            LIMIT 50
+        `
+        : await prisma.chapter.findMany({
+            where: filterMangaId ? { mangaId: filterMangaId } : {},
+            orderBy: { createdAt: "desc" },
+            take: 50,
+            include: {
+                manga: {
+                    select: {
+                        title: true,
+                        coverImage: true,
+                    }
                 }
             }
-        }
-    });
+        });
+
+    // Normalize the data structure for deleted chapters from raw query
+    const normalizedChapters = showDeleted && isAdmin
+        ? chapters.map((c: any) => ({
+            ...c,
+            manga: {
+                title: c.mangaTitle,
+                coverImage: c.mangaCoverImage
+            }
+        }))
+        : chapters;
 
     // Fetch all mangas for the filter dropdown
     const mangas = await prisma.manga.findMany({
@@ -79,6 +141,32 @@ export default async function ChaptersListPage({
 
             <ChapterFilter mangas={mangas} />
 
+            {/* Tabs - Only show for admins */}
+            {isAdmin && (
+                <div className="mb-4 border-b border-gray-200">
+                    <nav className="flex gap-4">
+                        <Link
+                            href="/amako-portal-v7/chapters"
+                            className={`px-4 py-2 border-b-2 font-medium text-sm transition-colors ${!showDeleted
+                                ? "border-[#d8454f] text-[#d8454f]"
+                                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                }`}
+                        >
+                            Active
+                        </Link>
+                        <Link
+                            href="/amako-portal-v7/chapters?view=deleted"
+                            className={`px-4 py-2 border-b-2 font-medium text-sm transition-colors ${showDeleted
+                                ? "border-[#d8454f] text-[#d8454f]"
+                                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                }`}
+                        >
+                            Deleted
+                        </Link>
+                    </nav>
+                </div>
+            )}
+
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm text-gray-500">
@@ -87,23 +175,23 @@ export default async function ChaptersListPage({
                                 <th className="px-6 py-4">Manga</th>
                                 <th className="px-6 py-4">Ch #</th>
                                 <th className="px-6 py-4">Title</th>
-                                <th className="px-6 py-4">Status</th>
-                                <th className="px-6 py-4">Access</th>
+                                {!showDeleted && <th className="px-6 py-4">Status</th>}
+                                {!showDeleted && <th className="px-6 py-4">Access</th>}
                                 <th className="px-6 py-4">Views</th>
                                 <th className="px-6 py-4">Date</th>
                                 <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
-                            {chapters.length === 0 ? (
+                            {normalizedChapters.length === 0 ? (
                                 <tr>
                                     <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
-                                        Одоогоор бүлэг байхгүй байна.
+                                        {showDeleted ? "Устгасан бүлэг байхгүй байна." : "Одоогоор бүлэг байхгүй байна."}
                                     </td>
                                 </tr>
                             ) : (
-                                chapters.map((chapter) => (
-                                    <tr key={chapter.id} className="hover:bg-gray-50 transition-colors">
+                                normalizedChapters.map((chapter: any) => (
+                                    <tr key={chapter.id} className={`hover:bg-gray-50 transition-colors ${showDeleted ? "opacity-60" : ""}`}>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-10 relative rounded overflow-hidden bg-gray-100 flex-shrink-0">
@@ -127,64 +215,89 @@ export default async function ChaptersListPage({
                                         <td className="px-6 py-4">
                                             {chapter.title || "-"}
                                         </td>
-                                        <td className="px-6 py-4">
-                                            {!(chapter as any).isPublished ? (
-                                                <span className="px-2 py-1 rounded text-xs font-bold bg-gray-100 text-gray-500 border border-gray-200 uppercase">
-                                                    Draft
-                                                </span>
-                                            ) : (
-                                                <span className="px-2 py-1 rounded text-xs font-bold bg-green-100 text-green-700 border border-green-200 uppercase">
-                                                    Published
-                                                </span>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <form action={toggleAccessStatus}>
-                                                <input type="hidden" name="id" value={chapter.id} />
-                                                <input type="hidden" name="isFree" value={String(chapter.isFree)} />
-                                                <button
-                                                    className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-bold border transition-colors ${chapter.isFree
-                                                        ? "bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200"
-                                                        : "bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200"
-                                                        }`}
-                                                    title={chapter.isFree ? "Click to Lock (Make Premium)" : "Click to Unlock (Make Free)"}
-                                                >
-                                                    {chapter.isFree ? (
-                                                        <>
-                                                            <Unlock size={12} /> Free
-                                                        </>
+                                        {!showDeleted && (
+                                            <>
+                                                <td className="px-6 py-4">
+                                                    {!(chapter as any).isPublished ? (
+                                                        <span className="px-2 py-1 rounded text-xs font-bold bg-gray-100 text-gray-500 border border-gray-200 uppercase">
+                                                            Draft
+                                                        </span>
                                                     ) : (
-                                                        <>
-                                                            <Lock size={12} /> Premium
-                                                        </>
+                                                        <span className="px-2 py-1 rounded text-xs font-bold bg-green-100 text-green-700 border border-green-200 uppercase">
+                                                            Published
+                                                        </span>
                                                     )}
-                                                </button>
-                                            </form>
-                                        </td>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <form action={toggleAccessStatus}>
+                                                        <input type="hidden" name="id" value={chapter.id} />
+                                                        <input type="hidden" name="isFree" value={String(chapter.isFree)} />
+                                                        <button
+                                                            className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-bold border transition-colors ${chapter.isFree
+                                                                ? "bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200"
+                                                                : "bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200"
+                                                                }`}
+                                                            title={chapter.isFree ? "Click to Lock (Make Premium)" : "Click to Unlock (Make Free)"}
+                                                        >
+                                                            {chapter.isFree ? (
+                                                                <>
+                                                                    <Unlock size={12} /> Free
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <Lock size={12} /> Premium
+                                                                </>
+                                                            )}
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </>
+                                        )}
                                         <td className="px-6 py-4">{chapter.viewCount}</td>
                                         <td className="px-6 py-4 text-xs">
-                                            {new Date(chapter.createdAt).toLocaleDateString()}
+                                            {new Date(showDeleted ? chapter.deletedAt : chapter.createdAt).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
-                                                <form action={togglePublishStatus}>
-                                                    <input type="hidden" name="id" value={chapter.id} />
-                                                    <input type="hidden" name="currentStatus" value={String(chapter.isPublished)} />
-                                                    <button
-                                                        className={`px-3 py-1 rounded text-xs font-bold transition-colors ${chapter.isPublished
-                                                            ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-                                                            : "bg-green-100 text-green-700 hover:bg-green-200"
-                                                            }`}
-                                                    >
-                                                        {chapter.isPublished ? "Unpublish" : "Publish"}
-                                                    </button>
-                                                </form>
-                                                <Link
-                                                    href={`/amako-portal-v7/chapters/${chapter.id}/edit`}
-                                                    className="px-3 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded text-xs font-bold transition-colors"
-                                                >
-                                                    Edit
-                                                </Link>
+                                                {showDeleted ? (
+                                                    // Restore button for deleted chapters
+                                                    <form action={restoreChapter}>
+                                                        <input type="hidden" name="id" value={chapter.id} />
+                                                        <button
+                                                            className="flex items-center gap-1 px-3 py-1 bg-green-50 text-green-600 hover:bg-green-100 rounded text-xs font-bold transition-colors"
+                                                            title="Restore chapter"
+                                                        >
+                                                            <RotateCcw size={12} />
+                                                            Restore
+                                                        </button>
+                                                    </form>
+                                                ) : (
+                                                    // Normal actions for active chapters
+                                                    <>
+                                                        <form action={togglePublishStatus}>
+                                                            <input type="hidden" name="id" value={chapter.id} />
+                                                            <input type="hidden" name="currentStatus" value={String(chapter.isPublished)} />
+                                                            <button
+                                                                className={`px-3 py-1 rounded text-xs font-bold transition-colors ${chapter.isPublished
+                                                                    ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
+                                                                    : "bg-green-100 text-green-700 hover:bg-green-200"
+                                                                    }`}
+                                                            >
+                                                                {chapter.isPublished ? "Unpublish" : "Publish"}
+                                                            </button>
+                                                        </form>
+                                                        <Link
+                                                            href={`/amako-portal-v7/chapters/${chapter.id}/edit`}
+                                                            className="px-3 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded text-xs font-bold transition-colors"
+                                                        >
+                                                            Edit
+                                                        </Link>
+                                                        <form action={deleteChapter}>
+                                                            <input type="hidden" name="id" value={chapter.id} />
+                                                            <DeleteChapterButtonInline />
+                                                        </form>
+                                                    </>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
