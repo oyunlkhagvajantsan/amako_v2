@@ -92,9 +92,9 @@ export default function ChangePasswordForm() {
                             className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-foreground outline-none"
                         />
                         <div className="mt-2 space-y-1">
-                            <div className={`text-xs flex items-center gap-2 ${newPassword.length >= 8 ? 'text-success' : 'text-muted'}`}>
-                                <div className={`w-1 h-1 rounded-full ${newPassword.length >= 8 ? 'bg-success' : 'bg-muted/30'}`} />
-                                Дор хаяж 8 тэмдэгт
+                            <div className={`text-xs flex items-center gap-2 ${newPassword.length >= 6 ? 'text-success' : 'text-muted'}`}>
+                                <div className={`w-1 h-1 rounded-full ${newPassword.length >= 6 ? 'bg-success' : 'bg-muted/30'}`} />
+                                Дор хаяж 6 тэмдэгт
                             </div>
                             <div className={`text-xs flex items-center gap-2 ${/[A-Z]/.test(newPassword) ? 'text-success' : 'text-muted'}`}>
                                 <div className={`w-1 h-1 rounded-full ${/[A-Z]/.test(newPassword) ? 'bg-success' : 'bg-muted/30'}`} />
@@ -104,10 +104,10 @@ export default function ChangePasswordForm() {
                                 <div className={`w-1 h-1 rounded-full ${/[0-9]/.test(newPassword) ? 'bg-success' : 'bg-muted/30'}`} />
                                 Тоо (0-9)
                             </div>
-                            <div className={`text-xs flex items-center gap-2 ${/[^A-Za-z0-9]/.test(newPassword) ? 'text-success' : 'text-muted'}`}>
+                            {/* <div className={`text-xs flex items-center gap-2 ${/[^A-Za-z0-9]/.test(newPassword) ? 'text-success' : 'text-muted'}`}>
                                 <div className={`w-1 h-1 rounded-full ${/[^A-Za-z0-9]/.test(newPassword) ? 'bg-success' : 'bg-muted/30'}`} />
                                 Тусгай тэмдэгт (!@#$%...)
-                            </div>
+                            </div> */}
                         </div>
                     </div>
 
