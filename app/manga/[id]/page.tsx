@@ -67,13 +67,15 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
     }
 
     // Translate status to Mongolian
-    const statusTranslation = {
+    const statusTranslation: Record<string, string> = {
         ONGOING: "Гарч байгаа",
-        COMPLETED: "Дууссан"
+        COMPLETED: "Дууссан",
+        HIATUS: "Завсарласан",
+        CANCELLED: "Цуцлагдсан"
     };
 
     // Translate manga type
-    const typeTranslation = {
+    const typeTranslation: Record<string, string> = {
         MANGA: "Манга",
         MANHWA: "Манхва",
         MANHUA: "Манхуа",
@@ -131,7 +133,7 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                             <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-8">
                                 {/* Status */}
                                 <div className="px-3 py-1 bg-blue-100 rounded-full text-sm font-medium text-blue-700 flex items-center gap-1">
-                                    {statusTranslation[manga.status]}
+                                    {statusTranslation[manga.status] || manga.status}
                                 </div>
 
                                 {/* Chapter Count */}
@@ -141,7 +143,7 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
 
                                 {/* Manga Type */}
                                 <div className="px-3 py-1 bg-purple-100 rounded-full text-sm font-medium text-purple-700 flex items-center gap-1">
-                                    <Layers size={14} /> {typeTranslation[manga.type]}
+                                    <Layers size={14} /> {typeTranslation[manga.type] || manga.type}
                                 </div>
 
                                 {/* Author */}

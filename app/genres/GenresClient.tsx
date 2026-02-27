@@ -102,7 +102,7 @@ export default function GenresClient() {
                                 badge={
                                     <div className="absolute top-2 right-2 bg-black/40 text-white text-xs px-2 py-1 rounded">
                                         {manga.status === "ONGOING" ? "Гарч байгаа" :
-                                            manga.status === "COMPLETED" ? "Дууссан"}
+                                            manga.status === "COMPLETED" ? "Дууссан" : null}
                                     </div>
                                 }
                             />
