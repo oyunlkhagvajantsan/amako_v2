@@ -32,8 +32,7 @@ type Manga = {
 const statusMap: Record<string, string> = {
     ALL: "Төлөв",
     ONGOING: "Гарч байгаа",
-    COMPLETED: "Дууссан",
-    HIATUS: "Түр зогссон"
+    COMPLETED: "Дууссан"
 };
 
 const typeMap: Record<string, string> = {
@@ -364,10 +363,11 @@ export default function MangaListClient() {
                                 key={manga.id}
                                 manga={manga}
                                 badge={
-                                    <div className="absolute top-2 right-2 bg-black/40 text-white text-xs px-2 py-1 rounded">
-                                        {manga.status === "ONGOING" ? "Гарч байгаа" :
-                                            manga.status === "COMPLETED" ? "Дууссан" : "Түр зогссон"}
-                                    </div>
+                                    (manga.status === "ONGOING" || manga.status === "COMPLETED") ? (
+                                        <div className="absolute top-2 right-2 bg-black/40 text-white text-xs px-2 py-1 rounded">
+                                            {manga.status === "ONGOING" ? "Гарч байгаа" : "Дууссан"}
+                                        </div>
+                                    ) : null
                                 }
                             />
                         ))}

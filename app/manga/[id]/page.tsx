@@ -69,8 +69,7 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
     // Translate status to Mongolian
     const statusTranslation = {
         ONGOING: "Гарч байгаа",
-        COMPLETED: "Дууссан",
-        HIATUS: "Түр зогссон"
+        COMPLETED: "Дууссан"
     };
 
     // Translate manga type
