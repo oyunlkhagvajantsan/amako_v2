@@ -111,8 +111,10 @@ export default function NotificationBell() {
                                     {notifications.map((n) => (
                                         <div
                                             key={n.id}
-                                            onClick={() => {
-                                                if (!n.isRead) markAsRead(n.id);
+                                            onClick={async () => {
+                                                if (!n.isRead) {
+                                                    await markAsRead(n.id);
+                                                }
                                                 if (n.link) {
                                                     setIsOpen(false);
                                                     window.location.href = n.link;
@@ -133,7 +135,7 @@ export default function NotificationBell() {
                                                 </div>
                                             </div>
                                             {n.link && (
-                                                <ExternalLink size={14} className="text-muted/30 mt-1" />
+                                                <ExternalLink size={18} className="text-muted/50 mt-1 flex-shrink-0 ml-2" />
                                             )}
                                         </div>
                                     ))}
