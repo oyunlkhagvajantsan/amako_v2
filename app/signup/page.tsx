@@ -49,7 +49,7 @@ export default function SignupPage() {
                             src="/uploads/images/logo_text.webp"
                             alt="Amako Logo"
                             fill
-                            className="object-contain dark:invert transition-all"
+                            className="object-contain dark:brightness-0 dark:invert transition-all"
                             priority
                         />
                     </Link>
