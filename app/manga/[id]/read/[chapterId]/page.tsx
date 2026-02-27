@@ -11,6 +11,7 @@ import ChapterEndNav from "../components/ChapterEndNav";
 import ScrollToTop from "@/app/components/ScrollToTop";
 import { ChevronLeft, Lock } from "lucide-react";
 
+import { ReaderUIProvider, ReaderTapZone } from "../components/ReaderUIContext";
 import SequentialImageLoader from "../components/SequentialImageLoader";
 import ProtectedReader from "@/app/components/ProtectedReader";
 import AgeVerificationGuard from "@/app/components/AgeVerificationGuard";
@@ -96,90 +97,94 @@ export default async function ChapterReaderPage({
     }
 
     return (
-        <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
-            {/* Navbar */}
-            <Header isSticky={false} />
+        <ReaderUIProvider>
+            <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+                {/* Navbar */}
+                <Header isSticky={false} className="reader-top-nav transition-all duration-300" />
 
-            {/* Chapter Header - Non-sticky */}
-            <header className="bg-background/90 backdrop-blur-md border-b border-border sticky top-0 z-40 transition-all">
-                <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-                    <Link href={`/manga/${mangaId}`} className="flex items-center gap-2 hover:text-primary transition-colors">
-                        <ChevronLeft size={24} />
-                        <span className="font-medium truncate max-w-[200px] hidden sm:inline">{chapter.manga?.titleMn}</span>
-                    </Link>
+                {/* Chapter Header - Non-sticky */}
+                <header className="reader-top-nav bg-background/90 backdrop-blur-md border-b border-border sticky top-0 z-40 transition-all duration-300">
+                    <div className="container mx-auto px-4 h-14 flex items-center justify-between">
+                        <Link href={`/manga/${mangaId}`} className="flex items-center gap-2 hover:text-primary transition-colors">
+                            <ChevronLeft size={24} />
+                            <span className="font-medium truncate max-w-[200px] hidden sm:inline">{chapter.manga?.titleMn}</span>
+                        </Link>
 
-                    <ChapterNav
-                        mangaId={mangaId}
-                        currentChapterId={chapterId}
-                        allChapters={allChapters as any[]}
-                        prevChapter={prevChapter as any}
-                        nextChapter={nextChapter as any}
-                        variant="top"
-                    />
-                </div>
-            </header>
-
-            {/* Reader Content - Vertical Scroll */}
-            {isLocked ? (
-                <main className="max-w-3xl mx-auto bg-background min-h-screen flex flex-col items-center justify-center py-32 px-4 text-center">
-                    <div className="w-24 h-24 bg-surface rounded-full flex items-center justify-center mb-6 text-primary border border-border">
-                        <Lock size={48} />
+                        <ChapterNav
+                            mangaId={mangaId}
+                            currentChapterId={chapterId}
+                            allChapters={allChapters as any[]}
+                            prevChapter={prevChapter as any}
+                            nextChapter={nextChapter as any}
+                            variant="top"
+                        />
                     </div>
-                    <h2 className="text-2xl font-bold mb-2">Цааш нь уншихыг хүсвэл эрхээ сунгана уу.</h2>
-                    <Link
-                        href="/subscribe"
-                        className="px-8 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg transition-transform hover:scale-105"
-                    >
-                        Эрх авах
-                    </Link>
-                </main>
-            ) : (
-                <AgeVerificationGuard active={needsAgeVerification}>
-                    <ProtectedReader>
-                        {session?.user && <ReadHistoryTracker chapterId={chapterId} />}
-                        <SequentialImageLoader images={chapter.images} />
+                </header>
 
-                        {/* Chapter Caption (Author's note) */}
-
-                    </ProtectedReader>
-
-                </AgeVerificationGuard>
-            )}
-
-            {/* Navigation & Discussion Section */}
-            {!isLocked && (
-                <div className={`max-w-3xl mx-auto pb-20 mt-4 px-4 ${chapter.caption ? "space-y-6" : "space-y-0"}`}>
-                    {/* Chapter Navigation (Bottom) */}
-                    <ChapterEndNav
-                        mangaId={mangaId}
-                        mangaCoverImage={chapter.manga?.coverImage || ""}
-                        mangaTitle={chapter.manga?.titleMn || chapter.manga?.title || ""}
-                        prevChapter={prevChapter as any}
-                        nextChapter={nextChapter as any}
-                    />
-
-                    {/* Chapter Caption (Simple Text) */}
-                    {chapter.caption && (
-                        <div className="px-4 py-2">
-                            <h3 className="text-xs font-bold text-muted uppercase tracking-widest mb-1">
-                                Amako
-                            </h3>
-                            <p className="text-foreground/80 text-sm leading-relaxed whitespace-pre-wrap">
-                                {chapter.caption}
-                            </p>
+                {/* Reader Content - Vertical Scroll */}
+                {isLocked ? (
+                    <main className="max-w-3xl mx-auto bg-background min-h-screen flex flex-col items-center justify-center py-32 px-4 text-center">
+                        <div className="w-24 h-24 bg-surface rounded-full flex items-center justify-center mb-6 text-primary border border-border">
+                            <Lock size={48} />
                         </div>
-                    )}
+                        <h2 className="text-2xl font-bold mb-2">Цааш нь уншихыг хүсвэл эрхээ сунгана уу.</h2>
+                        <Link
+                            href="/subscribe"
+                            className="px-8 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg transition-transform hover:scale-105"
+                        >
+                            Эрх авах
+                        </Link>
+                    </main>
+                ) : (
+                    <AgeVerificationGuard active={needsAgeVerification}>
+                        <ProtectedReader>
+                            {session?.user && <ReadHistoryTracker chapterId={chapterId} />}
+                            <ReaderTapZone>
+                                <SequentialImageLoader images={chapter.images} />
+                            </ReaderTapZone>
 
-                    {/* Comment Section (Chapter specific) */}
-                    <div className="px-4 pt-4">
-                        <ErrorBoundary>
-                            <CommentSection mangaId={mangaId} chapterId={chapterId} variant="dark" />
-                        </ErrorBoundary>
+                            {/* Chapter Caption (Author's note) */}
+
+                        </ProtectedReader>
+
+                    </AgeVerificationGuard>
+                )}
+
+                {/* Navigation & Discussion Section */}
+                {!isLocked && (
+                    <div className={`max-w-3xl mx-auto pb-20 mt-4 px-4 ${chapter.caption ? "space-y-6" : "space-y-0"}`}>
+                        {/* Chapter Navigation (Bottom) */}
+                        <ChapterEndNav
+                            mangaId={mangaId}
+                            mangaCoverImage={chapter.manga?.coverImage || ""}
+                            mangaTitle={chapter.manga?.titleMn || chapter.manga?.title || ""}
+                            prevChapter={prevChapter as any}
+                            nextChapter={nextChapter as any}
+                        />
+
+                        {/* Chapter Caption (Simple Text) */}
+                        {chapter.caption && (
+                            <div className="px-4 py-2">
+                                <h3 className="text-xs font-bold text-muted uppercase tracking-widest mb-1">
+                                    Amako
+                                </h3>
+                                <p className="text-foreground/80 text-sm leading-relaxed whitespace-pre-wrap">
+                                    {chapter.caption}
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Comment Section (Chapter specific) */}
+                        <div className="px-4 pt-4">
+                            <ErrorBoundary>
+                                <CommentSection mangaId={mangaId} chapterId={chapterId} variant="dark" />
+                            </ErrorBoundary>
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            <ScrollToTop />
-        </div>
+                <ScrollToTop />
+            </div>
+        </ReaderUIProvider>
     );
 }

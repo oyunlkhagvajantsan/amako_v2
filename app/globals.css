@@ -148,3 +148,16 @@ html {
       var(--surface) 100%);
   background-size: 1000px 100%;
 }
+
+/* Reader UI Toggle Classes */
+body.hide-reader-ui .reader-top-nav {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.hide-reader-ui .reader-scroll-top {
+  transform: translateY(100px);
+  opacity: 0;
+  pointer-events: none;
+}

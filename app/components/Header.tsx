@@ -11,7 +11,7 @@ import Image from "next/image";
 import NotificationBell from "./notifications/NotificationBell";
 import ThemeToggle from "./ThemeToggle";
 
-export default function Header({ isSticky = true, hideBorder = false }: { isSticky?: boolean; hideBorder?: boolean }) {
+export default function Header({ isSticky = true, hideBorder = false, className = "" }: { isSticky?: boolean; hideBorder?: boolean; className?: string }) {
   const { data: session } = useSession();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -74,7 +74,7 @@ export default function Header({ isSticky = true, hideBorder = false }: { isStic
 
   return (
     <>
-      <header className={`${isSticky ? 'sticky top-0' : 'relative'} left-0 right-0 z-[60] bg-background/80 backdrop-blur-md ${hideBorder ? '' : 'border-b border-border'}`}>
+      <header className={`${isSticky ? 'sticky top-0' : 'relative'} left-0 right-0 z-[60] bg-background/80 backdrop-blur-md ${hideBorder ? '' : 'border-b border-border'} ${className}`}>
         <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
