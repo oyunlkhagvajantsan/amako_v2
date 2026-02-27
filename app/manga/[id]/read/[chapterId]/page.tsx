@@ -11,6 +11,7 @@ import ChapterEndNav from "../components/ChapterEndNav";
 import ScrollToTop from "@/app/components/ScrollToTop";
 import { ChevronLeft, Lock } from "lucide-react";
 
+import SequentialImageLoader from "../components/SequentialImageLoader";
 import ProtectedReader from "@/app/components/ProtectedReader";
 import AgeVerificationGuard from "@/app/components/AgeVerificationGuard";
 import CommentSection from "@/app/components/comments/CommentSection";
@@ -136,16 +137,7 @@ export default async function ChapterReaderPage({
                 <AgeVerificationGuard active={needsAgeVerification}>
                     <ProtectedReader>
                         {session?.user && <ReadHistoryTracker chapterId={chapterId} />}
-                        {chapter.images.map((imgUrl, index) => (
-                            <img
-                                key={index}
-                                src={imgUrl}
-                                alt={`Page ${index + 1}`}
-                                className="w-full h-auto block select-none pointer-events-none"
-                                draggable="false"
-                                loading={index < 3 ? "eager" : "lazy"}
-                            />
-                        ))}
+                        <SequentialImageLoader images={chapter.images} />
 
                         {/* Chapter Caption (Author's note) */}
 
