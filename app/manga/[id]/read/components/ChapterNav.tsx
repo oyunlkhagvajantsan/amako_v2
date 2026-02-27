@@ -61,7 +61,7 @@ export default function ChapterNav({
                 >
                     {allChapters.map((ch) => (
                         <option key={ch.id} value={ch.id}>
-                            {ch.chapterNumber}{ch.title ? ` - ${ch.title}` : ''}-р бүлэг
+                            {ch.chapterNumber}-р бүлэг{ch.title ? ` - ${ch.title}` : ''}
                         </option>
                     ))}
                 </select>
