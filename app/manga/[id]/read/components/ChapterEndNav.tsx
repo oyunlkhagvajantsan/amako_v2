@@ -42,6 +42,7 @@ function ChapterCard({
                         src={thumbnailSrc}
                         alt={`Chapter ${chapter.chapterNumber}`}
                         fill
+                        unoptimized
                         className="object-cover object-top opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-300"
                     />
                 ) : (
@@ -93,6 +94,7 @@ function MangaDetailCard({
                         src={mangaCoverImage}
                         alt="Manga cover"
                         fill
+                        unoptimized
                         className="object-cover object-top opacity-50 group-hover:opacity-70 group-hover:scale-105 transition-all duration-300"
                     />
                 ) : (

@@ -224,6 +224,7 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                                                     src={chapter.thumbnail}
                                                     alt={`Chapter ${chapter.chapterNumber}`}
                                                     fill
+                                                    unoptimized
                                                     className="object-cover"
                                                 />
                                             ) : (
