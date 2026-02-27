@@ -42,7 +42,7 @@ export default function ProfileTabs({ user, isSubscribed, daysLeft }: ProfileTab
                                 {isSubscribed ? (
                                     <div className="flex items-center gap-2 px-4 py-1.5 bg-green-500/10 text-success rounded-full text-sm font-bold border border-success/20">
                                         <span className="w-2 h-2 bg-success rounded-full animate-pulse" />
-                                        Идэвхтэй (Дуусах: {new Date(user.subscriptionEnd!).toLocaleDateString("mn-MN")})
+                                        {(() => { const d = new Date(user.subscriptionEnd!); return `Идэвхтэй (Дуусах: ${d.getUTCFullYear()}.${String(d.getUTCMonth() + 1).padStart(2, '0')}.${String(d.getUTCDate()).padStart(2, '0')})`; })()}
                                     </div>
                                 ) : (
                                     <div className="px-4 py-1.5 bg-surface text-muted rounded-full text-sm font-bold border border-border">
@@ -115,7 +115,7 @@ export default function ProfileTabs({ user, isSubscribed, daysLeft }: ProfileTab
                                             {history.chapter?.chapterNumber}-р бүлэг
                                         </p>
                                         <p className="text-[10px] text-muted/60 mt-1 uppercase tracking-wider font-bold">
-                                            {new Date(history.updatedAt).toLocaleDateString("mn-MN")}
+                                            {(() => { const d = new Date(history.updatedAt); return `${d.getUTCFullYear()}.${String(d.getUTCMonth() + 1).padStart(2, '0')}.${String(d.getUTCDate()).padStart(2, '0')}`; })()}
                                         </p>
                                     </div>
                                 </Link>
@@ -180,7 +180,7 @@ export default function ProfileTabs({ user, isSubscribed, daysLeft }: ProfileTab
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="text-foreground">{req.months} сар</div>
                                                     <div className="text-[10px] text-muted uppercase tracking-tighter">
-                                                        {new Date(req.createdAt).toLocaleDateString()}
+                                                        {(() => { const d = new Date(req.createdAt); return `${d.getUTCFullYear()}.${String(d.getUTCMonth() + 1).padStart(2, '0')}.${String(d.getUTCDate()).padStart(2, '0')}`; })()}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-right font-black text-foreground">
