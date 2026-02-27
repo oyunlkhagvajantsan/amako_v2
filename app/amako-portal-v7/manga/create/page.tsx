@@ -10,6 +10,8 @@ type Genre = {
     nameMn: string;
 };
 
+type MangaStatus = "ONGOING" | "COMPLETED" | "HIATUS";
+
 export default function CreateMangaPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -18,6 +20,9 @@ export default function CreateMangaPage() {
     const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
     const [showCoverModal, setShowCoverModal] = useState(false);
     const [selectedCoverUrl, setSelectedCoverUrl] = useState("");
+    const [status, setStatus] = useState<MangaStatus>("ONGOING");
+    const [isAdult, setIsAdult] = useState(false);
+    const [isOneshot, setIsOneshot] = useState(false);
 
     // Fetch genres on mount
     useEffect(() => {
@@ -150,10 +155,13 @@ export default function CreateMangaPage() {
                         <label className="text-sm font-medium text-gray-700">Төлөв</label>
                         <select
                             name="status"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none transition-colors"
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value as MangaStatus)}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none transition-colors text-gray-900"
                         >
-                            <option value="ONGOING">Ongoing</option>
-                            <option value="COMPLETED">Completed</option>
+                            <option value="ONGOING">ONGOING (Гарч байгаа)</option>
+                            <option value="COMPLETED">COMPLETED (Дууссан)</option>
+                            <option value="HIATUS">HIATUS (Завсарласан)</option>
                         </select>
                     </div>
 
@@ -161,7 +169,7 @@ export default function CreateMangaPage() {
                         <label className="text-sm font-medium text-gray-700">Төрөл</label>
                         <select
                             name="type"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none transition-colors"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none transition-colors text-gray-900"
                         >
                             <option value="MANGA">Манга</option>
                             <option value="MANHWA">Манхва</option>
@@ -187,7 +195,9 @@ export default function CreateMangaPage() {
                         <input
                             name="isAdult"
                             type="checkbox"
-                            className="w-4 h-4 text-[#d8454f] border-gray-300 rounded focus:ring-[#d8454f]"
+                            checked={isAdult}
+                            onChange={(e) => setIsAdult(e.target.checked)}
+                            className="w-4 h-4 text-[#d8454f] focus:ring-[#d8454f] border-gray-300 rounded"
                         />
                         <span className="text-sm font-medium text-gray-700">18+</span>
                     </label>
@@ -196,6 +206,8 @@ export default function CreateMangaPage() {
                         <input
                             name="isOneshot"
                             type="checkbox"
+                            checked={isOneshot}
+                            onChange={(e) => setIsOneshot(e.target.checked)}
                             className="w-4 h-4 text-[#d8454f] border-gray-300 rounded focus:ring-[#d8454f]"
                         />
                         <span className="text-sm font-medium text-gray-700">Oneshot</span>
@@ -270,13 +282,13 @@ export default function CreateMangaPage() {
                         {isLoading ? "Хадгалж байна..." : "Хадгалах"}
                     </button>
                 </div>
-            </form>
+            </form >
 
             <SelectCoverModal
                 isOpen={showCoverModal}
                 onClose={() => setShowCoverModal(false)}
                 onSelect={(url) => setSelectedCoverUrl(url)}
             />
-        </div>
+        </div >
     );
 }

@@ -31,7 +31,7 @@ export default function AdminLayoutClient({
     }, [pathname]);
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className="light min-h-screen bg-gray-50 flex flex-col text-gray-900">
             <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 md:hidden sticky top-0 z-30">
                 <Link href="/" className="flex items-center gap-2">
                     <div className="relative w-8 h-8 rounded-lg overflow-hidden">

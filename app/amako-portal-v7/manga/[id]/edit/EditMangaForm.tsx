@@ -207,7 +207,7 @@ export default function EditMangaForm({
                         <select
                             name="status"
                             defaultValue={manga.status}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none transition-colors"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none transition-colors text-gray-900"
                         >
                             <option value="ONGOING">Ongoing</option>
                             <option value="COMPLETED">Completed</option>
@@ -219,7 +219,7 @@ export default function EditMangaForm({
                         <select
                             name="type"
                             defaultValue={manga.type}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none transition-colors"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none transition-colors text-gray-900"
                         >
                             <option value="MANGA">Манга</option>
                             <option value="MANHWA">Манхва</option>
@@ -235,7 +235,7 @@ export default function EditMangaForm({
                             min="1900"
                             max="2100"
                             defaultValue={manga.publishYear || ""}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none transition-colors"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none transition-colors text-gray-900"
                         />
                     </div>
                 </div>

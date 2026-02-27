@@ -38,7 +38,7 @@ export default function ChapterFilter({ mangas }: ChapterFilterProps) {
                 id="manga-filter"
                 value={currentMangaId}
                 onChange={handleMangaChange}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-[#d8454f] focus:border-[#d8454f] outline-none min-w-[200px]"
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:ring-[#d8454f] focus:border-[#d8454f] outline-none min-w-[200px]"
             >
                 <option value="">-- Бүх гаргалт --</option>
                 {mangas.map((manga) => (

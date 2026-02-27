@@ -112,7 +112,7 @@ export default function AdminCommentsPage() {
                     <select
                         value={filter}
                         onChange={(e) => setFilter(e.target.value as any)}
-                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none"
+                        className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none text-gray-900"
                     >
                         <option value="all">Бүгд</option>
                         <option value="visible">Ил</option>

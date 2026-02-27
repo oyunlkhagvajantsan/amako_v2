@@ -390,7 +390,7 @@ export default function ChapterForm({
                 <select
                     value={selectedMangaId}
                     onChange={(e) => setSelectedMangaId(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none disabled:bg-gray-100"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#d8454f] focus:border-[#d8454f] outline-none disabled:bg-gray-100 text-gray-900"
                     required
                     disabled={mode === 'edit'}
                 >
