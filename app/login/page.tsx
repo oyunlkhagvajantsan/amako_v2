@@ -37,8 +37,7 @@ function LoginForm() {
                 document.cookie = "amako_session_active=true; path=/;";
 
                 const callbackUrl = searchParams.get("callbackUrl");
-                router.push(callbackUrl || "/");
-                router.refresh();
+                window.location.href = callbackUrl || "/";
             }
         } catch (err) {
             setError("Failed to login. Please try again.");
