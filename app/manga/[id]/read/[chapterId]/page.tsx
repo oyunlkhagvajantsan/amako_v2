@@ -7,6 +7,7 @@ import { authOptions } from "@/lib/auth";
 import Header from "@/app/components/Header";
 import ReadHistoryTracker from "@/app/components/ReadHistoryTracker";
 import ChapterNav from "../components/ChapterNav";
+import ChapterEndNav from "../components/ChapterEndNav";
 import ScrollToTop from "@/app/components/ScrollToTop";
 import { ChevronLeft, Lock } from "lucide-react";
 
@@ -71,7 +72,7 @@ export default async function ChapterReaderPage({
             isPublished: true
         },
         orderBy: { chapterNumber: "asc" },
-        select: { id: true, chapterNumber: true, title: true }
+        select: { id: true, chapterNumber: true, title: true, thumbnail: true }
     });
 
     const currentIndex = allChapters.findIndex(c => c.id === chapterId);
@@ -157,16 +158,13 @@ export default async function ChapterReaderPage({
             {!isLocked && (
                 <div className={`max-w-3xl mx-auto pb-20 mt-4 px-4 ${chapter.caption ? "space-y-6" : "space-y-0"}`}>
                     {/* Chapter Navigation (Bottom) */}
-                    <div className="bg-surface text-center p-4 rounded-3xl">
-                        <ChapterNav
-                            mangaId={mangaId}
-                            currentChapterId={chapterId}
-                            allChapters={allChapters as any[]}
-                            prevChapter={prevChapter as any}
-                            nextChapter={nextChapter as any}
-                            variant="bottom"
-                        />
-                    </div>
+                    <ChapterEndNav
+                        mangaId={mangaId}
+                        mangaCoverImage={chapter.manga?.coverImage || ""}
+                        mangaTitle={chapter.manga?.titleMn || chapter.manga?.title || ""}
+                        prevChapter={prevChapter as any}
+                        nextChapter={nextChapter as any}
+                    />
 
                     {/* Chapter Caption (Simple Text) */}
                     {chapter.caption && (
