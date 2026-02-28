@@ -16,9 +16,11 @@ const mailConfig: SMTPTransport.Options = {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
     },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
+    connectionTimeout: 30000, // 30 seconds
+    greetingTimeout: 30000,   // 30 seconds
+    socketTimeout: 60000,     // 60 seconds
+    debug: true,
+    logger: true,
 };
 
 // Console log config for Railway debugging (Masing password)
@@ -47,6 +49,7 @@ interface SendEmailOptions {
 export async function sendEmail({ to, subject, text, html }: SendEmailOptions) {
     const from = process.env.SMTP_FROM || '"Amako" <noreply@amako.mn>';
 
+    console.log(`[Mail] Sending email to ${to}...`);
     try {
         const info = await transporter.sendMail({
             from,
