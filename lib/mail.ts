@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
+import SMTPTransport from "nodemailer/lib/smtp-transport";
 
-// Create a singleton transporter for better performance (pooling)
+// Create a singleton transporter
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT) || 587,
@@ -9,10 +10,12 @@ const transporter = nodemailer.createTransport({
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
     },
-    pool: true,
-    maxConnections: 5,
-    maxMessages: 100,
-});
+    // Reliability settings for cloud environments like Railway
+    pool: false, // Disable pooling to avoid hanging on stale connections
+    connectionTimeout: 10000, // 10 seconds timeout
+    greetingTimeout: 10000,   // 10 seconds timeout
+    socketTimeout: 15000,     // 15 seconds timeout
+} as SMTPTransport.Options);
 
 interface SendEmailOptions {
     to: string;

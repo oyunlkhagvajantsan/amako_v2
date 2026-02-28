@@ -20,27 +20,47 @@ export default function NotificationBell() {
     const [isOpen, setIsOpen] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
 
-    const fetchNotifications = useCallback(async () => {
-        if (!session) {
-            return;
-        }
+    const fetchNotifications = useCallback(async (signal?: AbortSignal) => {
+        if (!session || !session.user) return;
+
         try {
-            const res = await fetch("/api/notifications");
+            const res = await fetch("/api/notifications", { signal });
             if (res.ok) {
                 const data = await res.json();
                 setNotifications(data);
                 setUnreadCount(data.filter((n: Notification) => !n.isRead).length);
             }
-        } catch (error) {
-            console.error("Fetch notifications error:", error);
+        } catch (error: any) {
+            // Ignore abort errors and common "Failed to fetch" on mobile/instability
+            if (error.name !== "AbortError") {
+                if (process.env.NODE_ENV === "development") {
+                    console.warn("[Notifications] Fetch paused or failed:", error.message);
+                }
+            }
         }
     }, [session]);
 
     useEffect(() => {
-        fetchNotifications();
-        const interval = setInterval(fetchNotifications, 5000);
-        return () => clearInterval(interval);
-    }, [fetchNotifications]);
+        if (!session) return;
+
+        let timeoutId: NodeJS.Timeout;
+        const controller = new AbortController();
+
+        const poll = async () => {
+            // Only fetch if the tab is actually visible to save battery/network
+            if (document.visibilityState === "visible") {
+                await fetchNotifications(controller.signal);
+            }
+            timeoutId = setTimeout(poll, 15000); // Poll every 15s (less aggressive than 5s)
+        };
+
+        poll();
+
+        return () => {
+            controller.abort();
+            clearTimeout(timeoutId);
+        };
+    }, [fetchNotifications, session]);
 
     const markAsRead = async (id?: string) => {
         try {
