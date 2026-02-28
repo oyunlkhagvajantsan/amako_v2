@@ -1,21 +1,38 @@
 import nodemailer from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 
-// Create a singleton transporter
-const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: Number(process.env.SMTP_PORT) === 465, // true for 465, false for other ports
+// Dynamic configuration for Gmail vs others
+const mailConfig: SMTPTransport.Options = {
+    // If it's Gmail, we use the 'service' shortcut for better reliability
+    ...(process.env.SMTP_HOST?.includes("gmail")
+        ? { service: "gmail" }
+        : {
+            host: process.env.SMTP_HOST,
+            port: Number(process.env.SMTP_PORT) || 587,
+            secure: Number(process.env.SMTP_PORT) === 465,
+        }
+    ),
     auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
     },
-    // Reliability settings for cloud environments like Railway
-    pool: false, // Disable pooling to avoid hanging on stale connections
-    connectionTimeout: 10000, // 10 seconds timeout
-    greetingTimeout: 10000,   // 10 seconds timeout
-    socketTimeout: 15000,     // 15 seconds timeout
-} as SMTPTransport.Options);
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
+};
+
+// Console log config for Railway debugging (Masing password)
+if (process.env.NODE_ENV !== "development") {
+    console.log("[Mail Config] Initializing with Settings:", {
+        service: (mailConfig as any).service || "manual",
+        host: mailConfig.host || "gmail-internal",
+        port: mailConfig.port || 465,
+        user: process.env.SMTP_USER,
+        hasPass: !!process.env.SMTP_PASS,
+    });
+}
+
+const transporter = nodemailer.createTransport(mailConfig);
 
 interface SendEmailOptions {
     to: string;
