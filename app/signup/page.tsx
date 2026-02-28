@@ -50,7 +50,6 @@ export default function SignupPage() {
                             alt="Amako Logo"
                             fill
                             className="object-contain dark:brightness-0 dark:invert transition-all"
-                            priority
                         />
                     </Link>
                     <h2 className="text-2xl font-bold text-foreground">Бүртгүүлэх</h2>

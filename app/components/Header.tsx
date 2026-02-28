@@ -93,7 +93,6 @@ export default function Header({ isSticky = true, hideBorder = false, className 
                   alt="Amako"
                   fill
                   className="object-contain object-left"
-                  priority
                 />
               </div>
             </Link>
