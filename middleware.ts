@@ -41,8 +41,8 @@ export default withAuth(
 
         // 3. API Rate Limiting & Protection
         if (path.startsWith('/api')) {
-            // Allow auth-related API calls
-            if (path.startsWith('/api/auth')) {
+            // Allow auth and password related API calls
+            if (path.startsWith('/api/auth') || path.startsWith('/api/password')) {
                 return response;
             }
 
@@ -82,6 +82,7 @@ export default withAuth(
                     "/signup",
                     "/forgot-password",
                     "/reset-password",
+                    "/api/password",
                 ];
 
                 if (publicPaths.some(p => path.startsWith(p)) || path.startsWith("/api/auth")) {
