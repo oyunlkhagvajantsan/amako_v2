@@ -63,10 +63,10 @@ export async function POST(req: Request) {
         }
 
         return NextResponse.json({ message: "Code sent" });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Forgot password error:", error);
         return NextResponse.json(
-            { error: "Something went wrong" },
+            { error: error.message || "Something went wrong" },
             { status: 500 }
         );
     }
