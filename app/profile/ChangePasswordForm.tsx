@@ -62,7 +62,9 @@ export default function ChangePasswordForm() {
             <div className="p-6">
                 <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
                     {message && (
-                        <div className={`p-3 rounded-lg text-sm ${message.type === "success" ? "bg-success/10 text-success" : "bg-error/10 text-error"}`}>
+                        <div className={`p-3 rounded-lg text-sm font-bold border ${message.type === "success"
+                            ? "bg-success/15 text-[#1a1a1a] dark:text-[#f0f0f0] border-success/30"
+                            : "bg-error/15 text-[#1a1a1a] dark:text-[#f0f0f0] border-error/30"}`}>
                             {message.text}
                         </div>
                     )}

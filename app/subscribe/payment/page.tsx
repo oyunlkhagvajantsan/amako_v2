@@ -85,35 +85,35 @@ export default function PaymentPage() {
                                 <span className="font-medium text-muted">Банк:</span>
                                 <span className="font-bold text-sm">{PAYMENT_INFO.bank}</span>
                             </div>
-                            <div className="flex justify-between items-center border-b border-border pb-2">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-border pb-2 gap-1 sm:gap-4">
                                 <span className="font-medium text-muted">Дансны дугаар:</span>
-                                <div className="flex items-center gap-2">
-                                    <span className="font-bold text-sm select-all">{PAYMENT_INFO.accountNumber}</span>
+                                <div className="flex items-center gap-2 sm:justify-end flex-1 min-w-0">
+                                    <span className="font-bold text-sm select-all break-all">{PAYMENT_INFO.accountNumber}</span>
                                     <button
                                         onClick={() => copyToClipboard(PAYMENT_INFO.accountNumber, "account")}
-                                        className="px-2 py-1 bg-surface hover:bg-surface-elevated rounded text-xs transition-colors border border-border"
+                                        className="shrink-0 px-2 py-1 bg-surface hover:bg-surface-elevated rounded text-xs transition-colors border border-border"
                                         title="Copy"
                                     >
                                         {copiedField === "account" ? <Check size={14} className="text-success" /> : <Copy size={14} className="text-muted" />}
                                     </button>
                                 </div>
                             </div>
-                            <div className="flex justify-between items-center border-b border-border pb-2">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-border pb-2 gap-1 sm:gap-4">
                                 <span className="font-medium text-muted">IBAN дугаар:</span>
-                                <div className="flex items-center gap-2">
-                                    <span className="font-bold text-sm select-all">{PAYMENT_INFO.iban}</span>
+                                <div className="flex items-center gap-2 sm:justify-end flex-1 min-w-0">
+                                    <span className="font-bold text-sm select-all break-all">{PAYMENT_INFO.iban}</span>
                                     <button
                                         onClick={() => copyToClipboard(PAYMENT_INFO.iban, "iban")}
-                                        className="px-2 py-1 bg-surface hover:bg-surface-elevated rounded text-xs transition-colors border border-border"
+                                        className="shrink-0 px-2 py-1 bg-surface hover:bg-surface-elevated rounded text-xs transition-colors border border-border"
                                         title="Copy"
                                     >
                                         {copiedField === "iban" ? <Check size={14} className="text-success" /> : <Copy size={14} className="text-muted" />}
                                     </button>
                                 </div>
                             </div>
-                            <div className="flex justify-between border-b border-border pb-2">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-border pb-2 gap-1 sm:gap-4">
                                 <span className="font-medium text-muted">Дансны нэр:</span>
-                                <span className="font-bold text-sm">{PAYMENT_INFO.accountName}</span>
+                                <span className="font-bold text-sm sm:text-right">{PAYMENT_INFO.accountName}</span>
                             </div>
 
                             <div className="py-4 border-b border-border">
@@ -124,12 +124,12 @@ export default function PaymentPage() {
                                             key={m}
                                             type="button"
                                             onClick={() => setMonths(m)}
-                                            className={`py-2 px-3 rounded-lg border text-sm font-medium transition-colors ${months === m
-                                                ? "bg-primary/10 border-primary text-primary"
+                                            className={`py-2 px-3 rounded-lg border text-sm font-bold transition-all outline-none ${months === m
+                                                ? "bg-primary/20 border-primary text-[#1a1a1a] dark:text-[#f0f0f0]"
                                                 : "bg-surface border-border text-muted hover:bg-surface-elevated"
                                                 }`}
                                         >
-                                            {m} Сар
+                                            {m} сар
                                         </button>
                                     ))}
                                 </div>
@@ -140,13 +140,13 @@ export default function PaymentPage() {
                                 <span className="font-bold text-2xl text-primary">{currentPrice.toLocaleString()}₮</span>
                             </div>
 
-                            <div className="flex justify-between items-center">
-                                <span className="font-medium text-muted">Гүйлгээний утга:</span>
-                                <div className="flex items-center gap-2">
-                                    <span className="font-bold text-foreground">{session?.user?.email}</span>
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start py-2 gap-1 sm:gap-4">
+                                <span className="font-medium text-muted shrink-0">Гүйлгээний утга:</span>
+                                <div className="flex items-center gap-2 sm:justify-end flex-1 min-w-0">
+                                    <span className="font-bold text-foreground break-all sm:text-right">{session?.user?.email}</span>
                                     <button
                                         onClick={() => copyToClipboard(session?.user?.email || "", "email")}
-                                        className="px-2 py-1 bg-surface hover:bg-surface-elevated rounded text-xs transition-colors border border-border"
+                                        className="shrink-0 px-2 py-1 bg-surface hover:bg-surface-elevated rounded text-xs transition-colors border border-border"
                                         title="Copy"
                                     >
                                         {copiedField === "email" ? <Check size={14} className="text-success" /> : <Copy size={14} className="text-muted" />}
@@ -174,7 +174,7 @@ export default function PaymentPage() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full py-3 px-4 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors disabled:opacity-70 shadow-lg shadow-primary/20"
+                            className="w-full py-3 px-4 bg-primary hover:bg-primary-dark text-white font-bold rounded-lg transition-all disabled:opacity-70 shadow-md shadow-primary/10 outline-none active:scale-[0.98]"
                         >
                             {isLoading ? "Илгээж байна..." : "Илгээх"}
                         </button>

@@ -88,7 +88,9 @@ export default function ForgotPasswordPage() {
                 </div>
 
                 {message && (
-                    <div className={`p-4 rounded-xl mb-6 text-sm text-center border animate-fade-in ${message.type === "success" ? "bg-success/10 text-success border-success/20" : "bg-error/10 text-error border-error/20"}`}>
+                    <div className={`p-4 rounded-xl mb-6 text-sm text-center border animate-fade-in font-bold ${message.type === "success"
+                        ? "bg-success/15 text-[#1a1a1a] dark:text-[#f0f0f0] border-success/30"
+                        : "bg-error/15 text-[#1a1a1a] dark:text-[#f0f0f0] border-error/30"}`}>
                         {message.text}
                     </div>
                 )}

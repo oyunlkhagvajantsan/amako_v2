@@ -58,7 +58,7 @@ export default function SignupPage() {
 
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     {error && (
-                        <div className="bg-error/10 text-error p-3 rounded-xl text-sm text-center border border-error/20">
+                        <div className="bg-error/15 text-[#1a1a1a] dark:text-[#f0f0f0] p-3 rounded-xl text-sm text-center border border-error/30 font-bold">
                             {error}
                         </div>
                     )}
@@ -71,7 +71,7 @@ export default function SignupPage() {
                                 name="username"
                                 type="text"
                                 required
-                                className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-border bg-background placeholder-muted text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
+                                className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-border bg-background placeholder-muted text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm outline-none"
                                 placeholder="Хэрэглэгчийн нэр"
                                 value={formData.username}
                                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
@@ -84,7 +84,7 @@ export default function SignupPage() {
                                 name="email"
                                 type="email"
                                 required
-                                className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-border bg-background placeholder-muted text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
+                                className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-border bg-background placeholder-muted text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm outline-none"
                                 placeholder="Имэйл хаяг"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -97,7 +97,7 @@ export default function SignupPage() {
                                 name="password"
                                 type="password"
                                 required
-                                className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-border bg-background placeholder-muted text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
+                                className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-border bg-background placeholder-muted text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm outline-none"
                                 placeholder="Нууц үг"
                                 value={formData.password}
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -127,7 +127,7 @@ export default function SignupPage() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="group relative w-full flex justify-center py-3.5 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-70 transition-all active:scale-[0.98] shadow-lg shadow-primary/10"
+                            className="group relative w-full flex justify-center py-3.5 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary hover:bg-primary-dark focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-70 transition-all active:scale-[0.98] shadow-lg shadow-primary/10 outline-none"
                         >
                             {isLoading ? "Уншиж байна..." : "Бүртгүүлэх"}
                         </button>

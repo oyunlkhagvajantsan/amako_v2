@@ -67,7 +67,7 @@ function LoginForm() {
 
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     {registered && (
-                        <div className="bg-success/10 text-success p-3 rounded-xl text-sm text-center border border-success/20">
+                        <div className="bg-success/15 text-[#1a1a1a] dark:text-[#f0f0f0] p-3 rounded-xl text-sm text-center border border-success/30 font-bold">
                             Бүртгэл амжилттай! Та одоо нэвтэрнэ үү.
                         </div>
                     )}
@@ -86,7 +86,7 @@ function LoginForm() {
                                 name="identifier"
                                 type="text"
                                 required
-                                className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-border bg-background placeholder-muted text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
+                                className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-border bg-background placeholder-muted text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm outline-none"
                                 placeholder="Имэйл эсвэл нэвтрэх нэр"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -99,7 +99,7 @@ function LoginForm() {
                                 name="password"
                                 type="password"
                                 required
-                                className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-border bg-background placeholder-muted text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm"
+                                className="appearance-none rounded-xl relative block w-full px-4 py-3 border border-border bg-background placeholder-muted text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all sm:text-sm outline-none"
                                 placeholder="Нууц үг"
                                 value={formData.password}
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
