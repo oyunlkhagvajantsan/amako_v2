@@ -12,7 +12,7 @@ export default withAuth(
         const token = (req as any).nextauth?.token;
 
         // --- Diagnostic Logs for Mobile Debugging ---
-        if (path.startsWith("/login") || path.startsWith("/amako-portal-v7")) {
+        if (path.startsWith("/login") || path.startsWith("/amako-portal-v7") || path.startsWith("/api/password")) {
             console.log(`[Middleware] Path: ${path}, Host: ${host}, HasToken: ${!!token}, Role: ${token?.role}`);
         }
 
@@ -41,8 +41,8 @@ export default withAuth(
 
         // 3. API Rate Limiting & Protection
         if (path.startsWith('/api')) {
-            // Allow auth and password related API calls
-            if (path.startsWith('/api/auth') || path.startsWith('/api/password')) {
+            // Allow auth-related API calls (NextAuth handles its own logic)
+            if (path.startsWith('/api/auth')) {
                 return response;
             }
 
@@ -66,6 +66,11 @@ export default withAuth(
 
             if (req.method === 'OPTIONS') {
                 return new NextResponse(null, { status: 200, headers: response.headers });
+            }
+
+            // Allow password related API calls after CORS/OPTIONS check
+            if (path.startsWith('/api/password')) {
+                return response;
             }
         }
 

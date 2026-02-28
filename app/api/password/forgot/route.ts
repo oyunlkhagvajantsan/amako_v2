@@ -7,6 +7,7 @@ function generateCode() {
 }
 
 export async function POST(req: Request) {
+    console.log("[API/Forgot-Password] POST request received");
     try {
         const { email } = await req.json();
 
