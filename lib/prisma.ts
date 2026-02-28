@@ -1,8 +1,18 @@
 import { PrismaClient } from '@prisma/client'
 
-const basePrisma = new PrismaClient({
-    log: ['query'],
-})
+const prismaClientSingleton = () => {
+    return new PrismaClient({
+        log: ['query'],
+    })
+}
+
+type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>
+
+const globalForPrisma = globalThis as unknown as {
+    prisma: PrismaClientSingleton | undefined
+}
+
+const basePrisma = globalForPrisma.prisma ?? prismaClientSingleton()
 
 export const prisma = basePrisma.$extends({
     query: {
@@ -38,4 +48,4 @@ export const prisma = basePrisma.$extends({
     },
 });
 
-if (process.env.NODE_ENV !== 'production') (global as any).prisma = prisma;
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = basePrisma

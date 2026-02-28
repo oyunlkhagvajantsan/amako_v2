@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
+import { sendEmail } from "@/lib/mail";
 
 function generateCode() {
     return Math.floor(100000 + Math.random() * 900000).toString();
@@ -43,25 +43,19 @@ export async function POST(req: Request) {
         }
 
         try {
-            // Send email
-            const transporter = nodemailer.createTransport({
-                host: process.env.SMTP_HOST,
-                port: Number(process.env.SMTP_PORT),
-                auth: {
-                    user: process.env.SMTP_USER,
-                    pass: process.env.SMTP_PASS,
-                },
-            });
-
-            await transporter.sendMail({
-                from: process.env.SMTP_FROM || '"Amako" <noreply@amako.com>',
+            // Send email using centralized utility
+            const result = await sendEmail({
                 to: email,
                 subject: "Amako - Password Reset Code",
                 text: `Your password reset code is: ${code}. It expires in 15 minutes.`,
                 html: `<p>Your password reset code is: <strong>${code}</strong></p><p>It expires in 15 minutes.</p>`,
             });
+
+            if (!result.success) {
+                throw new Error(result.error || "Failed to send email");
+            }
         } catch (emailError) {
-            console.error("Failed to send email:", emailError);
+            console.error("Forgot password email failed:", emailError);
             // In development, we allow proceeding even if email fails
             if (process.env.NODE_ENV !== "development") {
                 throw emailError;

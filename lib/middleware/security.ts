@@ -12,7 +12,7 @@ export function getSecurityHeaders() {
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
         img-src 'self' blob: data: https://*.r2.cloudflarestorage.com https://*.r2.dev https://pub-8d40e7b5f4434dd0b16914d27a759084.r2.dev;
         font-src 'self' https://fonts.gstatic.com;
-        connect-src 'self' ${isProd ? '' : 'http://localhost:* ws://localhost:*'} https://*.upstash.io;
+        connect-src 'self' ${isProd ? '' : 'http://localhost:* ws://localhost:* http://192.168.1.5:* ws://192.168.1.5:*'} https://*.upstash.io;
         frame-ancestors 'none';
     `.replace(/\s{2,}/g, ' ').trim();
 
