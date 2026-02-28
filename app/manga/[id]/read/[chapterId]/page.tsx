@@ -83,8 +83,8 @@ export default async function ChapterReaderPage({
 
     // Increment View Counts ONLY if the chapter is NOT locked
     if (!isLocked) {
-        // Non-blocking increments
-        Promise.all([
+        // Increment counts
+        await Promise.all([
             prisma.chapter.update({
                 where: { id: chapterId },
                 data: { viewCount: { increment: 1 } }
@@ -137,15 +137,13 @@ export default async function ChapterReaderPage({
                     </main>
                 ) : (
                     <AgeVerificationGuard active={needsAgeVerification}>
-                        <ProtectedReader>
-                            {session?.user && <ReadHistoryTracker chapterId={chapterId} />}
-                            <ReaderTapZone>
+                        <ReaderTapZone>
+                            <ProtectedReader>
+                                {session?.user && <ReadHistoryTracker chapterId={chapterId} />}
                                 <SequentialImageLoader images={chapter.images} />
-                            </ReaderTapZone>
-
-                            {/* Chapter Caption (Author's note) */}
-
-                        </ProtectedReader>
+                                {/* Chapter Caption (Author's note) */}
+                            </ProtectedReader>
+                        </ReaderTapZone>
 
                     </AgeVerificationGuard>
                 )}

@@ -37,7 +37,8 @@ export function ReaderTapZone({ children }: { children: React.ReactNode }) {
     return (
         <div
             onClick={toggleUI}
-            className="cursor-pointer w-full select-none"
+            className="cursor-pointer w-full select-none outline-none [-webkit-touch-callout:none]"
+            style={{ WebkitTapHighlightColor: "transparent" }}
         >
             {children}
         </div>
