@@ -19,19 +19,26 @@ export async function POST(req: Request) {
 
         const { email, password, username } = validation.data;
 
-        // Check if user exists (email or username)
-        const existingUser = await prisma.user.findFirst({
-            where: {
-                OR: [
-                    { email },
-                    { username }
-                ]
-            },
+        // Check if email exists
+        const existingEmail = await prisma.user.findUnique({
+            where: { email },
         });
 
-        if (existingUser) {
+        if (existingEmail) {
             return NextResponse.json(
-                { error: "Имэйл эсвэл хэрэглэгчийн нэр бүртгэлтэй байна" },
+                { error: "Энэ имэйл хаяг бүртгэлтэй байна" },
+                { status: 400 }
+            );
+        }
+
+        // Check if username exists
+        const existingUsername = await prisma.user.findUnique({
+            where: { username },
+        });
+
+        if (existingUsername) {
+            return NextResponse.json(
+                { error: "Энэ хэрэглэгчийн нэр бүртгэлтэй байна" },
                 { status: 400 }
             );
         }
