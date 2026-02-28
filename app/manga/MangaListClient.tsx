@@ -98,7 +98,7 @@ export default function MangaListClient() {
         const params = new URLSearchParams();
 
         params.append("page", currentPage.toString());
-        params.append("limit", "20");
+        params.append("limit", "50");
         if (searchQuery) params.append("search", searchQuery);
         if (statusFilter !== "ALL") params.append("status", statusFilter);
         if (typeFilter !== "ALL") params.append("type", typeFilter);
