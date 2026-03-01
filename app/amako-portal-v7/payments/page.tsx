@@ -75,19 +75,38 @@ async function approvePayment(formData: FormData) {
 
     // 4. Send Email to User
     if (user?.email) {
-        await sendEmail({
-            to: user.email,
-            subject: "Amako - Эрх сунгагдлаа.",
-            text: `Hi ${user.username || 'User'}, your subscription for ${months} month(s) has been approved! It will end on ${newEndDate.toLocaleDateString("mn-MN")}.`,
-            html: `
-                <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                    <h2 style="color: #d8454f;">Амжилттай!</h2>
-                    <p>Сайн байна уу? Таны <strong>${months}</strong> сарын эрх авах хүсэлт амжилттай батлагдлаа.</p>
-                    <p>Эрх дуусах хугацаа: <strong>${newEndDate.toLocaleDateString("mn-MN")}</strong></p>
-                    <p>Та <a href="${process.env.NEXTAUTH_URL}/profile" style="color: #d8454f; font-weight: bold;">профайл</a> хэсгээс дэлгэрэнгүйг харна уу.</p>
-                </div>
-            `,
-        });
+        console.log(`[Approve Payment] User found: ${user.username} (${user.email})`);
+        console.log(`[Approve Payment] RESEND_API_KEY present: ${!!process.env.RESEND_API_KEY}`);
+
+        const subject = "Amako - Subscription Approved (Эрх сунгагдлаа)";
+        const text = `Hi ${user.username || 'User'}, your subscription for ${months} month(s) has been approved! It will end on ${newEndDate.toLocaleDateString("mn-MN")}.`;
+        const html = `
+            <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                <h2 style="color: #d8454f;">Амжилттай!</h2>
+                <p>Сайн байна уу? Таны <strong>${months}</strong> сарын эрх авах хүсэлт амжилттай батлагдлаа.</p>
+                <p>Эрх дуусах хугацаа: <strong>${newEndDate.toLocaleDateString("mn-MN")}</strong></p>
+                <p>Та <a href="${process.env.NEXT_PUBLIC_FRONTEND_URL || process.env.NEXTAUTH_URL}/profile" style="color: #d8454f; font-weight: bold;">профайл</a> хэсгээс дэлгэрэнгүйг харна уу.</p>
+            </div>
+        `;
+
+        // DEV: Log to terminal for easy testing
+        if (process.env.NODE_ENV === "development") {
+            console.log("==================================");
+            console.log(`📧 SUBSCRIPTION EMAIL for ${user.email}`);
+            console.log(`Subject: ${subject}`);
+            console.log(`Expires: ${newEndDate.toLocaleDateString("mn-MN")}`);
+            console.log("==================================");
+        }
+
+        try {
+            console.log(`[Approve Payment] Calling sendEmail utility...`);
+            const result = await sendEmail({ to: user.email, subject, text, html });
+            console.log(`[Approve Payment] Email result for ${user.email}:`, result);
+        } catch (emailError) {
+            console.error(`[Approve Payment] Fatal error sending email to ${user.email}:`, emailError);
+        }
+    } else {
+        console.warn(`[Approve Payment] No email found for userId: ${userId}. User object:`, user);
     }
 
     revalidatePath("/amako-portal-v7/payments");

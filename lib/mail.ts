@@ -17,30 +17,35 @@ export async function sendEmail({ to, subject, text, html }: SendEmailOptions) {
     const apiKey = process.env.RESEND_API_KEY;
 
     if (!apiKey) {
-        console.warn(`[Mail Warning] Skipping email to ${to} because RESEND_API_KEY is not set.`);
+        console.warn(`[Mail Warning] Skipping email to ${to} because RESEND_API_KEY is not set. (Subject: ${subject})`);
         // Return failure but don't throw, allowing the build or caller to handle it gracefully
         return { success: false, error: "Email configuration missing (RESEND_API_KEY)" };
     }
 
     const resend = new Resend(apiKey);
-    console.log(`[Mail] Sending email to ${to} via Resend...`);
+    console.log(`[Mail] Sending email to ${to} via Resend... (Subject: ${subject})`);
 
-    const { data, error } = await resend.emails.send({
-        from,
-        to,
-        subject,
-        text,
-        html,
-    });
-
-    if (error) {
-        console.error(`[Mail Error] Resend failed for ${to}:`, {
-            name: error.name,
-            message: error.message,
+    try {
+        const { data, error } = await resend.emails.send({
+            from,
+            to,
+            subject,
+            text,
+            html,
         });
-        return { success: false, error: error.message };
-    }
 
-    console.log(`[Mail] Email sent to ${to}: ${data?.id}`);
-    return { success: true, messageId: data?.id };
+        if (error) {
+            console.error(`[Mail Error] Resend failed for ${to}:`, {
+                name: error.name,
+                message: error.message,
+            });
+            return { success: false, error: error.message };
+        }
+
+        console.log(`[Mail Success] Email sent to ${to}: ${data?.id}`);
+        return { success: true, messageId: data?.id };
+    } catch (err: any) {
+        console.error(`[Mail Critical Error] Unexpected failure sending to ${to}:`, err);
+        return { success: false, error: err.message || "Unexpected email failure" };
+    }
 }
