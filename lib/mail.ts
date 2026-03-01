@@ -1,7 +1,5 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 interface SendEmailOptions {
     to: string;
     subject: string;
@@ -16,6 +14,7 @@ interface SendEmailOptions {
  */
 export async function sendEmail({ to, subject, text, html }: SendEmailOptions) {
     const from = process.env.SMTP_FROM || '"Amako" <noreply@amako.mn>';
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     console.log(`[Mail] Sending email to ${to} via Resend...`);
 
