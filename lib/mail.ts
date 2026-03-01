@@ -1,40 +1,6 @@
-import nodemailer from "nodemailer";
-import SMTPTransport from "nodemailer/lib/smtp-transport";
+import { Resend } from "resend";
 
-// Dynamic configuration for Gmail vs others
-const mailConfig: SMTPTransport.Options = {
-    // If it's Gmail, we use the 'service' shortcut for better reliability
-    ...(process.env.SMTP_HOST?.includes("gmail")
-        ? { service: "gmail" }
-        : {
-            host: process.env.SMTP_HOST,
-            port: Number(process.env.SMTP_PORT) || 587,
-            secure: Number(process.env.SMTP_PORT) === 465,
-        }
-    ),
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-    },
-    connectionTimeout: 30000, // 30 seconds
-    greetingTimeout: 30000,   // 30 seconds
-    socketTimeout: 60000,     // 60 seconds
-    debug: true,
-    logger: true,
-};
-
-// Console log config for Railway debugging (Masing password)
-if (process.env.NODE_ENV !== "development") {
-    console.log("[Mail Config] Initializing with Settings:", {
-        service: (mailConfig as any).service || "manual",
-        host: mailConfig.host || "gmail-internal",
-        port: mailConfig.port || 465,
-        user: process.env.SMTP_USER,
-        hasPass: !!process.env.SMTP_PASS,
-    });
-}
-
-const transporter = nodemailer.createTransport(mailConfig);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface SendEmailOptions {
     to: string;
@@ -44,36 +10,31 @@ interface SendEmailOptions {
 }
 
 /**
- * Send a standardized email with improved error logging for production debugging
+ * Send a standardized email via Resend HTTP API.
+ * Using Resend instead of SMTP because Railway blocks all outbound
+ * SMTP connections (ports 465 & 587) at the network level.
  */
 export async function sendEmail({ to, subject, text, html }: SendEmailOptions) {
     const from = process.env.SMTP_FROM || '"Amako" <noreply@amako.mn>';
 
-    console.log(`[Mail] Sending email to ${to}...`);
-    try {
-        const info = await transporter.sendMail({
-            from,
-            to,
-            subject,
-            text,
-            html,
-        });
+    console.log(`[Mail] Sending email to ${to} via Resend...`);
 
-        if (process.env.NODE_ENV === "development") {
-            console.log(`[Mail] Email sent to ${to}: ${info.messageId}`);
-        }
+    const { data, error } = await resend.emails.send({
+        from,
+        to,
+        subject,
+        text,
+        html,
+    });
 
-        return { success: true, messageId: info.messageId };
-    } catch (error: any) {
-        // Detailed error logging for production (Railway)
-        console.error(`[Mail Error] Detailed failure for ${to}:`, {
+    if (error) {
+        console.error(`[Mail Error] Resend failed for ${to}:`, {
+            name: error.name,
             message: error.message,
-            code: error.code,
-            command: error.command,
-            response: error.response,
-            stack: error.stack
         });
-
         return { success: false, error: error.message };
     }
+
+    console.log(`[Mail] Email sent to ${to}: ${data?.id}`);
+    return { success: true, messageId: data?.id };
 }

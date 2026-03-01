@@ -24,6 +24,27 @@ export async function POST(req: Request) {
             return NextResponse.json({ message: "If an account exists, a code has been sent." });
         }
 
+        // Cooldown: don't allow a new code if one was sent in the last 2 minutes
+        const COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
+        const recentCode = await prisma.verificationCode.findFirst({
+            where: {
+                email,
+                type: "RESET_PASSWORD",
+                createdAt: { gte: new Date(Date.now() - COOLDOWN_MS) },
+            },
+            orderBy: { createdAt: "desc" },
+        });
+
+        if (recentCode) {
+            const secondsLeft = Math.ceil(
+                (recentCode.createdAt.getTime() + COOLDOWN_MS - Date.now()) / 1000
+            );
+            return NextResponse.json(
+                { error: `Та ${secondsLeft} секундын дараа дахин оролдоно уу.` },
+                { status: 429 }
+            );
+        }
+
         const code = generateCode();
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 

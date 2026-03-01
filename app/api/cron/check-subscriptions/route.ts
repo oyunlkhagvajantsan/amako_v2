@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
-import { sendEmail } from "@/lib/mail";
 
 /**
  * GET /api/cron/check-subscriptions
@@ -22,7 +21,6 @@ export async function GET(req: Request) {
         tomorrow.setDate(now.getDate() + 1);
 
         // 1. Find users whose subscription ends in ~24 hours
-        // We'll target users whose subscriptionEnd is tomorrow
         const expiringSoon = await prisma.user.findMany({
             where: {
                 isSubscribed: true,
@@ -31,14 +29,13 @@ export async function GET(req: Request) {
                     lte: tomorrow,
                 },
             },
-            select: { id: true, email: true, username: true, subscriptionEnd: true }
+            select: { id: true, subscriptionEnd: true }
         });
 
         logger.info(`Found ${expiringSoon.length} expiring subscriptions.`);
 
         for (const user of expiringSoon) {
-            // Check if we already sent a reminder today for this user
-            // This prevents duplicate spam if the cron runs more than once
+            // Prevent duplicate notifications if cron runs more than once per day
             const reminderSentToday = await prisma.notification.findFirst({
                 where: {
                     userId: user.id,
@@ -65,23 +62,19 @@ export async function GET(req: Request) {
         const expired = await prisma.user.findMany({
             where: {
                 isSubscribed: true,
-                subscriptionEnd: {
-                    lt: now,
-                },
+                subscriptionEnd: { lt: now },
             },
-            select: { id: true, email: true, username: true }
+            select: { id: true }
         });
 
         logger.info(`Found ${expired.length} newly expired subscriptions.`);
 
         for (const user of expired) {
-            // Update user status
             await prisma.user.update({
                 where: { id: user.id },
                 data: { isSubscribed: false },
             });
 
-            // Send expiration notification
             await prisma.notification.create({
                 data: {
                     userId: user.id,
