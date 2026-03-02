@@ -27,13 +27,14 @@ interface AuditLogOptions {
 /**
  * Records an administrative action to the AuditLog table.
  */
-export async function recordAuditAction(options: AuditLogOptions) {
+export async function recordAuditAction(options: AuditLogOptions, tx?: any) {
+    const client = tx || prisma;
     try {
         const detailsString = options.details
             ? (typeof options.details === 'string' ? options.details : JSON.stringify(options.details))
             : null;
 
-        return await prisma.auditLog.create({
+        return await client.auditLog.create({
             data: {
                 userId: options.userId,
                 action: options.action,

@@ -16,101 +16,98 @@ async function approvePayment(formData: FormData) {
     const session = await getServerSession(authOptions);
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return;
 
-    console.log("*** SERVER ACTION APPROVE STARTED ***");
+    console.log("*** SERVER ACTION APPROVE STARTED (ATOMIC) ***");
     const id = formData.get("id") as string;
     const userId = formData.get("userId") as string;
     const monthsStr = formData.get("months") as string;
     const months = monthsStr ? parseInt(monthsStr) : 1;
-    console.log("Approving payment:", { id, userId, months });
 
-    // 1. Update Payment Status
-    await prisma.paymentRequest.update({
-        where: { id },
-        data: { status: "APPROVED" },
-    });
+    try {
+        await prisma.$transaction(async (tx) => {
+            // 1. Update Payment Status
+            await tx.paymentRequest.update({
+                where: { id },
+                data: { status: "APPROVED" },
+            });
 
-    // 2. Update User Subscription
-    const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { subscriptionEnd: true, email: true, username: true }
-    });
+            // 2. Update User Subscription
+            const user = await tx.user.findUnique({
+                where: { id: userId },
+                select: { subscriptionEnd: true, email: true, username: true }
+            });
 
-    // If user is already subscribed (and not expired), add to existing end date.
-    // Otherwise start from now.
-    let startDate = new Date();
-    if (user?.subscriptionEnd && new Date(user.subscriptionEnd) > new Date()) {
-        startDate = new Date(user.subscriptionEnd);
+            if (!user) throw new Error("User not found");
+
+            let startDate = new Date();
+            if (user.subscriptionEnd && new Date(user.subscriptionEnd) > new Date()) {
+                startDate = new Date(user.subscriptionEnd);
+            }
+
+            const newEndDate = new Date(startDate);
+            const daysToAdd = 30 * months;
+            newEndDate.setDate(newEndDate.getDate() + daysToAdd);
+
+            await tx.user.update({
+                where: { id: userId },
+                data: {
+                    isSubscribed: true,
+                    subscriptionEnd: newEndDate,
+                },
+            });
+
+            // 3. Audit Log (Passing tx client)
+            await recordAuditAction({
+                userId: session.user.id,
+                action: "APPROVE_PAYMENT",
+                targetType: "PAYMENT_REQUEST",
+                targetId: id,
+                details: { targetUserId: userId, months, newEndDate: newEndDate.toISOString() }
+            }, tx);
+
+            // 4. Create Notification for User
+            await tx.notification.create({
+                data: {
+                    userId,
+                    type: "SYSTEM",
+                    content: `Таны ${months} сарын эрх авах хүсэлт амжилттай батлагдлаа. Эрх дуусах хугацаа: ${newEndDate.toLocaleDateString("mn-MN")}`,
+                    link: "/profile",
+                },
+            });
+
+            // 5. Send Email to User (WITHIN TRANSACTION - ROLLBACK ON FAILURE)
+            if (user.email) {
+                const subject = "Amako - Subscription Approved (Эрх сунгагдлаа)";
+                const text = `Hi ${user.username || 'User'}, your subscription for ${months} month(s) has been approved! It will end on ${newEndDate.toLocaleDateString("mn-MN")}.`;
+                const html = `
+                    <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                        <h2 style="color: #d8454f;">Амжилттай!</h2>
+                        <p>Сайн байна уу? Таны <strong>${months}</strong> сарын эрх авах хүсэлт амжилттай батлагдлаа.</p>
+                        <p>Эрх дуусах хугацаа: <strong>${newEndDate.toLocaleDateString("mn-MN")}</strong></p>
+                        <p>Та <a href="${process.env.NEXT_PUBLIC_FRONTEND_URL || process.env.NEXTAUTH_URL}/profile" style="color: #d8454f; font-weight: bold;">профайл</a> хэсгээс дэлгэрэнгүйг харна уу.</p>
+                    </div>
+                `;
+
+                console.log(`[Approve Payment] Sending critical email to: ${user.email}`);
+                const emailResult = await sendEmail({ to: user.email, subject, text, html });
+
+                if (!emailResult.success) {
+                    console.error(`[Approve Payment] Email failed: ${emailResult.error}. ROLLING BACK transaction.`);
+                    throw new Error(`Email delivery failed: ${emailResult.error}. Subscription not extended.`);
+                }
+                console.log(`[Approve Payment] Email sent successfully. Transaction committing.`);
+            } else {
+                console.warn(`[Approve Payment] No email found for user ${userId}. Proceeding without email.`);
+            }
+        });
+
+        revalidatePath("/amako-portal-v7/payments");
+        console.log("*** SERVER ACTION APPROVE FINISHED (SUCCESS) ***");
+    } catch (error: any) {
+        console.error("*** SERVER ACTION APPROVE FAILED (ROLLED BACK) ***", error.message);
+        // You might want to pass this error back to the UI or toast it
+        // For now, re-throwing or handling via revalidate is common in Server Actions
+        throw error;
     }
-
-    const newEndDate = new Date(startDate);
-    const daysToAdd = 30 * months;
-    newEndDate.setDate(newEndDate.getDate() + daysToAdd);
-
-    await prisma.user.update({
-        where: { id: userId },
-        data: {
-            isSubscribed: true,
-            subscriptionEnd: newEndDate,
-        },
-    });
-
-    // Audit Log
-    await recordAuditAction({
-        userId: session.user.id,
-        action: "APPROVE_PAYMENT",
-        targetType: "PAYMENT_REQUEST",
-        targetId: id,
-        details: { targetUserId: userId, months, newEndDate: newEndDate.toISOString() }
-    });
-
-    // 3. Create Notification for User
-    await prisma.notification.create({
-        data: {
-            userId,
-            type: "SYSTEM",
-            content: `Таны ${months} сарын эрх авах хүсэлт амжилттай батлагдлаа. Эрх дуусах хугацаа: ${newEndDate.toLocaleDateString("mn-MN")}`,
-            link: "/profile",
-        },
-    });
-
-    // 4. Send Email to User
-    if (user?.email) {
-        console.log(`[Approve Payment] User found: ${user.username} (${user.email})`);
-        console.log(`[Approve Payment] RESEND_API_KEY present: ${!!process.env.RESEND_API_KEY}`);
-
-        const subject = "Amako - Subscription Approved (Эрх сунгагдлаа)";
-        const text = `Hi ${user.username || 'User'}, your subscription for ${months} month(s) has been approved! It will end on ${newEndDate.toLocaleDateString("mn-MN")}.`;
-        const html = `
-            <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                <h2 style="color: #d8454f;">Амжилттай!</h2>
-                <p>Сайн байна уу? Таны <strong>${months}</strong> сарын эрх авах хүсэлт амжилттай батлагдлаа.</p>
-                <p>Эрх дуусах хугацаа: <strong>${newEndDate.toLocaleDateString("mn-MN")}</strong></p>
-                <p>Та <a href="${process.env.NEXT_PUBLIC_FRONTEND_URL || process.env.NEXTAUTH_URL}/profile" style="color: #d8454f; font-weight: bold;">профайл</a> хэсгээс дэлгэрэнгүйг харна уу.</p>
-            </div>
-        `;
-
-        // DEV: Log to terminal for easy testing
-        if (process.env.NODE_ENV === "development") {
-            console.log("==================================");
-            console.log(`📧 SUBSCRIPTION EMAIL for ${user.email}`);
-            console.log(`Subject: ${subject}`);
-            console.log(`Expires: ${newEndDate.toLocaleDateString("mn-MN")}`);
-            console.log("==================================");
-        }
-
-        try {
-            console.log(`[Approve Payment] Calling sendEmail utility...`);
-            const result = await sendEmail({ to: user.email, subject, text, html });
-            console.log(`[Approve Payment] Email result for ${user.email}:`, result);
-        } catch (emailError) {
-            console.error(`[Approve Payment] Fatal error sending email to ${user.email}:`, emailError);
-        }
-    } else {
-        console.warn(`[Approve Payment] No email found for userId: ${userId}. User object:`, user);
-    }
-
-    revalidatePath("/amako-portal-v7/payments");
-    console.log("*** SERVER ACTION APPROVE FINISHED ***");
 }
 
 async function rejectPayment(formData: FormData) {
