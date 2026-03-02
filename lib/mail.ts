@@ -42,7 +42,7 @@ export async function sendEmail({ to, subject, text, html }: SendEmailOptions) {
             return { success: false, error: error.message };
         }
 
-        console.log(`[Mail Success] Email sent to ${to}: ${data?.id}`);
+        console.log(`[Mail Success] Email sent to ${to} from ${from}: ${data?.id}`);
         return { success: true, messageId: data?.id };
     } catch (err: any) {
         console.error(`[Mail Critical Error] Unexpected failure sending to ${to}:`, err);
