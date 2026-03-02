@@ -11,6 +11,117 @@ export const dynamic = "force-dynamic";
 
 import { recordAuditAction } from "@/lib/audit";
 
+import { PRICING, getPrice } from "@/lib/pricing";
+
+import { ManualExtensionForm } from "./components/ManualExtensionForm";
+
+async function manualApproveSubscription(prevState: any, formData: FormData) {
+    "use server";
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) {
+        return { success: false, message: "Unauthorized" };
+    }
+
+    const email = (formData.get("email") as string)?.trim().toLowerCase();
+    const monthsStr = formData.get("months") as string;
+    const months = monthsStr ? parseInt(monthsStr) : 1;
+
+    if (!email) return { success: false, message: "Email is required" };
+
+    console.log("*** MANUAL APPROVE STARTED ***");
+
+    try {
+        await prisma.$transaction(async (tx) => {
+            // 1. Find User
+            const user = await tx.user.findUnique({
+                where: { email },
+                select: { id: true, subscriptionEnd: true, email: true, username: true }
+            });
+
+            if (!user) throw new Error(`User with email ${email} not found.`);
+
+            // 2. Calculate End Date
+            let startDate = new Date();
+            if (user.subscriptionEnd && new Date(user.subscriptionEnd) > new Date()) {
+                startDate = new Date(user.subscriptionEnd);
+            }
+
+            const newEndDate = new Date(startDate);
+            newEndDate.setDate(newEndDate.getDate() + (30 * months));
+
+            // 3. Create Payment Request Record (Auto-Approved)
+            const amount = getPrice(months);
+            const paymentRequest = await tx.paymentRequest.create({
+                data: {
+                    userId: user.id,
+                    amount,
+                    months,
+                    status: "APPROVED",
+                    imageUrl: "/manual-add.png", // Placeholder for manual entries
+                }
+            });
+
+            // 4. Update User
+            await tx.user.update({
+                where: { id: user.id },
+                data: {
+                    isSubscribed: true,
+                    subscriptionEnd: newEndDate,
+                },
+            });
+
+            // 5. Audit Log
+            await recordAuditAction({
+                userId: session.user.id,
+                action: "APPROVE_PAYMENT",
+                targetType: "PAYMENT_REQUEST",
+                targetId: paymentRequest.id,
+                details: {
+                    type: "MANUAL_ADD",
+                    targetUserEmail: email,
+                    months,
+                    newEndDate: newEndDate.toISOString()
+                }
+            }, tx);
+
+            // 6. Create Notification
+            await tx.notification.create({
+                data: {
+                    userId: user.id,
+                    type: "SYSTEM",
+                    content: `Админ таны ${months} сарын эрхийг сунгалаа. Дуусах хугацаа: ${newEndDate.toLocaleDateString("mn-MN")}`,
+                    link: "/profile",
+                },
+            });
+
+            // 7. Send Email (ROLLBACK ON FAILURE)
+            const subject = "Amako - Subscription Extended (Эрх сунгагдлаа)";
+            const text = `Hi ${user.username || 'User'}, your subscription has been manually extended for ${months} month(s)! It expires on ${newEndDate.toLocaleDateString("mn-MN")}.`;
+            const html = `
+                <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                    <h2 style="color: #d8454f;">Амжилттай!</h2>
+                    <p>Сайн байна уу? Админ таны <strong>${months}</strong> сарын эрхийг сунгалаа.</p>
+                    <p>Эрх дуусах хугацаа: <strong>${newEndDate.toLocaleDateString("mn-MN")}</strong></p>
+                    <p>Та <a href="${process.env.NEXT_PUBLIC_FRONTEND_URL || process.env.NEXTAUTH_URL}/profile" style="color: #d8454f; font-weight: bold;">профайл</a> хэсгээс дэлгэрэнгүйг харна уу.</p>
+                </div>
+            `;
+
+            console.log(`[Manual Approve] Sending confirmation to: ${user.email}`);
+            const emailResult = await sendEmail({ to: user.email, subject, text, html });
+
+            if (!emailResult.success) {
+                throw new Error(`Email delivery failed: ${emailResult.error}. Changes rolled back.`);
+            }
+        });
+
+        revalidatePath("/amako-portal-v7/payments");
+        return { success: true, message: `Successfully extended subscription for ${email} by ${months} month(s)!` };
+    } catch (error: any) {
+        console.error("*** MANUAL APPROVE FAILED ***", error.message);
+        return { success: false, message: error.message };
+    }
+}
+
 async function approvePayment(formData: FormData) {
     "use server";
     const session = await getServerSession(authOptions);
@@ -206,6 +317,8 @@ export default async function PaymentRequestsPage() {
     return (
         <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-6">Төлбөрийн хүсэлтүүд</h1>
+
+            <ManualExtensionForm action={manualApproveSubscription} />
 
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
