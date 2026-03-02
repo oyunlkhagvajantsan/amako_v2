@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { Pagination } from "../components/Pagination";
 import Link from "next/link";
 import Image from "next/image";
 import { revalidatePath } from "next/cache";
@@ -19,7 +20,17 @@ async function toggleMangaPublishStatus(formData: FormData) {
     revalidatePath("/amako-portal-v7/manga");
 }
 
-export default async function MangaListPage() {
+export default async function MangaListPage({
+    searchParams
+}: {
+    searchParams: Promise<{ page?: string }>
+}) {
+    const { page } = await searchParams;
+    const currentPage = page ? parseInt(page) : 1;
+    const pageSize = 20;
+
+    const totalCount = await prisma.manga.count();
+
     const mangas = await prisma.manga.findMany({
         orderBy: { updatedAt: "desc" },
         include: {
@@ -27,6 +38,8 @@ export default async function MangaListPage() {
                 select: { chapters: true },
             },
         },
+        skip: (currentPage - 1) * pageSize,
+        take: pageSize,
     });
 
     return (
@@ -156,6 +169,7 @@ export default async function MangaListPage() {
                     </table>
                 </div>
             </div>
+            <Pagination totalCount={totalCount} pageSize={pageSize} currentPage={currentPage} />
         </div>
     );
 }

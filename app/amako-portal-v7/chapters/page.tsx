@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { Pagination } from "../components/Pagination";
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
@@ -70,21 +71,34 @@ import DeleteChapterButtonInline from "./components/DeleteChapterButtonInline";
 export default async function ChaptersListPage({
     searchParams
 }: {
-    searchParams: Promise<{ mangaId?: string; view?: string }>
+    searchParams: Promise<{ mangaId?: string; view?: string; page?: string }>
 }) {
-    const { mangaId, view } = await searchParams;
+    const { mangaId, view, page } = await searchParams;
     const filterMangaId = mangaId ? parseInt(mangaId) : undefined;
     const showDeleted = view === "deleted";
+    const currentPage = page ? parseInt(page) : 1;
+    const pageSize = 50;
+    const skip = (currentPage - 1) * pageSize;
 
     // Get user session to check if admin
     const session = await getServerSession(authOptions);
     const isAdmin = session?.user?.role === "ADMIN";
 
+    let totalCount = 0;
+    let chapters: any[] = [];
 
-    // Fetch chapters with optional manga filtering
-    // For deleted view, we need to bypass the middleware filter
-    const chapters = showDeleted && isAdmin
-        ? await prisma.$queryRaw<Array<any>>`
+    if (showDeleted && isAdmin) {
+        // Count for deleted
+        const countRes = await prisma.$queryRaw<Array<{ count: bigint }>>`
+            SELECT COUNT(*)
+            FROM "Chapter" c
+            WHERE c."deletedAt" IS NOT NULL
+            ${filterMangaId ? Prisma.sql`AND c."mangaId" = ${filterMangaId}` : Prisma.empty}
+        `;
+        totalCount = Number(countRes[0]?.count || 0);
+
+        // Fetch for deleted
+        chapters = await prisma.$queryRaw<Array<any>>`
             SELECT 
                 c.id, c."mangaId", c."chapterNumber", c.title, c."isFree", 
                 c."isPublished", c."viewCount", c."createdAt", c."deletedAt",
@@ -94,12 +108,20 @@ export default async function ChaptersListPage({
             WHERE c."deletedAt" IS NOT NULL
             ${filterMangaId ? Prisma.sql`AND c."mangaId" = ${filterMangaId}` : Prisma.empty}
             ORDER BY c."deletedAt" DESC
-            LIMIT 50
-        `
-        : await prisma.chapter.findMany({
+            LIMIT ${pageSize} OFFSET ${skip}
+        `;
+    } else {
+        // Count for active
+        totalCount = await prisma.chapter.count({
+            where: filterMangaId ? { mangaId: filterMangaId } : {}
+        });
+
+        // Fetch for active
+        chapters = await prisma.chapter.findMany({
             where: filterMangaId ? { mangaId: filterMangaId } : {},
             orderBy: { createdAt: "desc" },
-            take: 50,
+            skip: skip,
+            take: pageSize,
             include: {
                 manga: {
                     select: {
@@ -109,6 +131,7 @@ export default async function ChaptersListPage({
                 }
             }
         });
+    }
 
     // Normalize the data structure for deleted chapters from raw query
     const normalizedChapters = showDeleted && isAdmin
@@ -318,6 +341,7 @@ export default async function ChaptersListPage({
                     </table>
                 </div>
             </div>
+            <Pagination totalCount={totalCount} pageSize={pageSize} currentPage={currentPage} />
         </div>
     );
 }
