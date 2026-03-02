@@ -19,19 +19,29 @@ export default withAuth(
         const ip = req.headers.get("x-forwarded-for")?.split(',')[0] ||
             req.headers.get("x-real-ip") ||
             "127.0.0.1";
-        const adminDomain = process.env.ADMIN_DOMAIN;
+        const adminDomain = "admin.amakomanga.com";
+        const isAdminSubdomain = host === adminDomain;
 
         // 1. Security Headers
         const response = applySecurityHeaders(NextResponse.next());
 
-        // 2. Admin Domain & Role Protection
-        if (path.startsWith("/amako-portal-v7")) {
-            // Domain check
-            if (adminDomain && host !== adminDomain) {
-                console.warn(`[Middleware] Admin domain mismatch: ${host} !== ${adminDomain}`);
-                return new NextResponse(null, { status: 404 });
+        // 2. Admin Subdomain & Path Protection
+        if (isAdminSubdomain) {
+            // If on admin subdomain but NOT on the admin path, redirect to it
+            // (Unless it's an API call or auth call)
+            if (!path.startsWith("/amako-portal-v7") && !path.startsWith("/api") && !path.startsWith("/_next")) {
+                return NextResponse.rewrite(new URL(`/amako-portal-v7${path === "/" ? "" : path}`, req.url));
             }
+        } else {
+            // If on main domain but trying to access admin path directly
+            if (path.startsWith("/amako-portal-v7")) {
+                console.warn(`[Middleware] Direct access to admin path on main domain blocked: ${host}`);
+                return NextResponse.redirect(new URL(`https://${adminDomain}${path}`, req.url));
+            }
+        }
 
+        // 2b. Role Protection (for any admin path access)
+        if (path.startsWith("/amako-portal-v7")) {
             // Role check - ONLY redirect if logged in but NOT authorized
             if (token && token.role !== "ADMIN" && token.role !== "MODERATOR") {
                 console.warn(`[Middleware] Unauthorized role for admin path: ${token.role}`);

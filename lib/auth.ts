@@ -137,7 +137,7 @@ export const authOptions: NextAuthOptions = {
                 sameSite: 'lax',
                 path: '/',
                 secure: process.env.NODE_ENV === 'production',
-                // maxAge: null as any, // This was likely causing session issues on mobile
+                domain: process.env.NODE_ENV === 'production' ? '.amakomanga.com' : undefined,
             },
         },
     }
