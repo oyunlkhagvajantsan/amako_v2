@@ -224,8 +224,14 @@ export default function Header({ isSticky = true, hideBorder = false, className 
                         </Link>
                         <button
                           onClick={() => {
-                            document.cookie = "amako_session_active=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-                            signOut({ callbackUrl: window.location.origin });
+                            const mainDomain = "amakomanga.com";
+                            const isProd = window.location.hostname.endsWith(mainDomain);
+                            const domain = isProd ? `; domain=.${mainDomain}` : '';
+                            document.cookie = `amako_session_active=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT${domain}`;
+
+                            // If on admin subdomain, redirect to the main domain home or login
+                            const callbackUrl = isProd ? `https://${mainDomain}/login` : "/login";
+                            signOut({ callbackUrl });
                           }}
                           className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-error hover:bg-surface"
                         >
@@ -311,8 +317,13 @@ export default function Header({ isSticky = true, hideBorder = false, className 
                     </Link>
                     <button
                       onClick={() => {
-                        document.cookie = "amako_session_active=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-                        signOut({ callbackUrl: window.location.origin });
+                        const mainDomain = "amakomanga.com";
+                        const isProd = window.location.hostname.endsWith(mainDomain);
+                        const domain = isProd ? `; domain=.${mainDomain}` : '';
+                        document.cookie = `amako_session_active=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT${domain}`;
+
+                        const callbackUrl = isProd ? `https://${mainDomain}/login` : "/login";
+                        signOut({ callbackUrl });
                         setIsMobileMenuOpen(false);
                       }}
                       className="flex items-center gap-3 w-full text-left text-lg font-medium text-error"

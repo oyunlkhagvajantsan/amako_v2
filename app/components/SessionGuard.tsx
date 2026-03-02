@@ -2,6 +2,7 @@
 
 import { useSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 /**
  * SessionGuard ensures that the user is logged out when they quit their browser.
@@ -11,8 +12,13 @@ import { useEffect } from "react";
  */
 export default function SessionGuard({ children }: { children: React.ReactNode }) {
     const { status } = useSession();
+    const pathname = usePathname();
 
     useEffect(() => {
+        // Don't run this logic on public auth pages to avoid redirect loops
+        const publicPaths = ["/login", "/signup", "/forgot-password", "/reset-password"];
+        if (publicPaths.includes(pathname)) return;
+
         // Only run this logic if the user is authenticated
         if (status === "authenticated") {
             const checkSession = () => {
@@ -22,14 +28,18 @@ export default function SessionGuard({ children }: { children: React.ReactNode }
 
                 if (!sessionActive) {
                     console.log("[SessionGuard] Browser session expired. Logging out...");
-                    signOut({ callbackUrl: "/login" });
+                    // Using a full URL to break out of any subdomain hijacks
+                    const mainDomain = "amakomanga.com";
+                    const isProd = window.location.hostname.endsWith(mainDomain);
+                    const callbackUrl = isProd ? `https://${mainDomain}/login` : "/login";
+                    signOut({ callbackUrl });
                 }
             };
 
             // Run check immediately on mount
             checkSession();
         }
-    }, [status]);
+    }, [status, pathname]);
 
     return <>{children}</>;
 }

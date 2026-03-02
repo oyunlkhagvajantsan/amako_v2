@@ -34,7 +34,8 @@ function LoginForm() {
                 setError("Имэйл эсвэл нууц үг буруу байна.");
             } else {
                 // Set session-only active cookie for SessionGuard
-                document.cookie = "amako_session_active=true; path=/;";
+                const domain = window.location.hostname.endsWith('amakomanga.com') ? '; domain=.amakomanga.com' : '';
+                document.cookie = `amako_session_active=true; path=/;${domain}`;
 
                 const callbackUrl = searchParams.get("callbackUrl");
                 window.location.href = callbackUrl || "/";

@@ -50,7 +50,11 @@ export default function ProfileTabs({ user, isSubscribed, daysLeft }: ProfileTab
                                     </div>
                                 )}
                                 <button
-                                    onClick={() => signOut()}
+                                    onClick={() => {
+                                        const domain = window.location.hostname.endsWith('amakomanga.com') ? '; domain=.amakomanga.com' : '';
+                                        document.cookie = `amako_session_active=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT${domain}`;
+                                        signOut();
+                                    }}
                                     className="flex items-center gap-2 px-4 py-1.5 bg-surface text-muted hover:text-error hover:bg-error/10 rounded-full text-sm font-bold transition-all border border-transparent hover:border-error/20"
                                 >
                                     <LogOut size={16} /> Гарах

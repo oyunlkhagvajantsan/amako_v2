@@ -16,14 +16,14 @@ export default function AdminLayoutClient({
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const navigation = [
-        { name: "Хяналтын самбар", href: "/amako-portal-v7", icon: "📊" },
-        { name: "Гаргалт нэмэх", href: "/amako-portal-v7/manga/create", icon: "➕" },
-        { name: "Бүлэг нэмэх", href: "/amako-portal-v7/chapters/create", icon: "➕" },
-        { name: "Гаргалтууд", href: "/amako-portal-v7/manga", icon: "📚" },
-        { name: "Бүлгүүд", href: "/amako-portal-v7/chapters", icon: "📑" },
-        { name: "Төлбөр", href: "/amako-portal-v7/payments", icon: "💳" },
-        { name: "Сэтгэгдэл", href: "/amako-portal-v7/comments", icon: "💬" },
-        { name: "Хэрэглэгчид", href: "/amako-portal-v7/users", icon: "👥" },
+        { name: "Хяналтын самбар", href: "/", icon: "📊" },
+        { name: "Гаргалт нэмэх", href: "/manga/create", icon: "➕" },
+        { name: "Бүлэг нэмэх", href: "/chapters/create", icon: "➕" },
+        { name: "Гаргалтууд", href: "/manga", icon: "📚" },
+        { name: "Бүлгүүд", href: "/chapters", icon: "📑" },
+        { name: "Төлбөр", href: "/payments", icon: "💳" },
+        { name: "Сетгэгдэл", href: "/comments", icon: "💬" },
+        { name: "Хэрэглэгчид", href: "/users", icon: "👥" },
     ];
 
     useEffect(() => {
