@@ -28,8 +28,9 @@ export default withAuth(
         // 2. Admin Subdomain & Path Protection
         if (isAdminSubdomain) {
             // If on admin subdomain but NOT on the admin path, redirect to it
-            // (Unless it's an API call or auth call)
-            if (!path.startsWith("/amako-portal-v7") && !path.startsWith("/api") && !path.startsWith("/_next")) {
+            // (Unless it's an API call, auth call, or static file)
+            const isAuthPath = ["/login", "/signup", "/forgot-password", "/reset-password"].some(p => path.startsWith(p));
+            if (!path.startsWith("/amako-portal-v7") && !path.startsWith("/api") && !isAuthPath && !path.startsWith("/_next")) {
                 return NextResponse.rewrite(new URL(`/amako-portal-v7${path === "/" ? "" : path}`, req.url));
             }
         } else {
