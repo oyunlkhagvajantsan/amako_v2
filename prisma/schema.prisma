@@ -78,11 +78,11 @@ model Manga {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   isOneshot     Boolean     @default(false)
+  deletedAt     DateTime?
   chapters      Chapter[]
   comments      Comment[]
   likes         Like[]
   genres        Genre[]     @relation("GenreToManga")
-  deletedAt     DateTime?
 
   @@index([status])
   @@index([createdAt])
@@ -104,10 +104,10 @@ model Chapter {
   updatedAt     DateTime      @updatedAt
   thumbnail     String?
   caption       String?
+  deletedAt     DateTime?
   manga         Manga         @relation(fields: [mangaId], references: [id], onDelete: Cascade)
   comments      Comment[]
   readHistory   ReadHistory[]
-  deletedAt     DateTime?
 
   @@unique([mangaId, chapterNumber])
   @@index([mangaId])

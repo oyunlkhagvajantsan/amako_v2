@@ -46,8 +46,10 @@ export async function recordAuditAction(options: AuditLogOptions, tx?: any) {
         });
     } catch (error) {
         console.error("[AuditLog] Failed to record action:", error);
-        // We don't throw here to avoid failing the main action if auditing fails,
-        // though in high-security environments you might want to.
+        // If we're in a transaction, we MUST re-throw to avoid "transaction aborted" errors on subsequent queries
+        if (tx) {
+            throw error;
+        }
         return null;
     }
 }
