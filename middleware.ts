@@ -46,6 +46,12 @@ export default withAuth(
             // Role check - ONLY redirect if logged in but NOT authorized
             if (token && token.role !== "ADMIN" && token.role !== "MODERATOR") {
                 console.warn(`[Middleware] Unauthorized role for admin path: ${token.role}`);
+                const mainDomain = "amakomanga.com";
+                // If on admin subdomain, redirect to the main domain home page
+                if (isAdminSubdomain) {
+                    return NextResponse.redirect(new URL(`https://${mainDomain}/`, req.url));
+                }
+                // Otherwise fallback to simple path-based redirect
                 return NextResponse.redirect(new URL("/", req.url));
             }
         }
