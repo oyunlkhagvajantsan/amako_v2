@@ -27,7 +27,7 @@ export default async function MangaListPage({
 }) {
     const { page } = await searchParams;
     const currentPage = page ? parseInt(page) : 1;
-    const pageSize = 20;
+    const pageSize = 50;
 
     const totalCount = await prisma.manga.count();
 
