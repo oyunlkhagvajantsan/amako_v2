@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LayoutDashboard, PlusCircle, FilePlus, Library, Layers, CreditCard, MessageSquare, Users, LogOut } from "lucide-react";
 
 export default function AdminLayoutClient({
     children,
@@ -16,14 +16,14 @@ export default function AdminLayoutClient({
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const navigation = [
-        { name: "Хяналтын самбар", href: "/", icon: "📊" },
-        { name: "Гаргалт нэмэх", href: "/manga/create", icon: "➕" },
-        { name: "Бүлэг нэмэх", href: "/chapters/create", icon: "➕" },
-        { name: "Гаргалтууд", href: "/manga", icon: "📚" },
-        { name: "Бүлгүүд", href: "/chapters", icon: "📑" },
-        { name: "Төлбөр", href: "/payments", icon: "💳" },
-        { name: "Сетгэгдэл", href: "/comments", icon: "💬" },
-        { name: "Хэрэглэгчид", href: "/users", icon: "👥" },
+        { name: "Хяналтын самбар", href: "/", icon: LayoutDashboard },
+        { name: "Гаргалт нэмэх", href: "/manga/create", icon: PlusCircle },
+        { name: "Бүлэг нэмэх", href: "/chapters/create", icon: FilePlus },
+        { name: "Гаргалтууд", href: "/manga", icon: Library },
+        { name: "Бүлгүүд", href: "/chapters", icon: Layers },
+        { name: "Төлбөр", href: "/payments", icon: CreditCard },
+        { name: "Сэтгэгдэл", href: "/comments", icon: MessageSquare },
+        { name: "Хэрэглэгчид", href: "/users", icon: Users },
     ];
 
     useEffect(() => {
@@ -98,7 +98,7 @@ export default function AdminLayoutClient({
                                     : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                                     }`}
                             >
-                                <span>{item.icon}</span>
+                                <item.icon size={18} />
                                 {item.name}
                             </Link>
                         );
@@ -109,7 +109,7 @@ export default function AdminLayoutClient({
                             onClick={() => signOut({ callbackUrl: window.location.origin })}
                             className="flex items-center gap-3 px-4 py-3 w-full text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                         >
-                            <span>🚪</span>
+                            <LogOut size={18} />
                             Гарах
                         </button>
                     </div>
@@ -119,6 +119,6 @@ export default function AdminLayoutClient({
             <main className="flex-1 p-4 md:p-8 overflow-x-hidden md:ml-64">
                 {children}
             </main>
-        </div>
+        </div >
     );
 }
