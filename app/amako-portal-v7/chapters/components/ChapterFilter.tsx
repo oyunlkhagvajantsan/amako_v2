@@ -26,7 +26,7 @@ export default function ChapterFilter({ mangas }: ChapterFilterProps) {
             params.delete("mangaId");
         }
 
-        router.push(`/amako-portal-v7/chapters?${params.toString()}`);
+        router.push(`/chapters?${params.toString()}`);
     };
 
     return (

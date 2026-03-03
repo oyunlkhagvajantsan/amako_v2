@@ -31,7 +31,9 @@ export default withAuth(
             // (Unless it's an API call, auth call, or static file)
             const isAuthPath = ["/login", "/signup", "/forgot-password", "/reset-password"].some(p => path.startsWith(p));
             if (!path.startsWith("/amako-portal-v7") && !path.startsWith("/api") && !isAuthPath && !path.startsWith("/_next")) {
-                return NextResponse.rewrite(new URL(`/amako-portal-v7${path === "/" ? "" : path}`, req.url));
+                const url = new URL(req.url);
+                url.pathname = `/amako-portal-v7${path === "/" ? "" : path}`;
+                return NextResponse.rewrite(url);
             }
         } else {
             // If on main domain but trying to access admin path directly
