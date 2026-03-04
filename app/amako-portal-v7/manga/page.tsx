@@ -146,7 +146,7 @@ export default async function MangaListPage({
                                                     + Бүлэг
                                                 </Link>
                                                 <Link
-                                                    href={`/manga/${manga.id}`}
+                                                    href={`https://amakomanga.com/manga/${manga.id}`}
                                                     target="_blank"
                                                     className="px-3 py-1 bg-green-50 text-green-600 hover:bg-green-100 rounded text-xs font-bold transition-colors flex items-center gap-1"
                                                     title="View on site"

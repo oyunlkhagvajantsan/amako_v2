@@ -298,7 +298,7 @@ export default async function ChaptersListPage({
                                                     // Normal actions for active chapters
                                                     <>
                                                         <Link
-                                                            href={`/manga/${chapter.mangaId}/read/${chapter.id}`}
+                                                            href={`https://amakomanga.com/manga/${chapter.mangaId}/read/${chapter.id}`}
                                                             target="_blank"
                                                             className="px-3 py-1 bg-green-50 text-green-600 hover:bg-green-100 rounded text-xs font-bold transition-colors flex items-center gap-1"
                                                             title="View on site"
