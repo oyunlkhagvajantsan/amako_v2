@@ -237,7 +237,7 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
 
                                             {/* Locked Overlay */}
                                             {isLocked && (
-                                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
+                                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                                                     <div className="bg-white/90 p-1.5 rounded-full shadow-lg">
                                                         <Lock size={16} className="text-gray-900" />
                                                     </div>
