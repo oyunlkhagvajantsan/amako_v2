@@ -5,9 +5,10 @@ import Header from "@/app/components/Header";
 import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { User, Palette, ShieldAlert, Lock, BookOpen, Layers, ArrowLeft } from "lucide-react";
+import { User, Palette, ShieldAlert, Lock, BookOpen, Layers, ArrowLeft, ArrowUp, ArrowDown } from "lucide-react";
 import CommentSection from "@/app/components/comments/CommentSection";
 import LikeButton from "@/app/components/manga/LikeButton";
+import ChapterList from "@/app/components/manga/ChapterList";
 
 export const dynamic = "force-dynamic";
 
@@ -19,10 +20,6 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
     const manga = await prisma.manga.findUnique({
         where: { id: mangaId },
         include: {
-            chapters: {
-                where: { isPublished: true },
-                orderBy: { chapterNumber: "desc" },
-            },
             genres: true,
         },
     });
@@ -30,6 +27,14 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
     if (!manga) {
         notFound();
     }
+
+    const allChapters = await prisma.chapter.findMany({
+        where: { mangaId, isPublished: true },
+        orderBy: { chapterNumber: "desc" },
+    });
+
+    const totalChapters = allChapters.length;
+    const firstChapter = allChapters.slice().reverse().find(c => true);
 
     // Increment View Count (Non-blocking)
     prisma.manga.update({
@@ -138,7 +143,7 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
 
                                 {/* Chapter Count */}
                                 <div className="px-3 py-1 bg-surface-elevated rounded-full text-sm font-medium text-muted flex items-center gap-1 border border-border">
-                                    <BookOpen size={14} /> {manga.chapters.length} бүлэг
+                                    <BookOpen size={14} /> {totalChapters} бүлэг
                                 </div>
 
                                 {/* Manga Type */}
@@ -188,9 +193,9 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
 
                             {/* Action */}
                             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                                {manga.chapters.length > 0 && (
+                                {totalChapters > 0 && firstChapter && (
                                     <Link
-                                        href={`/manga/${manga.id}/read/${manga.chapters[manga.chapters.length - 1].id}?from=details`} // Link to first chapter (last in array bc desc sort)
+                                        href={`/manga/${manga.id}/read/${firstChapter.id}?from=details`} // Link to first chapter
                                         className="inline-flex items-center justify-center px-8 py-3 bg-[#d8454f] hover:bg-[#c13a44] text-white font-bold rounded-full transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                                     >
                                         Эхнээс нь унших
@@ -201,80 +206,16 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                         </div>
                     </div>
 
-                    {/* Chapter List */}
-                    <div className="mt-16 max-w-5xl mx-auto">
-                        <div className="flex items-center justify-between mb-6 border-b border-border pb-2">
-                            <h2 className="text-2xl font-bold text-foreground">Бүлгүүд</h2>
-                            <span className="text-sm text-muted font-medium">{manga.chapters.length} бүлэг</span>
-                        </div>
-
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
-                            {manga.chapters.map((chapter) => {
-                                const isLocked = !chapter.isFree && !isSubscribed;
-                                const isRead = readChapterIds.has(chapter.id);
-
-                                return (
-                                    <Link
-                                        key={chapter.id}
-                                        href={`/manga/${manga.id}/read/${chapter.id}?from=details`}
-                                        className={`flex flex-col gap-2 p-2 rounded-xl hover:bg-surface border border-transparent hover:border-border transition-all group ${isRead ? 'opacity-70' : ''}`}
-                                    >
-                                        {/* Chapter Thumbnail */}
-                                        <div className="relative aspect-[16/10] bg-surface rounded-lg overflow-hidden border border-border shadow-sm transition-transform group-hover:scale-[1.02]">
-                                            {chapter.thumbnail ? (
-                                                <Image
-                                                    src={chapter.thumbnail}
-                                                    alt={`Chapter ${chapter.chapterNumber}`}
-                                                    fill
-                                                    unoptimized
-                                                    className="object-cover"
-                                                />
-                                            ) : (
-                                                <div className="absolute inset-0 flex items-center justify-center bg-surface-elevated text-muted">
-                                                    <BookOpen size={24} />
-                                                </div>
-                                            )}
-
-                                            {/* Locked Overlay */}
-                                            {isLocked && (
-                                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                                                    <div className="bg-white/90 p-1.5 rounded-full shadow-lg">
-                                                        <Lock size={16} className="text-gray-900" />
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {/* Read Badge
-                                            {isRead && (
-                                                <div className="absolute top-2 right-2 bg-[#d8454f] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
-                                                    УНШСАН
-                                                </div>
-                                            )} */}
-                                        </div>
-
-                                        <div className="px-1 space-y-0.5">
-                                            <div className="flex items-center gap-1.5">
-                                                <span className={`font-bold text-sm md:text-base ${isRead ? 'text-muted' : 'text-foreground group-hover:text-primary'}`}>
-                                                    {chapter.chapterNumber}-р бүлэг
-                                                </span>
-                                            </div>
-                                            {chapter.title && (
-                                                <p className="text-xs text-muted">{chapter.title}</p>
-                                            )}
-                                        </div>
-                                    </Link>
-                                );
-                            })}
-                        </div>
-                        {manga.chapters.length === 0 && (
-                            <div className="text-center py-12">
-                                <p className="text-gray-500 italic">Одоогоор бүлэг нэмэгдээгүй байна.</p>
-                            </div>
-                        )}
-                    </div>
+                    {/* Chapter List Client */}
+                    <ChapterList 
+                        mangaId={mangaId} 
+                        chapters={allChapters}
+                        isSubscribed={isSubscribed}
+                        readChapterIds={Array.from(readChapterIds)}
+                    />
 
                     {/* Comment Section */}
-                    <div className="max-w-4xl mx-auto">
+                    <div className="max-w-4xl mx-auto mt-16">
                         <CommentSection mangaId={mangaId} />
                     </div>
                 </main>
