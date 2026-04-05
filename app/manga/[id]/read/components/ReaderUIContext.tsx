@@ -24,6 +24,28 @@ export function ReaderUIProvider({ children }: { children: React.ReactNode }) {
         };
     }, [isUIVisible]);
 
+    useEffect(() => {
+        let lastScrollY = window.scrollY;
+        
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+            
+            // Scroll down: hide UI
+            if (currentScrollY > lastScrollY && currentScrollY > 50) {
+                setIsUIVisible(false);
+            } 
+            // Scroll up: show UI (with small threshold to avoid jitter)
+            else if (currentScrollY < lastScrollY && (lastScrollY - currentScrollY > 5)) {
+                setIsUIVisible(true);
+            }
+
+            lastScrollY = currentScrollY;
+        };
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
     return (
         <ReaderUIContext.Provider value={{ isUIVisible, toggleUI }}>
             {children}
