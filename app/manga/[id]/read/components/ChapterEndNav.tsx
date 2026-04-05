@@ -1,12 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, BookOpen, Library, Home } from "lucide-react";
+import { ChevronLeft, ChevronRight, BookOpen, Library, Home, Lock } from "lucide-react";
 
 type Chapter = {
     id: number;
     chapterNumber: number;
     title: string | null;
     thumbnail: string | null;
+    isFree?: boolean;
 };
 
 type ChapterEndNavProps = {
@@ -15,21 +16,25 @@ type ChapterEndNavProps = {
     mangaTitle?: string;
     prevChapter: Chapter | null;
     nextChapter: Chapter | null;
+    isSubscribed?: boolean;
 };
 
 function ChapterCard({
     chapter,
     mangaId,
     mangaCoverImage,
-    direction
+    direction,
+    isSubscribed
 }: {
     chapter: Chapter;
     mangaId: number;
     mangaCoverImage: string;
     direction: "prev" | "next";
+    isSubscribed?: boolean;
 }) {
     const label = direction === "prev" ? "Өмнөх" : "Дараах";
     const thumbnailSrc = chapter.thumbnail || mangaCoverImage;
+    const isLocked = chapter.isFree === false && !isSubscribed;
 
     return (
         <Link
@@ -53,6 +58,15 @@ function ChapterCard({
 
                 {/* Gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                {/* Locked Overlay */}
+                {isLocked && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                        <div className="bg-white/90 p-1.5 rounded-full shadow-lg">
+                            <Lock size={16} className="text-gray-900" />
+                        </div>
+                    </div>
+                )}
 
                 {/* Chapter info overlay (bottom) */}
                 <div className={`absolute bottom-3 ${direction === "prev" ? "left-3" : "right-3"}`}>
@@ -122,6 +136,7 @@ export default function ChapterEndNav({
     mangaTitle,
     prevChapter,
     nextChapter,
+    isSubscribed,
 }: ChapterEndNavProps) {
     return (
         <div className="flex gap-3">
@@ -131,6 +146,7 @@ export default function ChapterEndNav({
                     mangaId={mangaId}
                     mangaCoverImage={mangaCoverImage}
                     direction="prev"
+                    isSubscribed={isSubscribed}
                 />
             ) : (
                 <MangaDetailCard
@@ -147,6 +163,7 @@ export default function ChapterEndNav({
                     mangaId={mangaId}
                     mangaCoverImage={mangaCoverImage}
                     direction="next"
+                    isSubscribed={isSubscribed}
                 />
             ) : (
                 <MangaDetailCard

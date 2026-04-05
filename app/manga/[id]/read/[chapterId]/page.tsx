@@ -74,7 +74,7 @@ export default async function ChapterReaderPage({
             isPublished: true
         },
         orderBy: { chapterNumber: "asc" },
-        select: { id: true, chapterNumber: true, title: true, thumbnail: true }
+        select: { id: true, chapterNumber: true, title: true, thumbnail: true, isFree: true }
     });
 
     const currentIndex = allChapters.findIndex(c => c.id === chapterId);
@@ -158,6 +158,7 @@ export default async function ChapterReaderPage({
                             mangaTitle={chapter.manga?.titleMn || chapter.manga?.title || ""}
                             prevChapter={prevChapter as any}
                             nextChapter={nextChapter as any}
+                            isSubscribed={isSubscribed}
                         />
 
                         {/* Chapter Caption (Simple Text) */}
