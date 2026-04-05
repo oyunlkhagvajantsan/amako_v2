@@ -18,6 +18,11 @@ type TabType = "history" | "liked" | "payments" | "settings";
 
 export default function ProfileTabs({ user, isSubscribed, daysLeft }: ProfileTabsProps) {
     const [activeTab, setActiveTab] = useState<TabType>("history");
+    const [historyPage, setHistoryPage] = useState(1);
+
+    const historyPerPage = 10;
+    const totalHistoryPages = Math.max(1, Math.ceil(user.readHistory.length / historyPerPage));
+    const paginatedHistory = user.readHistory.slice((historyPage - 1) * historyPerPage, historyPage * historyPerPage);
 
     const tabs = [
         { id: "history", label: "Уншсан", icon: BookOpen },
@@ -93,37 +98,91 @@ export default function ProfileTabs({ user, isSubscribed, daysLeft }: ProfileTab
             {/* Tab Content */}
             <div className="transition-all duration-300">
                 {activeTab === "history" && (
-                    <div className="grid gap-3">
-                        {user.readHistory.length === 0 ? (
-                            <EmptyState icon={BookOpen} message="Уншсан түүх байхгүй байна." />
-                        ) : (
-                            user.readHistory.map((history) => (
-                                <Link
-                                    key={history.id}
-                                    href={`/manga/${history.chapter?.mangaId}/read/${history.chapterId}`}
-                                    className="group flex items-center gap-4 p-4 bg-surface-elevated rounded-3xl border border-border shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5"
+                    <div className="space-y-6">
+                        <div className="grid gap-3">
+                            {user.readHistory.length === 0 ? (
+                                <EmptyState icon={BookOpen} message="Уншсан түүх байхгүй байна." />
+                            ) : (
+                                paginatedHistory.map((history) => (
+                                    <Link
+                                        key={history.id}
+                                        href={`/manga/${history.chapter?.mangaId}/read/${history.chapterId}`}
+                                        className="group flex items-center gap-4 p-4 bg-surface-elevated rounded-3xl border border-border shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5"
+                                    >
+                                        <div className="relative w-14 h-20 rounded-xl overflow-hidden bg-surface shadow-sm">
+                                            <Image
+                                                src={history.chapter.manga.coverImage}
+                                                alt={history.chapter.manga.title}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                        <div className="flex-grow min-w-0">
+                                            <h4 className="font-black text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                                                {history.chapter?.manga?.titleMn || history.chapter?.manga?.title}
+                                            </h4>
+                                            <p className="text-sm text-muted font-medium">
+                                                {history.chapter?.chapterNumber}-р бүлэг
+                                            </p>
+                                            <p className="text-[10px] text-muted/60 mt-1 uppercase tracking-wider font-bold">
+                                                {(() => { const d = new Date(history.updatedAt); return `${d.getUTCFullYear()}.${String(d.getUTCMonth() + 1).padStart(2, '0')}.${String(d.getUTCDate()).padStart(2, '0')}`; })()}
+                                            </p>
+                                        </div>
+                                    </Link>
+                                ))
+                            )}
+                        </div>
+
+                        {/* Pagination UI */}
+                        {totalHistoryPages > 1 && (
+                            <div className="flex flex-wrap justify-center mt-8 gap-1.5 md:gap-2">
+                                {/* First */}
+                                <button
+                                    onClick={() => setHistoryPage(1)}
+                                    className={`px-2.5 md:px-3 py-2 flex items-center justify-center shrink-0 bg-surface text-foreground font-bold text-sm border border-border rounded-lg hover:bg-surface-elevated transition-colors ${historyPage === 1 ? 'opacity-50 pointer-events-none' : ''}`}
                                 >
-                                    <div className="relative w-14 h-20 rounded-xl overflow-hidden bg-surface shadow-sm">
-                                        <Image
-                                            src={history.chapter.manga.coverImage}
-                                            alt={history.chapter.manga.title}
-                                            fill
-                                            className="object-cover"
-                                        />
-                                    </div>
-                                    <div className="flex-grow min-w-0">
-                                        <h4 className="font-black text-foreground line-clamp-1 group-hover:text-primary transition-colors">
-                                            {history.chapter?.manga?.titleMn || history.chapter?.manga?.title}
-                                        </h4>
-                                        <p className="text-sm text-muted font-medium">
-                                            {history.chapter?.chapterNumber}-р бүлэг
-                                        </p>
-                                        <p className="text-[10px] text-muted/60 mt-1 uppercase tracking-wider font-bold">
-                                            {(() => { const d = new Date(history.updatedAt); return `${d.getUTCFullYear()}.${String(d.getUTCMonth() + 1).padStart(2, '0')}.${String(d.getUTCDate()).padStart(2, '0')}`; })()}
-                                        </p>
-                                    </div>
-                                </Link>
-                            ))
+                                    &lt;&lt;
+                                </button>
+
+                                {/* Prev */}
+                                <button
+                                    onClick={() => setHistoryPage(Math.max(1, historyPage - 1))}
+                                    className={`px-2.5 md:px-3 py-2 flex items-center justify-center shrink-0 bg-surface text-foreground font-bold text-sm border border-border rounded-lg hover:bg-surface-elevated transition-colors ${historyPage === 1 ? 'opacity-50 pointer-events-none' : ''}`}
+                                >
+                                    &lt;
+                                </button>
+
+                                {/* Pages */}
+                                {Array.from({ length: totalHistoryPages }).map((_, i) => {
+                                    const p = i + 1;
+                                    if (p < historyPage - 2 || p > historyPage + 2) return null;
+                                    return (
+                                        <button
+                                            key={p}
+                                            onClick={() => setHistoryPage(p)}
+                                            className={`w-9 h-9 md:w-10 md:h-10 flex shrink-0 items-center justify-center font-bold text-sm border rounded-lg transition-colors ${historyPage === p ? 'bg-[#d8454f] text-white border-[#d8454f]' : 'bg-surface text-foreground border-border hover:bg-surface-elevated'}`}
+                                        >
+                                            {p}
+                                        </button>
+                                    );
+                                })}
+
+                                {/* Next */}
+                                <button
+                                    onClick={() => setHistoryPage(Math.min(totalHistoryPages, historyPage + 1))}
+                                    className={`px-2.5 md:px-3 py-2 flex items-center justify-center shrink-0 bg-surface text-foreground font-bold text-sm border border-border rounded-lg hover:bg-surface-elevated transition-colors ${historyPage === totalHistoryPages ? 'opacity-50 pointer-events-none' : ''}`}
+                                >
+                                    &gt;
+                                </button>
+
+                                {/* Last */}
+                                <button
+                                    onClick={() => setHistoryPage(totalHistoryPages)}
+                                    className={`px-2.5 md:px-3 py-2 flex items-center justify-center shrink-0 bg-surface text-foreground font-bold text-sm border border-border rounded-lg hover:bg-surface-elevated transition-colors ${historyPage === totalHistoryPages ? 'opacity-50 pointer-events-none' : ''}`}
+                                >
+                                    &gt;&gt;
+                                </button>
+                            </div>
                         )}
                     </div>
                 )}
