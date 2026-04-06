@@ -16,11 +16,31 @@ async function togglePublishStatus(formData: FormData) {
     "use server";
     const settingsId = formData.get("id") as string;
     const currentStatus = formData.get("currentStatus") === "true";
+    const newStatus = !currentStatus;
 
-    await prisma.chapter.update({
+    const updatedChapter = await prisma.chapter.update({
         where: { id: parseInt(settingsId) },
-        data: { isPublished: !currentStatus }
+        data: { isPublished: newStatus },
+        include: { manga: { select: { titleMn: true } } }
     });
+
+    if (!currentStatus && newStatus) {
+        const favoriters = await prisma.like.findMany({
+            where: { mangaId: updatedChapter.mangaId },
+            select: { userId: true }
+        });
+
+        if (favoriters.length > 0) {
+            await prisma.notification.createMany({
+                data: favoriters.map(f => ({
+                    userId: f.userId,
+                    type: "NEW_CHAPTER",
+                    content: `Шинэ бүлэг орлоо: ${updatedChapter.manga.titleMn} - ${updatedChapter.chapterNumber}-р бүлэг`,
+                    link: `/manga/${updatedChapter.mangaId}/read/${updatedChapter.id}`,
+                })),
+            });
+        }
+    }
 
     revalidatePath("/amako-portal-v7/chapters");
 }
