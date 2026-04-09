@@ -282,6 +282,19 @@ const mangaData = [
         isAdult: false,
         isOneshot: false,
         genres: ["Драм", "Сэтгэл зүйн", "Түүхэн"]
+    },
+    {
+        title: "Getting To Know Grace",
+        titleMn: "Грейсийг мэдэж эхэлсэн нь",
+        description: "",
+        author: "Seo Rim",
+        artist: "Mokma",
+        status: "ONGOING",
+        type: "MANHWA",
+        publishYear: 2019,
+        isAdult: false,
+        isOneshot: false,
+        genres: ["Драм", "Сэтгэл зүйн", "Түүхэн"]
     }
 ];
 

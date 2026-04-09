@@ -20,7 +20,9 @@ export default withAuth(
             req.headers.get("x-real-ip") ||
             "127.0.0.1";
         const adminDomain = "admin.amakomanga.com";
-        const isAdminSubdomain = host === adminDomain;
+        const isAdminSubdomain = host === adminDomain || host?.startsWith("admin.localhost") || host?.startsWith("admin.lvh.me");
+
+        const isLocalhost = host?.includes("localhost") || host?.includes("127.0.0.1") || host?.includes("192.168.") || host?.includes("lvh.me");
 
         // 1. Security Headers
         const response = applySecurityHeaders(NextResponse.next());
@@ -37,7 +39,7 @@ export default withAuth(
             }
         } else {
             // If on main domain but trying to access admin path directly
-            if (path.startsWith("/amako-portal-v7")) {
+            if (path.startsWith("/amako-portal-v7") && !isLocalhost) {
                 console.warn(`[Middleware] Direct access to admin path on main domain blocked: ${host}`);
                 return NextResponse.redirect(new URL(`https://${adminDomain}${path}`, req.url));
             }
@@ -72,8 +74,10 @@ export default withAuth(
             const origin = req.headers.get('origin');
             const allowedOrigins = [
                 process.env.NEXT_PUBLIC_FRONTEND_URL,
+                'https://admin.amakomanga.com',
                 'http://localhost:3000',
                 'https://localhost:3000',
+                'http://admin.lvh.me:3000',
             ].filter(Boolean) as string[];
 
             if (origin && allowedOrigins.includes(origin)) {
