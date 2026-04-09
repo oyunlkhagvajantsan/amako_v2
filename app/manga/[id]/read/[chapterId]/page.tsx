@@ -83,17 +83,11 @@ export default async function ChapterReaderPage({
 
     // Increment View Counts ONLY if the chapter is NOT locked
     if (!isLocked) {
-        // Increment counts
-        await Promise.all([
-            prisma.chapter.update({
-                where: { id: chapterId },
-                data: { viewCount: { increment: 1 } }
-            }),
-            prisma.manga.update({
-                where: { id: mangaId },
-                data: { viewCount: { increment: 1 } }
-            })
-        ]).catch(err => console.error("Failed to increment views:", err));
+        // Increment chapter counts only
+        prisma.chapter.update({
+            where: { id: chapterId },
+            data: { viewCount: { increment: 1 } }
+        }).catch(err => console.error("Failed to increment chapter view:", err));
     }
 
     return (
