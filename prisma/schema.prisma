@@ -235,9 +235,21 @@ enum PaymentStatus {
   PENDING
   APPROVED
   REJECTED
+  CANCELLED
 }
 
 enum VerificationType {
   RESET_PASSWORD
   EMAIL_VERIFICATION
+}
+
+model DailyMetric {
+  id        Int      @id @default(autoincrement())
+  date      DateTime @db.Date  // Stores 00:00:00 of the specific day
+  type      String   // E.g., "MANGA_VIEW", "CHAPTER_VIEW"
+  targetId  String?  // The specific manga or chapter ID
+  count     Int      @default(0)
+
+  @@unique([date, type, targetId])
+  @@index([type, date])
 }

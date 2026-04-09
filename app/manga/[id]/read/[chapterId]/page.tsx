@@ -83,11 +83,32 @@ export default async function ChapterReaderPage({
 
     // Increment View Counts ONLY if the chapter is NOT locked
     if (!isLocked) {
-        // Increment chapter counts only
-        prisma.chapter.update({
-            where: { id: chapterId },
-            data: { viewCount: { increment: 1 } }
-        }).catch(err => console.error("Failed to increment chapter view:", err));
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        Promise.all([
+            // Increment chapter counts only
+            prisma.chapter.update({
+                where: { id: chapterId },
+                data: { viewCount: { increment: 1 } }
+            }),
+            prisma.dailyMetric.upsert({
+                where: {
+                    date_type_targetId: {
+                        date: today,
+                        type: "CHAPTER_VIEW",
+                        targetId: chapterId.toString()
+                    }
+                },
+                update: { count: { increment: 1 } },
+                create: {
+                    date: today,
+                    type: "CHAPTER_VIEW",
+                    targetId: chapterId.toString(),
+                    count: 1
+                }
+            })
+        ]).catch(err => console.error("Failed to increment chapter view:", err));
     }
 
     return (
