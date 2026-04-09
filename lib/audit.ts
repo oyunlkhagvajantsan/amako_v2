@@ -9,6 +9,7 @@ export type AuditAction =
     | "UPDATE_USER_ROLE"
     | "APPROVE_PAYMENT"
     | "REJECT_PAYMENT"
+    | "CANCEL_PAYMENT"
     | "DELETE_PAYMENT"
     | "MODERATE_COMMENT"
     | "DELETE_COMMENT";
