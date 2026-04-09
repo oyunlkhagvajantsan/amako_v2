@@ -277,6 +277,32 @@ async function rejectPayment(formData: FormData) {
     console.log("*** SERVER ACTION REJECT FINISHED ***");
 }
 
+async function cancelPayment(formData: FormData) {
+    "use server";
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")) return;
+
+    const id = formData.get("id") as string;
+
+    try {
+        await prisma.paymentRequest.update({
+            where: { id },
+            data: { status: "CANCELLED" as any },
+        });
+
+        await recordAuditAction({
+            userId: session.user.id,
+            action: "CANCEL_PAYMENT",
+            targetType: "PAYMENT_REQUEST",
+            targetId: id
+        });
+    } catch (error) {
+        console.error("Error cancelling payment:", error);
+    }
+
+    revalidatePath("/amako-portal-v7/payments");
+}
+
 async function deletePayment(formData: FormData) {
     "use server";
     const session = await getServerSession(authOptions);
@@ -359,6 +385,7 @@ export default async function PaymentRequestsPage() {
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${req.status === "APPROVED" ? "bg-green-100 text-green-700" :
                                                 req.status === "REJECTED" ? "bg-red-100 text-red-700" :
+                                                req.status === "CANCELLED" ? "bg-gray-200 text-gray-700" :
                                                     "bg-yellow-100 text-yellow-700"
                                                 }`}>
                                                 {req.status}
@@ -380,6 +407,12 @@ export default async function PaymentRequestsPage() {
                                                             <input type="hidden" name="id" value={req.id} />
                                                             <button className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-bold transition-colors">
                                                                 Reject
+                                                            </button>
+                                                        </form>
+                                                        <form action={cancelPayment}>
+                                                            <input type="hidden" name="id" value={req.id} />
+                                                            <button className="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-xs font-bold transition-colors">
+                                                                Cancel
                                                             </button>
                                                         </form>
                                                     </>
