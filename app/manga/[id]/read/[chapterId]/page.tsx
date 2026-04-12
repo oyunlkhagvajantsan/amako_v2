@@ -5,7 +5,6 @@ import Image from "next/image";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Header from "@/app/components/Header";
-import ReadHistoryTracker from "@/app/components/ReadHistoryTracker";
 import ChapterNav from "../components/ChapterNav";
 import ChapterEndNav from "../components/ChapterEndNav";
 import ScrollToTop from "@/app/components/ScrollToTop";
@@ -48,15 +47,27 @@ export default async function ChapterReaderPage({
     // --- Subscription Check ---
     const session = await getServerSession(authOptions);
     let isSubscribed = false;
+    let initialPage = 0;
 
     if (session?.user?.id) {
-        const user = await prisma.user.findUnique({
+        const userAndHistory = await prisma.user.findUnique({
             where: { id: session.user.id },
-            select: { isSubscribed: true, subscriptionEnd: true }
+            select: { 
+                isSubscribed: true, 
+                subscriptionEnd: true,
+                readHistory: {
+                    where: { chapterId },
+                    select: { lastPage: true }
+                }
+            }
         });
 
-        if (user?.isSubscribed && user.subscriptionEnd && new Date(user.subscriptionEnd) > new Date()) {
+        if (userAndHistory?.isSubscribed && userAndHistory.subscriptionEnd && new Date(userAndHistory.subscriptionEnd) > new Date()) {
             isSubscribed = true;
+        }
+
+        if (userAndHistory?.readHistory && userAndHistory.readHistory.length > 0) {
+            initialPage = userAndHistory.readHistory[0].lastPage || 0;
         }
     }
 
@@ -154,8 +165,12 @@ export default async function ChapterReaderPage({
                     <AgeVerificationGuard active={needsAgeVerification}>
                         <ReaderTapZone>
                             <ProtectedReader>
-                                {session?.user && <ReadHistoryTracker chapterId={chapterId} />}
-                                <SequentialImageLoader images={chapter.images} />
+                                <SequentialImageLoader 
+                                    images={chapter.images} 
+                                    chapterId={chapterId}
+                                    trackHistory={!!session?.user}
+                                    initialPage={initialPage}
+                                />
                                 {/* Chapter Caption (Author's note) */}
                             </ProtectedReader>
                         </ReaderTapZone>

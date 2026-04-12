@@ -70,13 +70,14 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const { chapterId } = await req.json();
+        const { chapterId, lastPage } = await req.json();
 
         if (!chapterId) {
             return NextResponse.json({ error: "Chapter ID is required" }, { status: 400 });
         }
 
         const numericChapterId = typeof chapterId === 'string' ? parseInt(chapterId) : chapterId;
+        const numericLastPage = lastPage !== undefined ? Number(lastPage) : undefined;
 
         // Create or update read history
         await prisma.readHistory.upsert({
@@ -88,11 +89,13 @@ export async function POST(req: NextRequest) {
             },
             update: {
                 readAt: new Date(),
+                ...(numericLastPage !== undefined && { lastPage: numericLastPage }),
             },
             create: {
                 userId: session.user.id,
                 chapterId: numericChapterId,
-                readAt: new Date()
+                readAt: new Date(),
+                lastPage: numericLastPage || 0
             }
         });
 
