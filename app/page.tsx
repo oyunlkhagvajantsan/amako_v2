@@ -178,13 +178,16 @@ function ContentSection({ title, items, type }: { title: string, items: any[], t
 // Helper function to get relative time
 function getTimeAgo(date: Date): string {
   const now = new Date();
-  const diffMs = now.getTime() - new Date(date).getTime();
+  const diffMs = Math.max(0, now.getTime() - new Date(date).getTime());
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMins / 60);
   const diffDays = Math.floor(diffHours / 24);
+  const diffMonths = Math.floor(diffDays / 30);
+  const diffYears = Math.floor(diffDays / 365);
 
-  if (diffMins < 60) return `${diffMins} минутын өмнө`;
+  if (diffMins < 60) return `${Math.max(1, diffMins)} минутын өмнө`;
   if (diffHours < 24) return `${diffHours} цагийн өмнө`;
-  if (diffDays < 7) return `${diffDays} өдрийн өмнө`;
-  return new Date(date).toLocaleDateString('mn-MN');
+  if (diffDays < 30) return `${diffDays} өдрийн өмнө`;
+  if (diffMonths < 12) return `${diffMonths} сарын өмнө`;
+  return `${diffYears} жилийн өмнө`;
 }
