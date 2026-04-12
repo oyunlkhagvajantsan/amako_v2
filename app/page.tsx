@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import MangaCard from "./components/MangaCard";
 import TrendingHero from "./components/home/TrendingHero";
+import RecentlyReadSection from "./components/home/RecentlyReadSection";
 import { ArrowRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -82,6 +83,9 @@ export default async function Home() {
       <Header />
 
       <main className="container mx-auto px-4 py-6 space-y-6">
+        {/* Recently Read - shown only for logged-in users, client-rendered */}
+        <RecentlyReadSection />
+
         {/* Trending Hero Section */}
         <section>
           <div className="flex items-center justify-between mb-8">
