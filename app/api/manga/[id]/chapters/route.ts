@@ -57,24 +57,58 @@ export async function POST(
             );
         }
 
-        // Save Chapter to DB
-        const chapter = await prisma.chapter.create({
-            data: {
-                mangaId: parseInt(mangaId),
-                chapterNumber,
-                title,
-                caption: caption || null,
-                images: imageUrls,
-                thumbnail: thumbnailUrl || null,
-                isPublished,
-                isFree: chapterNumber <= 1,
-            },
-            include: {
-                manga: {
-                    select: { titleMn: true }
-                }
+        // Check for existing chapter (bypassing Prisma soft-delete extension using raw sql)
+        const existingQuery = await prisma.$queryRaw<any[]>`
+            SELECT id, "deletedAt" FROM "Chapter" 
+            WHERE "mangaId" = ${parseInt(mangaId)} AND "chapterNumber" = ${chapterNumber}
+            LIMIT 1
+        `;
+        const existing = existingQuery[0];
+
+        let chapter;
+        if (existing) {
+            if (existing.deletedAt === null) {
+                // Active chapter exists, reject request to prevent accidental overwrite
+                return NextResponse.json(
+                    { error: "Энэ дугаартай бүлэг аль хэдийн бүртгэгдсэн байна." }, // This chapter number is already registered
+                    { status: 400 }
+                );
+            } else {
+                // Soft-deleted chapter exists, revive it
+                chapter = await prisma.chapter.update({
+                    where: { id: existing.id },
+                    data: {
+                        title,
+                        caption: caption || null,
+                        images: imageUrls,
+                        thumbnail: thumbnailUrl || null,
+                        isPublished,
+                        isFree: chapterNumber <= 1,
+                        deletedAt: null, // Revive
+                    },
+                    include: {
+                        manga: { select: { titleMn: true } }
+                    }
+                });
             }
-        });
+        } else {
+            // Completely new chapter
+            chapter = await prisma.chapter.create({
+                data: {
+                    mangaId: parseInt(mangaId),
+                    chapterNumber,
+                    title,
+                    caption: caption || null,
+                    images: imageUrls,
+                    thumbnail: thumbnailUrl || null,
+                    isPublished,
+                    isFree: chapterNumber <= 1,
+                },
+                include: {
+                    manga: { select: { titleMn: true } }
+                }
+            });
+        }
 
         // Send Notifications to Lifers (Favoriters)
         if (isPublished) {

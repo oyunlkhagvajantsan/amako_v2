@@ -17,12 +17,13 @@ interface MangaCardProps {
     };
     badge?: React.ReactNode;
     subtitle?: React.ReactNode;
+    coverOverlay?: React.ReactNode;
     customLink?: string;
     className?: string;
     showViewCount?: boolean;
 }
 
-export default function MangaCard({ manga, badge, subtitle, customLink, className = "", showViewCount }: MangaCardProps) {
+export default function MangaCard({ manga, badge, subtitle, coverOverlay, customLink, className = "", showViewCount }: MangaCardProps) {
     const isAdult = manga.isAdult;
     const isOneshot = manga.isOneshot;
 
@@ -66,6 +67,9 @@ export default function MangaCard({ manga, badge, subtitle, customLink, classNam
                         </div>
                     )}
                 </div>
+                
+                {/* Cover Overlay (e.g. progress bar) */}
+                {coverOverlay}
             </div>
 
             <h3 className="font-medium text-sm text-foreground mb-1 break-words whitespace-normal text-center leading-tight">

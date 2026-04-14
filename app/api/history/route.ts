@@ -11,17 +11,18 @@ export async function GET() {
     }
 
     try {
-        // Get the most recently read chapters, one per manga, by taking the latest readAt per manga
         const recentHistory = await prisma.readHistory.findMany({
             where: { userId: session.user.id },
             orderBy: { readAt: "desc" },
             take: 40, // Fetch more to deduplicate by manga
             select: {
                 readAt: true,
+                lastPage: true,
                 chapter: {
                     select: {
                         id: true,
                         chapterNumber: true,
+                        images: true,
                         manga: {
                             select: {
                                 id: true,
@@ -49,6 +50,8 @@ export async function GET() {
                     chapterId: entry.chapter.id,
                     chapterNumber: entry.chapter.chapterNumber,
                     readAt: entry.readAt,
+                    lastPage: entry.lastPage,
+                    totalPages: entry.chapter.images?.length || 0,
                     manga: entry.chapter.manga
                 });
             }

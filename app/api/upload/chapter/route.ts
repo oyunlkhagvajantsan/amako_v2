@@ -53,39 +53,89 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 );
             }
 
-            // Convert file to buffer and process with Sharp
             const buffer = Buffer.from(await file.arrayBuffer());
             console.log(`[R2 Upload] Buffer created: ${buffer.length} bytes. Starting Sharp processing...`);
 
-            const startTime = Date.now();
-            const webpBuffer = await sharp(buffer)
-                .webp({ quality: 90, effort: 4 }) // Effort 4 is faster than 6
-                .toBuffer();
-            const endTime = Date.now();
-
-            console.log(`[R2 Upload] Sharp processing completed in ${endTime - startTime}ms. Final size: ${webpBuffer.length} bytes.`);
-
-            // Generate unique filename with folder structure
+            const metadata = await sharp(buffer).metadata();
+            const width = metadata.width || 800;
+            const height = metadata.height || 1200;
+            
             const timestamp = Date.now();
             const originalName = file.name || 'image.webp';
             const sanitizedFilename = originalName.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9.-]/g, '_');
-            const key = `chapters/manga-${mangaId}/chapter-${chapterNumber}/${timestamp}-${sanitizedFilename}.webp`;
 
-            // Upload to R2
-            const command = new PutObjectCommand({
-                Bucket: R2_BUCKET_NAME,
-                Key: key,
-                Body: webpBuffer,
-                ContentType: 'image/webp',
-                CacheControl: 'public, max-age=31536000, immutable',
-            });
+            const ratio = height / width;
+            const isLongStrip = ratio > 2.0;
 
-            await r2Client.send(command);
+            if (isLongStrip) {
+                // Tall webtoon strip! Slice it up.
+                const chunkHeight = Math.floor(width * 1.5);
+                const urls: string[] = [];
 
-            // Return public URL
-            const publicUrl = `${R2_PUBLIC_URL}/${key}`;
+                console.log(`[R2 Upload] Tall image detected (Ratio: ${ratio.toFixed(2)}). Starting smart slice...`);
+                
+                // Process sequentially to save memory
+                let currentY = 0;
+                let chunkIndex = 0;
 
-            return NextResponse.json({ url: publicUrl });
+                while (currentY < height) {
+                    let h = chunkHeight;
+                    const remainingHeight = height - currentY;
+
+                    // If what's left is less than 1.5 times the target chunk height,
+                    // the leftover "tiny piece" would be smaller than half a normal chunk.
+                    // To prevent tiny slivers, we simply let this final chunk absorb all remaining pixels.
+                    if (remainingHeight < chunkHeight * 1.5) {
+                        h = remainingHeight;
+                    }
+
+                    const chunkBuffer = await sharp(buffer)
+                        .extract({ left: 0, top: currentY, width, height: h })
+                        .webp({ quality: 90, effort: 4 })
+                        .toBuffer();
+
+                    const key = `chapters/manga-${mangaId}/chapter-${chapterNumber}/${timestamp}-${sanitizedFilename}-part${chunkIndex + 1}.webp`;
+
+                    await r2Client.send(new PutObjectCommand({
+                        Bucket: R2_BUCKET_NAME,
+                        Key: key,
+                        Body: chunkBuffer,
+                        ContentType: 'image/webp',
+                        CacheControl: 'public, max-age=31536000, immutable',
+                    }));
+
+                    urls.push(`${R2_PUBLIC_URL}/${key}`);
+                    
+                    currentY += h;
+                    chunkIndex++;
+                }
+                
+                return NextResponse.json({ urls });
+            } else {
+                // Normal manga page
+                const startTime = Date.now();
+                const webpBuffer = await sharp(buffer)
+                    .webp({ quality: 90, effort: 4 })
+                    .toBuffer();
+                const endTime = Date.now();
+
+                console.log(`[R2 Upload] Sharp processing completed in ${endTime - startTime}ms. Final size: ${webpBuffer.length} bytes.`);
+
+                const key = `chapters/manga-${mangaId}/chapter-${chapterNumber}/${timestamp}-${sanitizedFilename}.webp`;
+
+                const command = new PutObjectCommand({
+                    Bucket: R2_BUCKET_NAME,
+                    Key: key,
+                    Body: webpBuffer,
+                    ContentType: 'image/webp',
+                    CacheControl: 'public, max-age=31536000, immutable',
+                });
+
+                await r2Client.send(command);
+
+                const publicUrl = `${R2_PUBLIC_URL}/${key}`;
+                return NextResponse.json({ url: publicUrl });
+            }
         }
 
         // Handle JSON payload (for @vercel/blob client compatibility)

@@ -16,7 +16,7 @@ export default function SequentialImageLoader({
     initialPage = 0 
 }: SequentialImageLoaderProps) {
     const [loadedIndex, setLoadedIndex] = useState(-1);
-    const [visiblePage, setVisiblePage] = useState(0);
+    const [visiblePage, setVisiblePage] = useState(initialPage);
     const containerRef = useRef<HTMLDivElement>(null);
     const scrolledToInitial = useRef(false);
     
@@ -26,8 +26,10 @@ export default function SequentialImageLoader({
         
         const observerOptions = {
             root: null,
-            rootMargin: "0px",
-            threshold: 0.5, // 50% of the image must be visible
+            // A virtual horizontal band across the middle of the screen (from 40% top to 60% bottom)
+            // Even if an image is 10,000px tall, it will trigger when it passes through this center area.
+            rootMargin: "-40% 0px -40% 0px", 
+            threshold: 0, 
         };
 
         const observerCb = (entries: IntersectionObserverEntry[]) => {
@@ -49,7 +51,7 @@ export default function SequentialImageLoader({
 
     // Sync progress to backend debounced
     useEffect(() => {
-        if (!trackHistory || !chapterId || visiblePage === 0) return;
+        if (!trackHistory || !chapterId) return;
 
         const timeout = setTimeout(() => {
             fetch("/api/history", {

@@ -219,7 +219,7 @@ export default function ChapterForm({
         setError("");
 
         try {
-            const finalImageUrls: string[] = new Array(items.length);
+            const finalImageUrls: (string | string[])[] = new Array(items.length);
 
             // 1. Process and Upload ONLY new files
             const uploadTasks = items
@@ -277,8 +277,8 @@ export default function ChapterForm({
                                     throw new Error(errData.error || 'Upload failed');
                                 }
 
-                                const { url } = await uploadRes.json();
-                                finalImageUrls[index] = url;
+                                const { url, urls } = await uploadRes.json();
+                                finalImageUrls[index] = urls || url;
                                 completedUploads++;
 
                                 setUploadProgress({
@@ -320,10 +320,12 @@ export default function ChapterForm({
             console.log(`[ChapterForm] Finalizing chapter metadata...`);
 
             // 3. Finalize Chapter in DB
+            const flattenedImageUrls = finalImageUrls.flat().filter(Boolean) as string[];
+
             const chapterData = {
                 chapterNumber: parseFloat(chapterNumber),
                 title,
-                images: finalImageUrls,
+                images: flattenedImageUrls,
                 isPublished,
                 mangaId: parseInt(selectedMangaId),
             };
@@ -345,7 +347,7 @@ export default function ChapterForm({
             finalFormData.append('caption', caption);
             finalFormData.append('isPublished', isPublished ? "on" : "off");
             finalFormData.append('thumbnailUrl', thumbnailUrl);
-            finalImageUrls.forEach(url => finalFormData.append('imageUrls', url));
+            flattenedImageUrls.forEach(url => finalFormData.append('imageUrls', url));
 
             const res = await fetch(endpoint, {
                 method: method,
