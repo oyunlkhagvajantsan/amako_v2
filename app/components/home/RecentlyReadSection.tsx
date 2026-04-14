@@ -75,7 +75,11 @@ export default function RecentlyReadSection() {
                         return (
                             <MangaCard
                                 key={entry.mangaId}
-                                manga={entry.manga}
+                                manga={{
+                                    ...entry.manga,
+                                    titleMn: entry.manga.titleMn || "",
+                                    coverImage: entry.manga.coverImage || "",
+                                }}
                                 customLink={`/manga/${entry.manga.id}/read/${entry.chapterId}`}
                                 coverOverlay={
                                     totalPages > 0 && (
