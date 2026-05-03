@@ -47,8 +47,8 @@ A premium, production-grade manga reading platform built with the latest web tec
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/amako-v2.git
-   cd amako-v2
+   git clone https://github.com/oyunlkhagvajantsan/amako_v2.git
+   cd amako_v2
    ```
 
 2. **Install dependencies**
