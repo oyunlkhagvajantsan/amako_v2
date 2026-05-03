@@ -88,6 +88,16 @@ export default function ChapterForm({
     );
 
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const customThumbnailInputRef = useRef<HTMLInputElement>(null);
+
+    const handleCustomThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const url = URL.createObjectURL(e.target.files[0]);
+            setCroppingImageUrl(url);
+            // Reset input so the same file can be selected again if needed
+            e.target.value = '';
+        }
+    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -490,16 +500,33 @@ export default function ChapterForm({
                     </div>
                     <div className="flex-1 text-center md:text-left">
                         <h4 className="font-bold text-gray-900 text-sm mb-1">Chapter Preview (Thumbnail)</h4>
-                        <p className="text-xs text-gray-500 mb-3">Pick a page below and click "Adjust Preview" to set it. You can zoom and pan to make it fit perfectly.</p>
-                        {thumbnailUrl && (
+                        <p className="text-xs text-gray-500 mb-3">Pick a page below and click "Adjust Preview" to set it, or upload a custom image. You can zoom and pan to make it fit perfectly.</p>
+
+                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
                             <button
                                 type="button"
-                                onClick={() => setThumbnailUrl("")}
-                                className="text-xs text-red-500 font-medium hover:underline"
+                                onClick={() => customThumbnailInputRef.current?.click()}
+                                className="text-[10px] bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1.5 rounded font-bold hover:bg-blue-100 transition-colors"
                             >
-                                Remove Preview
+                                Upload preview
                             </button>
-                        )}
+                            <input
+                                ref={customThumbnailInputRef}
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleCustomThumbnailChange}
+                            />
+                            {thumbnailUrl && (
+                                <button
+                                    type="button"
+                                    onClick={() => setThumbnailUrl("")}
+                                    className="text-xs text-red-500 font-medium hover:underline"
+                                >
+                                    Remove Preview
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
 
