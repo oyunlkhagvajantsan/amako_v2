@@ -69,7 +69,7 @@ export default function ChapterList({ mangaId, chapters, isSubscribed, readChapt
                             {/* Chapter Thumbnail */}
                             <div className="relative aspect-[16/10] bg-surface rounded-lg overflow-hidden border border-border shadow-sm transition-transform group-hover:scale-[1.02]">
                                 {isNew && (
-                                    <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm text-white px-2 py-1 rounded-lg text-[10px] font-bold tracking-tighter shadow-lg flex items-center gap-1 z-10">
+                                    <div className="absolute top-2 right-2 bg-black/40 text-white px-2 py-1 rounded-lg text-[10px] font-bold tracking-tighter shadow-lg flex items-center gap-1 z-10">
                                         <Flame size={12} className="text-orange-500" />
                                         Шинэ
                                     </div>
@@ -128,7 +128,7 @@ export default function ChapterList({ mangaId, chapters, isSubscribed, readChapt
                     >
                         &lt;&lt;
                     </button>
-                    
+
                     {/* Prev */}
                     <button
                         onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
