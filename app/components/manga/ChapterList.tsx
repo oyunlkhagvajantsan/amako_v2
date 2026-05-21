@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { BookOpen, Lock, ArrowUp, ArrowDown } from "lucide-react";
+import { BookOpen, Lock, ArrowUp, ArrowDown, Flame } from "lucide-react";
 
 type ChapterListProps = {
     mangaId: number;
@@ -58,6 +58,7 @@ export default function ChapterList({ mangaId, chapters, isSubscribed, readChapt
                 {paginatedChapters.map((chapter) => {
                     const isLocked = !chapter.isFree && !isSubscribed;
                     const isRead = readChapterSet.has(chapter.id);
+                    const isNew = (new Date().getTime() - new Date(chapter.publishedAt || chapter.createdAt).getTime()) < 3 * 24 * 60 * 60 * 1000;
 
                     return (
                         <Link
@@ -67,6 +68,12 @@ export default function ChapterList({ mangaId, chapters, isSubscribed, readChapt
                         >
                             {/* Chapter Thumbnail */}
                             <div className="relative aspect-[16/10] bg-surface rounded-lg overflow-hidden border border-border shadow-sm transition-transform group-hover:scale-[1.02]">
+                                {isNew && (
+                                    <div className="absolute top-2 right-2 bg-black/40 backdrop-blur-sm text-white px-2 py-1 rounded-lg text-[10px] font-bold tracking-tighter shadow-lg flex items-center gap-1 z-10">
+                                        <Flame size={12} className="text-orange-500" />
+                                        Шинэ
+                                    </div>
+                                )}
                                 {chapter.thumbnail ? (
                                     <Image
                                         src={chapter.thumbnail}
