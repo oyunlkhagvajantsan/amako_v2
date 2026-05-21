@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import MangaCard from "./components/MangaCard";
 import TrendingHero from "./components/home/TrendingHero";
 import RecentlyReadSection from "./components/home/RecentlyReadSection";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Flame } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -114,20 +114,31 @@ export default async function Home() {
 
           <div className="relative group">
             <div className="flex gap-4 overflow-x-auto pb-6 -mx-1 px-1 snap-x snap-mandatory no-scrollbar">
-              {latestChapters.map((chapter) => (
+              {latestChapters.map((chapter) => {
+                const isNew = (new Date().getTime() - new Date(chapter.publishedAt || chapter.createdAt).getTime()) < 3 * 24 * 60 * 60 * 1000;
+                
+                return (
                 <MangaCard
                   key={chapter.id}
                   manga={chapter.manga}
                   customLink={`/manga/${chapter.manga?.id}/read/${chapter.id}`}
                   badge={
-                    <div className="absolute top-2 right-2 bg-[#d8454f] text-white px-2 py-1 rounded-lg text-[10px] font-bold tracking-tighter shadow-lg shadow-red-500/20">
-                      {chapter.chapterNumber}-р бүлэг
-                    </div>
+                    <>
+                      {isNew && (
+                        <div className="absolute top-2 left-2 bg-black/40 backdrop-blur-sm text-white px-2 py-1 rounded-lg text-[10px] font-bold tracking-tighter shadow-lg flex items-center gap-1">
+                          <Flame size={12} className="text-orange-500" />
+                          Шинэ
+                        </div>
+                      )}
+                      <div className="absolute top-2 right-2 bg-[#d8454f] text-white px-2 py-1 rounded-lg text-[10px] font-bold tracking-tighter shadow-lg shadow-red-500/20">
+                        {chapter.chapterNumber}-р бүлэг
+                      </div>
+                    </>
                   }
                   subtitle={getTimeAgo(chapter.createdAt)}
                   className="w-40 md:w-44 snap-start flex-shrink-0"
                 />
-              ))}
+              )})}
             </div>
           </div>
         </section>
