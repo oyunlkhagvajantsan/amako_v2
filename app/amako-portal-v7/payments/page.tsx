@@ -31,6 +31,8 @@ async function manualApproveSubscription(prevState: any, formData: FormData) {
     console.log("*** MANUAL APPROVE STARTED ***");
 
     try {
+        let emailData: any = null;
+
         await prisma.$transaction(async (tx) => {
             // 1. Find User
             const user = await tx.user.findUnique({
@@ -94,25 +96,35 @@ async function manualApproveSubscription(prevState: any, formData: FormData) {
                 },
             });
 
-            // 7. Send Email (ROLLBACK ON FAILURE)
+            // Prepare Email Data
+            emailData = {
+                to: user.email,
+                username: user.username,
+                months,
+                newEndDate
+            };
+        });
+
+        // 7. Send Email (OUTSIDE TRANSACTION)
+        if (emailData) {
             const subject = "Amako - Subscription Extended (Эрх сунгагдлаа)";
-            const text = `Hi ${user.username || 'User'}, your subscription has been manually extended for ${months} month(s)! It expires on ${newEndDate.toLocaleDateString("mn-MN")}.`;
+            const text = `Hi ${emailData.username || 'User'}, your subscription has been manually extended for ${emailData.months} month(s)! It expires on ${emailData.newEndDate.toLocaleDateString("mn-MN")}.`;
             const html = `
                 <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
                     <h2 style="color: #d8454f;">Амжилттай!</h2>
-                    <p>Сайн байна уу? Админ таны <strong>${months}</strong> сарын эрхийг сунгалаа.</p>
-                    <p>Эрх дуусах хугацаа: <strong>${newEndDate.toLocaleDateString("mn-MN")}</strong></p>
+                    <p>Сайн байна уу? Админ таны <strong>${emailData.months}</strong> сарын эрхийг сунгалаа.</p>
+                    <p>Эрх дуусах хугацаа: <strong>${emailData.newEndDate.toLocaleDateString("mn-MN")}</strong></p>
                     <p>Та <a href="${process.env.NEXT_PUBLIC_FRONTEND_URL || process.env.NEXTAUTH_URL}/profile" style="color: #d8454f; font-weight: bold;">профайл</a> хэсгээс дэлгэрэнгүйг харна уу.</p>
                 </div>
             `;
-
-            console.log(`[Manual Approve] Sending confirmation to: ${user.email}`);
-            const emailResult = await sendEmail({ to: user.email, subject, text, html });
-
+            
+            console.log(`[Manual Approve] Sending confirmation to: ${emailData.to}`);
+            const emailResult = await sendEmail({ to: emailData.to, subject, text, html });
+            
             if (!emailResult.success) {
-                throw new Error(`Email delivery failed: ${emailResult.error}. Changes rolled back.`);
+                console.error(`[Manual Approve] Email failed, but DB transaction succeeded: ${emailResult.error}`);
             }
-        });
+        }
 
         revalidatePath("/amako-portal-v7/payments");
         return { success: true, message: `Successfully extended subscription for ${email} by ${months} month(s)!` };
@@ -134,6 +146,8 @@ async function approvePayment(formData: FormData) {
     const months = monthsStr ? parseInt(monthsStr) : 1;
 
     try {
+        let emailData: any = null;
+
         await prisma.$transaction(async (tx) => {
             // 1. Update Payment Status
             await tx.paymentRequest.update({
@@ -185,31 +199,41 @@ async function approvePayment(formData: FormData) {
                 },
             });
 
-            // 5. Send Email to User (WITHIN TRANSACTION - ROLLBACK ON FAILURE)
+            // Prepare Email Data
             if (user.email) {
-                const subject = "Amako - Subscription Approved (Эрх сунгагдлаа)";
-                const text = `Hi ${user.username || 'User'}, your subscription for ${months} month(s) has been approved! It will end on ${newEndDate.toLocaleDateString("mn-MN")}.`;
-                const html = `
-                    <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                        <h2 style="color: #d8454f;">Амжилттай!</h2>
-                        <p>Сайн байна уу? Таны <strong>${months}</strong> сарын эрх авах хүсэлт амжилттай батлагдлаа.</p>
-                        <p>Эрх дуусах хугацаа: <strong>${newEndDate.toLocaleDateString("mn-MN")}</strong></p>
-                        <p>Та <a href="${process.env.NEXT_PUBLIC_FRONTEND_URL || process.env.NEXTAUTH_URL}/profile" style="color: #d8454f; font-weight: bold;">профайл</a> хэсгээс дэлгэрэнгүйг харна уу.</p>
-                    </div>
-                `;
-
-                console.log(`[Approve Payment] Sending critical email to: ${user.email}`);
-                const emailResult = await sendEmail({ to: user.email, subject, text, html });
-
-                if (!emailResult.success) {
-                    console.error(`[Approve Payment] Email failed: ${emailResult.error}. ROLLING BACK transaction.`);
-                    throw new Error(`Email delivery failed: ${emailResult.error}. Subscription not extended.`);
-                }
-                console.log(`[Approve Payment] Email sent successfully. Transaction committing.`);
-            } else {
-                console.warn(`[Approve Payment] No email found for user ${userId}. Proceeding without email.`);
+                emailData = {
+                    to: user.email,
+                    username: user.username,
+                    months,
+                    newEndDate
+                };
             }
         });
+
+        // 5. Send Email to User (OUTSIDE TRANSACTION)
+        if (emailData) {
+            const subject = "Amako - Subscription Approved (Эрх сунгагдлаа)";
+            const text = `Hi ${emailData.username || 'User'}, your subscription for ${emailData.months} month(s) has been approved! It will end on ${emailData.newEndDate.toLocaleDateString("mn-MN")}.`;
+            const html = `
+                <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                    <h2 style="color: #d8454f;">Амжилттай!</h2>
+                    <p>Сайн байна уу? Таны <strong>${emailData.months}</strong> сарын эрх авах хүсэлт амжилттай батлагдлаа.</p>
+                    <p>Эрх дуусах хугацаа: <strong>${emailData.newEndDate.toLocaleDateString("mn-MN")}</strong></p>
+                    <p>Та <a href="${process.env.NEXT_PUBLIC_FRONTEND_URL || process.env.NEXTAUTH_URL}/profile" style="color: #d8454f; font-weight: bold;">профайл</a> хэсгээс дэлгэрэнгүйг харна уу.</p>
+                </div>
+            `;
+
+            console.log(`[Approve Payment] Sending email to: ${emailData.to}`);
+            const emailResult = await sendEmail({ to: emailData.to, subject, text, html });
+
+            if (!emailResult.success) {
+                console.error(`[Approve Payment] Email failed, but DB transaction succeeded: ${emailResult.error}`);
+            } else {
+                console.log(`[Approve Payment] Email sent successfully.`);
+            }
+        } else {
+            console.warn(`[Approve Payment] No email found for user ${userId}. Proceeding without email.`);
+        }
 
         revalidatePath("/amako-portal-v7/payments");
         console.log("*** SERVER ACTION APPROVE FINISHED (SUCCESS) ***");
