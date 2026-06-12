@@ -12,9 +12,98 @@ interface DashboardClientProps {
 }
 
 export default function DashboardClient({ initialData, topMangas, isAdmin }: DashboardClientProps) {
-    const [period, setPeriod] = useState<number | null>(30);
+    const [period, setPeriod] = useState<number | null | { startDate: string; endDate: string }>(30);
     const [stats, setStats] = useState(initialData);
     const [loading, setLoading] = useState(false);
+
+    // Admin Filter Mode: "period" | "month" | "custom"
+    const [filterMode, setFilterMode] = useState<"period" | "month" | "custom">("period");
+
+    // Month filter selection: e.g. "2026-05"
+    const [selectedMonth, setSelectedMonth] = useState<string>("");
+
+    // Custom range selection
+    const [startDateStr, setStartDateStr] = useState<string>("");
+    const [endDateStr, setEndDateStr] = useState<string>("");
+
+    const getMonthsOptions = () => {
+        const options = [];
+        const now = new Date();
+        const monthNames = [
+            "1-р сар", "2-р сар", "3-р сар",
+            "4-р сар", "5-р сар", "6-р сар",
+            "7-р сар", "8-р сар", "9-р сар",
+            "10-р сар", "11-р сар", "12-р сар"
+        ];
+        for (let i = 0; i < 12; i++) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const year = d.getFullYear();
+            const month = d.getMonth();
+            options.push({
+                label: `${monthNames[month]} ${year}`,
+                value: `${year}-${String(month + 1).padStart(2, '0')}`
+            });
+        }
+        return options;
+    };
+
+    const handleMonthChange = (monthStr: string) => {
+        setSelectedMonth(monthStr);
+        if (!monthStr) return;
+        const [year, month] = monthStr.split("-").map(Number);
+        // Start date: Year-Month-01
+        const start = new Date(year, month - 1, 1);
+        // End date: last day of the month
+        const end = new Date(year, month, 0);
+
+        setPeriod({
+            startDate: start.toISOString(),
+            endDate: end.toISOString()
+        });
+    };
+
+    const handleCustomRangeSubmit = () => {
+        if (!startDateStr || !endDateStr) return;
+        const start = new Date(startDateStr);
+        const end = new Date(endDateStr);
+
+        setPeriod({
+            startDate: start.toISOString(),
+            endDate: end.toISOString()
+        });
+    };
+
+    const handleFilterModeChange = (mode: "period" | "month" | "custom") => {
+        setFilterMode(mode);
+        if (mode === "period") {
+            setPeriod(30);
+            setSelectedMonth("");
+            setStartDateStr("");
+            setEndDateStr("");
+        } else if (mode === "month") {
+            const months = getMonthsOptions();
+            if (months.length > 0) {
+                handleMonthChange(months[0].value);
+            }
+            setStartDateStr("");
+            setEndDateStr("");
+        } else if (mode === "custom") {
+            setSelectedMonth("");
+            const today = new Date();
+            const past = new Date();
+            past.setDate(today.getDate() - 30);
+
+            const toStr = today.toISOString().split("T")[0];
+            const fromStr = past.toISOString().split("T")[0];
+
+            setStartDateStr(fromStr);
+            setEndDateStr(toStr);
+            setPeriod({
+                startDate: past.toISOString(),
+                endDate: today.toISOString()
+            });
+        }
+    };
 
     useEffect(() => {
         let isMounted = true;
@@ -95,21 +184,92 @@ export default function DashboardClient({ initialData, topMangas, isAdmin }: Das
 
             {/* Middle Row with Filter */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className="flex justify-end p-4 border-b border-gray-100 bg-gray-50/50">
-                    <select
-                        className="bg-transparent border-0 text-sm font-semibold text-gray-600 focus:ring-0 cursor-pointer"
-                        value={period === null ? "all" : period.toString()}
-                        onChange={(e) => setPeriod(e.target.value === "all" ? null : parseInt(e.target.value))}
-                        disabled={loading}
-                    >
-                        <option value="1">Last 24 hours</option>
-                        <option value="7">Last 7 days</option>
-                        <option value="30">Last 30 days</option>
-                        <option value="90">3 Months</option>
-                        <option value="180">6 Months</option>
-                        <option value="365">Last 12 Months</option>
-                        <option value="all">All Time</option>
-                    </select>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border-b border-gray-100 bg-gray-50/50 gap-4">
+                    {/* Filter Mode Selector (Only for Admin) */}
+                    {isAdmin ? (
+                        <div className="flex bg-gray-200/65 rounded-lg p-0.5 self-start">
+                            <button
+                                onClick={() => handleFilterModeChange("period")}
+                                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${filterMode === "period" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-900"}`}
+                            >
+                                Хугацаагаар
+                            </button>
+                            <button
+                                onClick={() => handleFilterModeChange("month")}
+                                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${filterMode === "month" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-900"}`}
+                            >
+                                Сараар харах
+                            </button>
+                            <button
+                                onClick={() => handleFilterModeChange("custom")}
+                                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${filterMode === "custom" ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-900"}`}
+                            >
+                                Өдрөөр сонгох
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="text-sm font-semibold text-gray-700">Хугацааны шүүлтүүр</div>
+                    )}
+
+                    {/* Filter Inputs */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {filterMode === "period" && (
+                            <select
+                                className="bg-transparent border-0 text-sm font-semibold text-gray-600 focus:ring-0 cursor-pointer"
+                                value={period === null ? "all" : (typeof period === "number" ? period.toString() : "30")}
+                                onChange={(e) => setPeriod(e.target.value === "all" ? null : parseInt(e.target.value))}
+                                disabled={loading}
+                            >
+                                <option value="1">1 хоног</option>
+                                <option value="7">7 хоног</option>
+                                <option value="30">1 сар</option>
+                                <option value="90">3 сар </option>
+                                <option value="180">6 сар</option>
+                                <option value="365">12 сар</option>
+                                <option value="all">Нийт</option>
+                            </select>
+                        )}
+
+                        {filterMode === "month" && (
+                            <select
+                                className="bg-transparent border-0 text-sm font-semibold text-gray-600 focus:ring-0 cursor-pointer"
+                                value={selectedMonth}
+                                onChange={(e) => handleMonthChange(e.target.value)}
+                                disabled={loading}
+                            >
+                                {getMonthsOptions().map((opt) => (
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                            </select>
+                        )}
+
+                        {filterMode === "custom" && (
+                            <div className="flex items-center gap-2 text-sm">
+                                <input
+                                    type="date"
+                                    className="bg-white border border-gray-300 rounded-md text-xs text-gray-600 focus:ring-teal-500 focus:border-teal-500 px-2 py-1"
+                                    value={startDateStr}
+                                    onChange={(e) => setStartDateStr(e.target.value)}
+                                    disabled={loading}
+                                />
+                                <span className="text-gray-400 font-medium text-xs">хүртэл</span>
+                                <input
+                                    type="date"
+                                    className="bg-white border border-gray-300 rounded-md text-xs text-gray-600 focus:ring-teal-500 focus:border-teal-500 px-2 py-1"
+                                    value={endDateStr}
+                                    onChange={(e) => setEndDateStr(e.target.value)}
+                                    disabled={loading}
+                                />
+                                <button
+                                    onClick={handleCustomRangeSubmit}
+                                    disabled={loading || !startDateStr || !endDateStr}
+                                    className="bg-teal-500 hover:bg-teal-600 disabled:bg-gray-300 text-white font-semibold text-xs py-1 px-3 rounded-md transition-colors"
+                                >
+                                    Шүүх
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
                 <div className={`grid grid-cols-1 ${isAdmin ? 'md:grid-cols-2' : ''} divide-y md:divide-y-0 md:divide-x divide-gray-100 py-4 transition-opacity duration-200`} style={{ opacity: loading ? 0.5 : 1 }}>
                     {isAdmin && (
