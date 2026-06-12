@@ -67,6 +67,7 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
     const session = await getServerSession(authOptions);
     let isSubscribed = false;
     const readChapterIds = new Set<number>();
+    let lastReadChapter: { id: number; chapterNumber: number } | null = null;
 
     if (session?.user?.id) {
         const user = await prisma.user.findUnique({
@@ -78,7 +79,15 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                             mangaId: mangaId
                         }
                     },
-                    select: { chapterId: true }
+                    select: {
+                        chapterId: true,
+                        updatedAt: true,
+                        chapter: {
+                            select: { id: true, chapterNumber: true }
+                        }
+                    },
+                    orderBy: { updatedAt: "desc" },
+                    take: 1
                 }
             }
         });
@@ -88,7 +97,24 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
             if (userData.isSubscribed && userData.subscriptionEnd && new Date(userData.subscriptionEnd) > new Date()) {
                 isSubscribed = true;
             }
-            userData.readHistory?.forEach((h: any) => readChapterIds.add(h.chapterId));
+            // Get all read chapter IDs (re-query without limit for the set)
+            const allHistory = await prisma.readHistory.findMany({
+                where: {
+                    userId: session.user.id,
+                    chapter: { mangaId: mangaId }
+                },
+                select: { chapterId: true }
+            });
+            allHistory.forEach((h) => readChapterIds.add(h.chapterId));
+
+            // Most recently read chapter
+            if (userData.readHistory && userData.readHistory.length > 0) {
+                const latest = userData.readHistory[0];
+                lastReadChapter = {
+                    id: latest.chapter.id,
+                    chapterNumber: latest.chapter.chapterNumber,
+                };
+            }
         }
     }
 
@@ -215,12 +241,32 @@ export default async function MangaDetailsPage({ params }: { params: { id: strin
                             {/* Action */}
                             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
                                 {totalChapters > 0 && firstChapter && (
-                                    <Link
-                                        href={`/manga/${manga.id}/read/${firstChapter.id}?from=details`} // Link to first chapter
-                                        className="inline-flex items-center justify-center px-8 py-3 bg-[#d8454f] hover:bg-[#c13a44] text-white font-bold rounded-full transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                                    >
-                                        Эхнээс нь унших
-                                    </Link>
+                                    lastReadChapter ? (
+                                        <>
+                                            <Link
+                                                href={`/manga/${manga.id}/read/${lastReadChapter.id}?from=details`}
+                                                className="inline-flex flex-col items-center justify-center px-8 py-2 bg-[#d8454f] hover:bg-[#c13a44] text-white font-bold rounded-full transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 min-h-[48px] leading-tight"
+                                            >
+                                                <span>Үргэлжлүүлэх</span>
+                                                <span className="text-xs font-normal text-white/90 mt-0.5">
+                                                    {lastReadChapter.chapterNumber}-р бүлэг
+                                                </span>
+                                            </Link>
+                                            <Link
+                                                href={`/manga/${manga.id}/read/${firstChapter.id}?from=details`}
+                                                className="inline-flex items-center justify-center px-5 py-3 bg-surface hover:bg-surface-elevated text-foreground/80 font-medium rounded-full transition-all border border-border hover:border-foreground/30"
+                                            >
+                                                Эхнээс нь унших
+                                            </Link>
+                                        </>
+                                    ) : (
+                                        <Link
+                                            href={`/manga/${manga.id}/read/${firstChapter.id}?from=details`}
+                                            className="inline-flex items-center justify-center px-8 py-3 bg-[#d8454f] hover:bg-[#c13a44] text-white font-bold rounded-full transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                        >
+                                            Эхнээс нь унших
+                                        </Link>
+                                    )
                                 )}
                                 <LikeButton mangaId={mangaId} />
                             </div>
