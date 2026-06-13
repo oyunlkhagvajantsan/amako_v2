@@ -27,6 +27,7 @@ export const metadata: Metadata = {
 import { Providers } from "./providers";
 import Footer from "./components/Footer";
 import SessionGuard from "./components/SessionGuard";
+import VisitTracker from "@/app/components/analytics/VisitTracker";
 
 export default function RootLayout({
   children,
@@ -39,6 +40,7 @@ export default function RootLayout({
         className={`${montserrat.className} ${notoSans.variable} antialiased`}
       >
         <Providers>
+          <VisitTracker />
           <SessionGuard>
             {children}
           </SessionGuard>

@@ -26,6 +26,7 @@ model User {
   paymentRequests PaymentRequest[]
   readHistory     ReadHistory[]
   auditLogs       AuditLog[]
+  visitLogs       VisitLog[]
 }
 
 model AuditLog {
@@ -252,4 +253,26 @@ model DailyMetric {
 
   @@unique([date, type, targetId])
   @@index([type, date])
+}
+
+model VisitLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  ipAddress String
+  browser   String
+  device    String
+  os        String
+  country   String?
+  city      String?
+  referrer  String?
+  entryPath String?
+  createdAt DateTime @default(now())
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([country])
+  @@index([city])
+  @@index([device])
+  @@index([browser])
 }

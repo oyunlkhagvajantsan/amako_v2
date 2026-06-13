@@ -336,6 +336,129 @@ export default function DashboardClient({ initialData, topMangas, isAdmin }: Das
                 </div>
             </div>
 
+            {/* User Analytics Statistics */}
+            {stats.analytics && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Left Column: Devices & Browsers */}
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
+                        <div>
+                            <h3 className="text-lg font-bold text-gray-900 mb-4">Device</h3>
+                            <div className="space-y-4">
+                                {(() => {
+                                    const total = stats.analytics.devices.reduce((acc: number, cur: any) => acc + cur.count, 0) || 1;
+                                    return stats.analytics.devices.map((device: any) => {
+                                        const percentage = Math.round((device.count / total) * 100);
+                                        return (
+                                            <div key={device.name} className="space-y-1">
+                                                <div className="flex justify-between text-sm font-medium">
+                                                    <span className="text-gray-700">{device.name}</span>
+                                                    <span className="text-gray-900">{device.count.toLocaleString()} ({percentage}%)</span>
+                                                </div>
+                                                <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                                                    <div className="bg-teal-500 h-full rounded-full" style={{ width: `${percentage}%` }} />
+                                                </div>
+                                            </div>
+                                        );
+                                    });
+                                })()}
+                                {stats.analytics.devices.length === 0 && (
+                                    <p className="text-sm text-gray-500 text-center py-4">Өгөгдөл байхгүй байна.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <hr className="border-gray-100" />
+
+                        <div>
+                            <h3 className="text-lg font-bold text-gray-900 mb-4">Browser</h3>
+                            <div className="space-y-4">
+                                {(() => {
+                                    const total = stats.analytics.browsers.reduce((acc: number, cur: any) => acc + cur.count, 0) || 1;
+                                    return stats.analytics.browsers.map((browser: any) => {
+                                        const percentage = Math.round((browser.count / total) * 100);
+                                        return (
+                                            <div key={browser.name} className="space-y-1">
+                                                <div className="flex justify-between text-sm font-medium">
+                                                    <span className="text-gray-700">{browser.name}</span>
+                                                    <span className="text-gray-900">{browser.count.toLocaleString()} ({percentage}%)</span>
+                                                </div>
+                                                <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                                                    <div className="bg-blue-500 h-full rounded-full" style={{ width: `${percentage}%` }} />
+                                                </div>
+                                            </div>
+                                        );
+                                    });
+                                })()}
+                                {stats.analytics.browsers.length === 0 && (
+                                    <p className="text-sm text-gray-500 text-center py-4">Өгөгдөл байхгүй байна.</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right Column: Cities, Referrers, Landing Pages */}
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
+                        <div>
+                            <h3 className="text-lg font-bold text-gray-900 mb-4">User cities</h3>
+                            <div className="space-y-3">
+                                {stats.analytics.cities.slice(0, 5).map((city: any, i: number) => (
+                                    <div key={city.name} className="flex items-center justify-between text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <span className="w-5 text-xs font-semibold text-gray-400">#{i + 1}</span>
+                                            <span className="text-gray-700 font-medium">{city.name}</span>
+                                        </div>
+                                        <span className="font-semibold text-gray-900">{city.count.toLocaleString()}</span>
+                                    </div>
+                                ))}
+                                {stats.analytics.cities.length === 0 && (
+                                    <p className="text-sm text-gray-500 text-center py-4">Өгөгдөл байхгүй байна.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <hr className="border-gray-100" />
+
+                        <div>
+                            <h3 className="text-lg font-bold text-gray-900 mb-4">Referrer</h3>
+                            <div className="space-y-3">
+                                {stats.analytics.referrers.slice(0, 5).map((ref: any, i: number) => (
+                                    <div key={ref.name} className="flex items-center justify-between text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <span className="w-5 text-xs font-semibold text-gray-400">#{i + 1}</span>
+                                            <span className="text-gray-700 font-medium truncate max-w-[200px]">{ref.name}</span>
+                                        </div>
+                                        <span className="font-semibold text-gray-900">{ref.count.toLocaleString()}</span>
+                                    </div>
+                                ))}
+                                {stats.analytics.referrers.length === 0 && (
+                                    <p className="text-sm text-gray-500 text-center py-4">Өгөгдөл байхгүй байна.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <hr className="border-gray-100" />
+
+                        <div>
+                            <h3 className="text-lg font-bold text-gray-900 mb-4">Entry path</h3>
+                            <div className="space-y-3">
+                                {stats.analytics.entryPaths.slice(0, 5).map((path: any, i: number) => (
+                                    <div key={path.name} className="flex items-center justify-between text-sm">
+                                        <div className="flex items-center gap-2 overflow-hidden mr-2">
+                                            <span className="w-5 flex-shrink-0 text-xs font-semibold text-gray-400">#{i + 1}</span>
+                                            <span className="text-gray-700 font-medium truncate" title={path.name}>{path.name}</span>
+                                        </div>
+                                        <span className="font-semibold text-gray-900 flex-shrink-0">{path.count.toLocaleString()}</span>
+                                    </div>
+                                ))}
+                                {stats.analytics.entryPaths.length === 0 && (
+                                    <p className="text-sm text-gray-500 text-center py-4">Өгөгдөл байхгүй байна.</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Top 10 Mangas */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-gray-100">

@@ -21,7 +21,21 @@ export async function getDashboardStats(period: number | null | { startDate: str
         ? (endDate ? { gte: startDate, lte: endDate } : { gte: startDate })
         : undefined;
 
-    const [incomeAgg, followers, activeUsers, posts, chapters, comments, viewsAgg, pendingPayments] = await Promise.all([
+    const [
+        incomeAgg, 
+        followers, 
+        activeUsers, 
+        posts, 
+        chapters, 
+        comments, 
+        viewsAgg, 
+        pendingPayments,
+        devicesGroup,
+        browsersGroup,
+        citiesGroup,
+        referrersGroup,
+        entryPathsGroup
+    ] = await Promise.all([
         prisma.paymentRequest.aggregate({
             where: { status: "APPROVED", createdAt: dateFilter },
             _sum: { amount: true }
@@ -35,7 +49,60 @@ export async function getDashboardStats(period: number | null | { startDate: str
             where: { date: dateFilter },
             _sum: { count: true }
         }),
-        prisma.paymentRequest.count({ where: { status: "PENDING" } })
+        prisma.paymentRequest.count({ where: { status: "PENDING" } }),
+        
+        // Devices aggregation
+        prisma.visitLog.groupBy({
+            by: ["device"],
+            where: { createdAt: dateFilter },
+            _count: { id: true }
+        }),
+        
+        // Browsers aggregation
+        prisma.visitLog.groupBy({
+            by: ["browser"],
+            where: { createdAt: dateFilter },
+            _count: { id: true }
+        }),
+        
+        // Cities aggregation
+        prisma.visitLog.groupBy({
+            by: ["city"],
+            where: { createdAt: dateFilter },
+            _count: { id: true },
+            orderBy: {
+                _count: {
+                    id: "desc"
+                }
+            },
+            take: 10
+        }),
+
+        // Referrers aggregation
+        prisma.visitLog.groupBy({
+            by: ["referrer"],
+            where: { createdAt: dateFilter },
+            _count: { id: true },
+            orderBy: {
+                _count: {
+                    id: "desc"
+                }
+            },
+            take: 10
+        }),
+
+        // Entry Paths aggregation
+        prisma.visitLog.groupBy({
+            by: ["entryPath"],
+            where: { createdAt: dateFilter },
+            _count: { id: true },
+            orderBy: {
+                _count: {
+                    id: "desc"
+                }
+            },
+            take: 10
+        })
     ]);
 
     // Graph Data
@@ -96,6 +163,13 @@ export async function getDashboardStats(period: number | null | { startDate: str
         comments,
         pendingPayments,
         views: viewsAgg._sum.count || 0,
-        chartData
+        chartData,
+        analytics: {
+            devices: devicesGroup.map(d => ({ name: d.device, count: d._count.id })),
+            browsers: browsersGroup.map(b => ({ name: b.browser, count: b._count.id })),
+            cities: citiesGroup.map(c => ({ name: c.city || "Unknown", count: c._count.id })),
+            referrers: referrersGroup.map(r => ({ name: r.referrer || "Direct", count: r._count.id })),
+            entryPaths: entryPathsGroup.map(e => ({ name: e.entryPath || "/", count: e._count.id }))
+        }
     };
 }
